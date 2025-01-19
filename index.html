@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jumat Berkah</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <a href="#" class="logo">Jumat Berkah</a>
+        <ul class="nav-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Feedback</a></li>
+        </ul>
+        <div class="auth-links">
+          <a href="#">Login</a>
+          <a href="#">Register</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="search-container">
+      <input type="text" id="search-box" placeholder="Search masjid..." />
+      <select id="location-select">
+        <option value="">Select Location</option>
+        <option value="bandung">Bandung</option>
+        <option value="jakarta">Jakarta</option>
+        <!-- Add more locations as needed -->
+      </select>
+      <button id="search-button">Search</button>
+    </div>
+
+    <div id="masjid-container" class="masjid-container">
+      <p id="error-message" style="display: none">Error loading masjid list</p>
+      <!-- Masjid cards will be dynamically inserted here -->
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
