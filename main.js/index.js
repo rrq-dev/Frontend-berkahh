@@ -1,7 +1,9 @@
 // Fungsi untuk mengambil data masjid dari backend
 async function fetchMasjidData() {
   try {
-    const response = await fetch("https://backend-berkah.onrender.com/masjid");
+    const response = await fetch(
+      "https://backend-berkah.onrender.com/getlocation"
+    );
     const masjidData = await response.json();
 
     if (response.ok) {
