@@ -1,42 +1,35 @@
-async function loginUser(email, password) {
-  try {
-    const response = await fetch("https://backend-berkah.onrender.com/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+document
+  .getElementById("loginForm")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault(); // Mencegah pengiriman form default
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Login Error:", errorText);
-      throw new Error("Login failed. Please check your credentials.");
+    const email = document.getElementById("email-input").value;
+    const password = document.getElementById("password-input").value;
+
+    try {
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }), // Payload sesuai dengan LoginInput
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Login successful! Welcome back!");
+        localStorage.setItem("jwtToken", result.token); // Simpan token ke local storage
+        localStorage.setItem("userId", result.userId); // Simpan userId jika ada
+        window.location.href = "user_home.html"; // Redirect ke halaman beranda
+      } else {
+        alert(result.message || "Login failed. Please try again."); // Tampilkan pesan kesalahan
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("An error occurred. Please try again later.");
     }
-
-    const result = await response.json();
-
-    // Simpan token dan role di localStorage
-    localStorage.setItem("jwtToken", result.token);
-    localStorage.setItem("userRole", result.user.role);
-
-    alert("Login successful!");
-    // Redirect to the desired page after successful login
-    window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Ganti dengan URL yang sesuai
-  } catch (error) {
-    console.error("Error during login:", error);
-    alert(error.message);
-  }
-}
-
-// Event listener untuk tombol login
-document.getElementById("login-btn").addEventListener("click", () => {
-  const email = document.getElementById("email-input").value;
-  const password = document.getElementById("password-input").value;
-
-  if (email && password) {
-    loginUser(email, password);
-  } else {
-    alert("Please enter both email and password.");
-  }
-});
+  });
