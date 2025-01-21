@@ -22,7 +22,7 @@ async function loginUser(email, password) {
 
     alert("Login successful!");
     // Redirect to the desired page after successful login
-    window.location.href = "your-desired-page.html"; // Ganti dengan URL yang sesuai
+    window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Ganti dengan URL yang sesuai
   } catch (error) {
     console.error("Error during login:", error);
     alert(error.message);

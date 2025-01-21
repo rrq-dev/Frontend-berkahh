@@ -106,3 +106,16 @@ document.getElementById("search-button").addEventListener("click", () => {
   // Implement search functionality based on searchTerm and selectedLocation
   // You can filter the masjid data based on these values
 });
+
+// Generate a random hue for hover effect
+function setRandomHue() {
+  const randomHue = Math.random();
+  document.documentElement.style.setProperty("--random-hue", randomHue);
+}
+
+// Set random hue on mouse enter
+document.addEventListener("mouseover", (event) => {
+  if (event.target.closest(".masjid-card")) {
+    setRandomHue();
+  }
+});

@@ -109,6 +109,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 20px; /* Add gap between cards */
+  padding: 20px;
 }
 
 .masjid-card {
@@ -120,6 +122,15 @@ body {
   width: 200px;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+/* Random color hover effect */
+.masjid-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  background-color: hsl(calc(360 * var(--random-hue)), 70%, 80%);
 }
 
 .masjid-card img {
@@ -133,5 +144,9 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .masjid-card {
+    width: 100%; /* Full width on smaller screens */
   }
 }
