@@ -8,43 +8,36 @@ registerForm.addEventListener("submit", async (event) => {
   const password = document.getElementById("password-input").value;
   const confirmPassword = document.getElementById(
     "confirm-password-input"
-  ).value;
+  ).value; // Ambil nilai konfirmasi password
 
-  // Validasi konfirmasi password
-  if (password !== confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-
-  const data = {
-    username,
-    email,
-    password,
-    confirmPassword,
-  };
-
-  try {
-    const response = await fetch(
-      "https://backend-berkah.onrender.com/register",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+  // Kirim data ke backend
+  fetch("https://backend-berkah.onrender.com/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      confirm_password: confirmPassword, // Ganti confirmPassword dengan confirm_password
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Registration failed");
       }
-    );
-
-    const result = await response.json();
-
-    if (response.ok) {
-      alert(result.message);
-      window.location.href = "login.html"; // Redirect to login page
-    } else {
-      alert(result.message);
-    }
-  } catch (error) {
-    console.error("Error during registration:", error);
-    alert("An error occurred. Please try again later.");
-  }
+      return response.json();
+    })
+    .then((data) => {
+      alert("Registration successful! Welcome, " + data.user.username);
+      localStorage.setItem("jwtToken", data.token); // Simpan token
+      localStorage.setItem("userId", data.userId);
+      // Redirect to user home page
+      window.location.href = "user_home.html"; // Redirect ke halaman beranda
+    })
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
+      alert("Registration failed: " + error.message);
+    });
 });
