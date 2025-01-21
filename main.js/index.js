@@ -183,10 +183,9 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke halaman login
+    logoutBtn.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke homepage
   }
 }
-
 // Inisialisasi
 window.onload = function () {
   fetchMasjidData();
