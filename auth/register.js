@@ -1,38 +1,46 @@
-document
-  .getElementById("registerForm")
-  .addEventListener("submit", async (event) => {
-    event.preventDefault(); // Mencegah pengiriman form default
+document.getElementById("register-btn").addEventListener("click", async () => {
+  const username = document.getElementById("username-input").value;
+  const email = document.getElementById("email-input").value;
+  const password = document.getElementById("password-input").value;
+  const confirmPassword = document.getElementById(
+    "confirm-password-input"
+  ).value;
 
-    const formData = new FormData(event.target);
-    const data = {
-      username: formData.get("username"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      confirmPassword: formData.get("confirmPassword"),
-    };
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
 
-    try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+  const data = {
+    username,
+    email,
+    password,
+    confirmPassword,
+  };
 
-      const result = await response.json();
-
-      if (response.ok) {
-        alert(result.message); // Tampilkan pesan sukses
-        window.location.href = "login.html"; // Redirect ke halaman login
-      } else {
-        alert(result.message); // Tampilkan pesan kesalahan
+  try {
+    const response = await fetch(
+      "https://backend-berkah.onrender.com/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("An error occurred. Please try again later.");
+    );
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message);
+      window.location.href =
+        "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect to login page
+    } else {
+      alert(result.message);
     }
-  });
+  } catch (error) {
+    console.error("Error during registration:", error);
+    alert("An error occurred. Please try again later.");
+  }
+});
