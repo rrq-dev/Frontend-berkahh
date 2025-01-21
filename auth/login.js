@@ -25,7 +25,7 @@ document
         localStorage.setItem("jwtToken", result.token); // Simpan token ke local storage
         localStorage.setItem("userId", result.user.id); // Simpan user ID yang benar
         localStorage.setItem("userRole", result.user.role); // Simpan role pengguna
-        window.location.href = "user_home.html"; // Redirect ke halaman beranda
+        window.location.href = "index.html"; // Redirect ke halaman beranda
       } else {
         alert(result.message || "Login failed. Please try again."); // Tampilkan pesan kesalahan
       }

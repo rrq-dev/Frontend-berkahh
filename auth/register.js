@@ -34,8 +34,7 @@ registerForm.addEventListener("submit", async (event) => {
       localStorage.setItem("jwtToken", data.token); // Simpan token
       localStorage.setItem("userId", data.userId);
       // Redirect to user home page
-      window.location.href =
-        "https://rrq-dev.github.io/jumatberkah.github.io/login"; // Redirect ke halaman beranda
+      window.location.href = "login.html"; // Redirect ke halaman beranda
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
