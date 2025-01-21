@@ -30,11 +30,12 @@ registerForm.addEventListener("submit", async (event) => {
       return response.json();
     })
     .then((data) => {
-      alert("Registration successful! Welcome, " + data.user.username);
+      alert("Registration successful!, " + data.user.username);
       localStorage.setItem("jwtToken", data.token); // Simpan token
       localStorage.setItem("userId", data.userId);
       // Redirect to user home page
-      window.location.href = "user_home.html"; // Redirect ke halaman beranda
+      window.location.href =
+        "https://rrq-dev.github.io/jumatberkah.github.io/login"; // Redirect ke halaman beranda
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
