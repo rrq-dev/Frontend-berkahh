@@ -1,121 +1,179 @@
-// Fungsi untuk memuat data masjid dari backend
-async function loadMasjidData(token) {
+// Fungsi untuk mengambil data masjid dari backend
+async function fetchMasjidData() {
   try {
-    const response = await fetch(
-      "https://backend-berkah.onrender.com/getlocation",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch("https://backend-berkah.onrender.com/masjid");
+    const masjidData = await response.json();
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Response Error:", errorText);
-      throw new Error("Gagal memuat data masjid.");
+    if (response.ok) {
+      displayMasjidCards(masjidData);
+    } else {
+      document.getElementById("error-message").style.display = "block";
     }
-
-    const result = await response.json(); // Parsing JSON dari respons API
-
-    if (result.status !== "success") {
-      throw new Error(result.message || "Terjadi kesalahan pada API.");
-    }
-
-    const masjidData = result.data; // Ambil array data dari properti `data`
-
-    const masjidContainer = document.getElementById("masjid-container");
-
-    // Hapus konten sebelumnya
-    masjidContainer.innerHTML = "";
-
-    // Tambahkan setiap masjid ke kontainer
-    masjidData.forEach((masjid) => {
-      const masjidCard = createMasjidCard(masjid);
-      masjidContainer.appendChild(masjidCard);
-    });
   } catch (error) {
-    console.error("Error saat memuat data:", error);
-    alert("Terjadi kesalahan saat memuat data masjid.");
+    console.error("Error fetching masjid data:", error);
+    document.getElementById("error-message").style.display = "block";
   }
 }
 
-// Fungsi untuk memuat data lokasi dari backend
-async function loadLocations(token) {
+// Fungsi untuk menampilkan kartu masjid
+function displayMasjidCards(masjidData) {
+  const masjidContainer = document.getElementById("masjid-container");
+  masjidContainer.innerHTML = ""; // Kosongkan kontainer sebelum menambahkan kartu baru
+
+  masjidData.forEach((masjid) => {
+    const card = document.createElement("div");
+    card.className = "masjid-card";
+    card.innerHTML = `  
+          <h3>${masjid.name}</h3>  
+          <p>${masjid.location}</p>  
+          <p>${masjid.description}</p>  
+      `;
+
+    // Jika pengguna sudah login, tambahkan tombol feedback
+    if (localStorage.getItem("jwtToken")) {
+      const feedbackButton = document.createElement("button");
+      feedbackButton.innerText = "Give Feedback";
+      feedbackButton.onclick = () => giveFeedback(masjid.id);
+      card.appendChild(feedbackButton);
+
+      const updateButton = document.createElement("button");
+      updateButton.innerText = "Update Feedback";
+      updateButton.onclick = () => updateFeedback(masjid.id);
+      card.appendChild(updateButton);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.innerText = "Delete Feedback";
+      deleteButton.onclick = () => deleteFeedback(masjid.id);
+      card.appendChild(deleteButton);
+    }
+
+    masjidContainer.appendChild(card);
+  });
+}
+
+// Fungsi untuk memberikan feedback
+async function giveFeedback(masjidId) {
+  const feedback = prompt("Please provide your feedback:");
+  if (feedback) {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify({ feedback }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Feedback submitted successfully!");
+      } else {
+        alert("Failed to submit feedback.");
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      alert("An error occurred while submitting feedback.");
+    }
+  }
+}
+
+// Fungsi untuk memperbarui feedback
+async function updateFeedback(masjidId) {
+  const feedback = prompt("Please provide your updated feedback:");
+  if (feedback) {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify({ feedback }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Feedback updated successfully!");
+      } else {
+        alert("Failed to update feedback.");
+      }
+    } catch (error) {
+      console.error("Error updating feedback:", error);
+      alert("An error occurred while updating feedback.");
+    }
+  }
+}
+
+// Fungsi untuk menghapus feedback
+async function deleteFeedback(masjidId) {
+  if (confirm("Are you sure you want to delete your feedback?")) {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        alert("Feedback deleted successfully!");
+      } else {
+        alert("Failed to delete feedback.");
+      }
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
+      alert("An error occurred while deleting feedback.");
+    }
+  }
+}
+
+// Fungsi untuk logout
+async function logout() {
   try {
-    const response = await fetch(
-      "https://backend-berkah.onrender.com/getlocation",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Response Error:", errorText);
-      throw new Error("Gagal memuat data lokasi.");
-    }
-
-    const result = await response.json(); // Parsing JSON dari respons API
-
-    if (result.status !== "success") {
-      throw new Error(result.message || "Terjadi kesalahan pada API.");
-    }
-
-    const locations = result.data; // Ambil array data dari properti `data`
-
-    const locationSelect = document.getElementById("location-select");
-
-    // Hapus konten sebelumnya
-    locationSelect.innerHTML = "";
-
-    // Tambahkan setiap lokasi ke dropdown
-    locations.forEach((location) => {
-      const option = document.createElement("option");
-      option.value = location.id; // Asumsi lokasi memiliki field 'id'
-      option.textContent = location.name; // Asumsi lokasi memiliki field 'name'
-      locationSelect.appendChild(option);
+    const response = await fetch("https://backend-berkah.onrender.com/logout", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+      },
     });
+
+    if (response.ok) {
+      localStorage.removeItem("jwtToken");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userRole");
+      alert("Logout successful!");
+      window.location.reload(); // Reload halaman untuk memperbarui tampilan
+    } else {
+      alert("Failed to logout.");
+    }
   } catch (error) {
-    console.error("Error saat memuat data:", error);
-    alert("Terjadi kesalahan saat memuat data lokasi.");
+    console.error("Error during logout:", error);
+    alert("An error occurred while logging out.");
   }
 }
 
-// Fungsi untuk membuat elemen kartu masjid
-function createMasjidCard(masjid) {
-  const card = document.createElement("div");
-  card.className = "masjid-card";
-  card.innerHTML = `    
-    <h3>${masjid.name}</h3>    
-    <p>${masjid.description}</p>    
-    <img src="${masjid.image}" alt="${masjid.name}" />    
-  `;
-  return card;
-}
-
-document.getElementById("search-button").addEventListener("click", () => {
-  const searchTerm = document.getElementById("search-box").value;
-  const selectedLocation = document.getElementById("location-select").value;
-  // Implement search functionality based on searchTerm and selectedLocation
-  // You can filter the masjid data based on these values
-});
-
-// Generate a random hue for hover effect
-function setRandomHue() {
-  const randomHue = Math.random();
-  document.documentElement.style.setProperty("--random-hue", randomHue);
-}
-
-// Set random hue on mouse enter
-document.addEventListener("mouseover", (event) => {
-  if (event.target.closest(".masjid-card")) {
-    setRandomHue();
+// Menangani tampilan tombol logout jika pengguna sudah login
+function updateAuthLinks() {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (localStorage.getItem("jwtToken")) {
+    logoutBtn.innerText = "Logout";
+    logoutBtn.onclick = logout; // Set fungsi logout
+  } else {
+    logoutBtn.innerText = "Sign in";
+    logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
   }
-});
+}
+
+// Inisialisasi
+window.onload = function () {
+  fetchMasjidData();
+  updateAuthLinks();
+};
