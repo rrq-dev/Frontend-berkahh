@@ -6,6 +6,7 @@ document.getElementById("register-btn").addEventListener("click", async () => {
     "confirm-password-input"
   ).value;
 
+  // Validasi password
   if (password !== confirmPassword) {
     alert("Passwords do not match.");
     return;
@@ -15,7 +16,7 @@ document.getElementById("register-btn").addEventListener("click", async () => {
     username,
     email,
     password,
-    confirmPassword,
+    confirmPassword, // Pastikan ini ada
   };
 
   try {
@@ -34,8 +35,7 @@ document.getElementById("register-btn").addEventListener("click", async () => {
 
     if (response.ok) {
       alert(result.message);
-      window.location.href =
-        "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect to login page
+      window.location.href = "login.html"; // Redirect to login page
     } else {
       alert(result.message);
     }
