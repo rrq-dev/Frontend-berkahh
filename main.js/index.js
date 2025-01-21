@@ -1,9 +1,18 @@
 // Fungsi untuk mengambil data masjid dari backend
 async function fetchMasjidData() {
   try {
+    const token = localStorage.getItem("jwtToken"); // Ambil token dari local storage
     const response = await fetch(
-      "https://backend-berkah.onrender.com/getlocation"
+      "https://backend-berkah.onrender.com/getlocation",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`, // Sertakan token di header
+          "Content-Type": "application/json",
+        },
+      }
     );
+
     const masjidData = await response.json();
 
     if (response.ok) {
@@ -58,13 +67,14 @@ async function giveFeedback(masjidId) {
   const feedback = prompt("Please provide your feedback:");
   if (feedback) {
     try {
+      const token = localStorage.getItem("jwtToken");
       const response = await fetch(
         `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ feedback }),
         }
@@ -87,13 +97,14 @@ async function updateFeedback(masjidId) {
   const feedback = prompt("Please provide your updated feedback:");
   if (feedback) {
     try {
+      const token = localStorage.getItem("jwtToken");
       const response = await fetch(
         `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ feedback }),
         }
@@ -115,12 +126,13 @@ async function updateFeedback(masjidId) {
 async function deleteFeedback(masjidId) {
   if (confirm("Are you sure you want to delete your feedback?")) {
     try {
+      const token = localStorage.getItem("jwtToken");
       const response = await fetch(
         `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -140,10 +152,11 @@ async function deleteFeedback(masjidId) {
 // Fungsi untuk logout
 async function logout() {
   try {
+    const token = localStorage.getItem("jwtToken");
     const response = await fetch("https://backend-berkah.onrender.com/logout", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -170,7 +183,7 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+    logoutBtn.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman login
   }
 }
 
