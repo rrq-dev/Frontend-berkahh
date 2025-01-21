@@ -1,47 +1,50 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const registerForm = document.getElementById("register-form");
-  const errorMessage = document.getElementById("error-message");
+  // Event listener untuk tombol register
+  document.getElementById("register-btn").addEventListener("click", () => {
+    const username = document.getElementById("username-input").value;
+    const email = document.getElementById("email-input").value;
+    const password = document.getElementById("password-input").value;
+    const confirmPassword = document.getElementById(
+      "confirm-password-input"
+    ).value;
 
-  registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Mencegah pengiriman formulir default
-
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-
-    // Validasi input
-    if (password !== confirmPassword) {
-      errorMessage.textContent = "Passwords do not match.";
-      errorMessage.style.display = "block";
-      return;
+    if (username && email && password && confirmPassword) {
+      if (password === confirmPassword) {
+        registerUser(username, email, password);
+      } else {
+        alert("Passwords do not match.");
+      }
+    } else {
+      alert("Please fill in all fields.");
     }
+  });
+});
 
-    // Kirim data ke backend
-    try {
-      const response = await fetch("http://localhost:8080/register", {
+// Fungsi untuk mendaftar pengguna
+async function registerUser(username, email, password) {
+  try {
+    const response = await fetch(
+      "https://backend-berkah.onrender.com/register",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Registration failed.");
+        body: JSON.stringify({ username, email, password }),
       }
+    );
 
-      alert("Registration successful! Please log in.");
-      window.location.href = "login.html"; // Arahkan ke halaman login setelah registrasi berhasil
-    } catch (error) {
-      errorMessage.textContent = error.message;
-      errorMessage.style.display = "block";
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Registration Error:", errorText);
+      throw new Error("Registration failed. Please try again.");
     }
-  });
-});
+
+    const result = await response.json();
+    alert("Registration successful! You can now log in.");
+    // Redirect to login page or perform other actions
+  } catch (error) {
+    console.error("Error during registration:", error);
+    alert(error.message);
+  }
+}

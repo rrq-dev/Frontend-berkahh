@@ -11,27 +11,29 @@
       <h2>Register</h2>
       <form id="registerForm">
         <div class="input-group">
-          <input type="text" name="username" placeholder=" " required />
+          <input type="text" id="username-input" placeholder=" " required />
           <label>Username</label>
         </div>
         <div class="input-group">
-          <input type="email" name="email" placeholder=" " required />
+          <input type="email" id="email-input" placeholder=" " required />
           <label>Email</label>
         </div>
         <div class="input-group">
-          <input type="password" name="password" placeholder=" " required />
+          <input type="password" id="password-input" placeholder=" " required />
           <label>Password</label>
         </div>
         <div class="input-group">
           <input
             type="password"
-            name="confirmPassword"
+            id="confirm-password-input"
             placeholder=" "
             required
           />
           <label>Confirm Password</label>
         </div>
-        <button type="submit" class="submit-btn">Register</button>
+        <button type="button" id="register-btn" class="submit-btn">
+          Register
+        </button>
       </form>
       <p>Already have an account? <a href="login.html">Log in here</a></p>
     </div>
