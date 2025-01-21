@@ -1,4 +1,8 @@
-document.getElementById("register-btn").addEventListener("click", async () => {
+const registerForm = document.getElementById("registerForm");
+
+registerForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
   const username = document.getElementById("username-input").value;
   const email = document.getElementById("email-input").value;
   const password = document.getElementById("password-input").value;
@@ -6,7 +10,7 @@ document.getElementById("register-btn").addEventListener("click", async () => {
     "confirm-password-input"
   ).value;
 
-  // Validasi password
+  // Validasi konfirmasi password
   if (password !== confirmPassword) {
     alert("Passwords do not match.");
     return;
@@ -16,7 +20,7 @@ document.getElementById("register-btn").addEventListener("click", async () => {
     username,
     email,
     password,
-    confirmPassword, // Pastikan ini ada
+    confirmPassword,
   };
 
   try {
