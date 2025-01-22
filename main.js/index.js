@@ -7,8 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cek apakah pengguna sudah login
   const token = localStorage.getItem("jwtToken");
   if (!token) {
-    window.location.href =
-      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
+    window.location.href = "auth/login.html"; // Redirect ke halaman login jika belum login
   }
 
   // Fungsi untuk mengambil semua lokasi masjid
@@ -167,8 +166,7 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href =
-      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login"; // Redirect ke halaman login
+    logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
   }
 }
 
