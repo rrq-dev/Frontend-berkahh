@@ -106,7 +106,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+});
 
+// Fungsi untuk logout
+function logout() {
+  localStorage.removeItem("jwtToken");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userRole");
+  alert("Logout successful!");
+  window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+}
+
+// Menangani tampilan tombol logout jika pengguna sudah login
+function updateAuthLinks() {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (localStorage.getItem("jwtToken")) {
+    logoutBtn.innerText = "Logout";
+    logoutBtn.onclick = logout; // Set fungsi logout
+  } else {
+    logoutBtn.innerText = "Sign in";
+    logoutBtn.href =
+      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login"; // Redirect ke halaman login
+  }
+}
+
+// Inisialisasi
+window.onload = function () {
   // Ambil data masjid saat halaman dimuat
   fetchMasjidData();
-});
+  updateAuthLinks(); // Perbarui tampilan tombol login/logout
+};
