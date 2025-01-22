@@ -13,19 +13,49 @@ async function fetchMasjidData() {
       }
     );
 
-    // Cek apakah respons berhasil
-    if (!response.ok) {
-      const errorMessage = await response.text(); // Ambil pesan error dari respons
-      throw new Error(`Error: ${response.status} - ${errorMessage}`);
-    }
+    const masjidData = await response.json();
 
-    const masjidData = await response.json(); // Parse JSON dari respons
-    displayMasjidCards(masjidData); // Tampilkan data masjid
+    if (response.ok) {
+      displayMasjidCards(masjidData);
+    } else {
+      document.getElementById(
+        "error-message"
+      ).innerText = `Error loading masjid list: ${masjidData.message}`;
+      document.getElementById("error-message").style.display = "block";
+    }
   } catch (error) {
     console.error("Error fetching masjid data:", error);
     document.getElementById("error-message").innerText =
-      "Error loading masjid list: " + error.message;
-    document.getElementById("error-message").style.display = "block"; // Tampilkan pesan error
+      "Error fetching masjid data.";
+    document.getElementById("error-message").style.display = "block";
+  }
+}
+
+// Fungsi untuk mengambil data lokasi berdasarkan ID
+async function fetchLocationById(locationId) {
+  try {
+    const token = localStorage.getItem("jwtToken"); // Ambil token dari local storage
+    const response = await fetch(
+      `https://backend-berkah.onrender.com/getlocation/${locationId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`, // Sertakan token di header
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const locationData = await response.json();
+
+    if (response.ok) {
+      displayLocationDetails(locationData);
+    } else {
+      alert(`Error loading location: ${locationData.message}`);
+    }
+  } catch (error) {
+    console.error("Error fetching location data:", error);
+    alert("An error occurred while fetching location data.");
   }
 }
 
@@ -41,18 +71,22 @@ function displayMasjidCards(masjidData) {
           <h3>${masjid.name}</h3>  
           <p>${masjid.location}</p>  
           <p>${masjid.description}</p>  
+          <button onclick="fetchLocationById(${masjid.id})">View Details</button>  
       `;
-
-    // Jika pengguna sudah login, tambahkan tombol feedback
-    if (localStorage.getItem("jwtToken")) {
-      const feedbackButton = document.createElement("button");
-      feedbackButton.innerText = "Give Feedback";
-      feedbackButton.onclick = () => giveFeedback(masjid.id);
-      card.appendChild(feedbackButton);
-    }
 
     masjidContainer.appendChild(card);
   });
+}
+
+// Fungsi untuk menampilkan detail lokasi
+function displayLocationDetails(location) {
+  const detailsContainer = document.getElementById("location-details");
+  detailsContainer.innerHTML = `  
+      <h2>${location.name}</h2>  
+      <p>Address: ${location.address}</p>  
+      <p>Description: ${location.description}</p>  
+  `;
+  detailsContainer.style.display = "block"; // Tampilkan detail
 }
 
 // Fungsi untuk memberikan feedback
@@ -87,14 +121,11 @@ async function giveFeedback(masjidId) {
 
 // Fungsi untuk logout
 function logout() {
-  // Hapus token dari local storage
   localStorage.removeItem("jwtToken");
   localStorage.removeItem("userId");
   localStorage.removeItem("userRole");
   alert("Logout successful!");
-
-  // Redirect ke halaman utama
-  window.location.href = "index.html"; // Ganti dengan URL halaman utama Anda
+  window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke halaman utama
 }
 
 // Menangani tampilan tombol logout jika pengguna sudah login
@@ -105,7 +136,8 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+    logoutBtn.href =
+      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login"; // Redirect ke halaman login
   }
 }
 
