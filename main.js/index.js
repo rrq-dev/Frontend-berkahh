@@ -106,6 +106,44 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+  // Ambil data masjid saat halaman dimuat
+  fetchMasjidData();
+});
+
+// Fungsi untuk menghasilkan warna acak
+function getRandomColor() {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+// Menambahkan event listener untuk hover pada navbar links
+const navLinks = document.querySelectorAll(".navbar .nav-links a");
+
+navLinks.forEach((link) => {
+  link.addEventListener("mouseover", () => {
+    link.style.backgroundColor = getRandomColor(); // Mengubah warna latar belakang saat hover
+  });
+
+  link.addEventListener("mouseout", () => {
+    link.style.backgroundColor = ""; // Mengembalikan warna latar belakang saat mouse keluar
+  });
+});
+
+// Menambahkan event listener untuk hover pada auth links
+const authLinks = document.querySelectorAll(".auth-links a");
+
+authLinks.forEach((link) => {
+  link.addEventListener("mouseover", () => {
+    link.style.backgroundColor = getRandomColor(); // Mengubah warna latar belakang saat hover
+  });
+
+  link.addEventListener("mouseout", () => {
+    link.style.backgroundColor = ""; // Mengembalikan warna latar belakang saat mouse keluar
+  });
 });
 
 // Fungsi untuk logout
@@ -132,7 +170,5 @@ function updateAuthLinks() {
 
 // Inisialisasi
 window.onload = function () {
-  // Ambil data masjid saat halaman dimuat
-  fetchMasjidData();
   updateAuthLinks(); // Perbarui tampilan tombol login/logout
 };
