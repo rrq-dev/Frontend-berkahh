@@ -1,9 +1,7 @@
-// login.js
-
 document
   .getElementById("loginForm")
   .addEventListener("submit", async (event) => {
-    event.preventDefault(); // Mencegah pengiriman form default
+    event.preventDefault(); // Prevent default form submission
 
     const email = document.getElementById("email-input").value;
     const password = document.getElementById("password-input").value;
@@ -16,7 +14,7 @@ document
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }), // Mengirimkan email dan password
+          body: JSON.stringify({ email, password }), // Send email and password
         }
       );
 
@@ -26,15 +24,17 @@ document
       }
 
       const data = await response.json();
-      const token = data.token; // Asumsikan token ada di dalam response
+      const token = data.token; // Assume token is in the response
+      const userId = data.user.id; // Get user ID from response
+      const userRole = data.user.role; // Get user role from response
 
-      // Simpan token ke local storage
+      // Save token and user info to local storage
       localStorage.setItem("jwtToken", token);
-      localStorage.setItem("userId", data.user.id); // Simpan user ID
-      localStorage.setItem("userRole", data.user.role); // Simpan role pengguna
+      localStorage.setItem("userId", userId); // Save user ID
+      localStorage.setItem("userRole", userRole); // Save user role
 
       alert("Login successful! Welcome back!");
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke halaman beranda
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to homepage
     } catch (error) {
       console.error("Error during login:", error);
       alert("Login failed: " + error.message);
