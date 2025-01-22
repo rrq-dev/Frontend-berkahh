@@ -149,32 +149,6 @@ async function deleteFeedback(masjidId) {
   }
 }
 
-// Fungsi untuk logout
-async function logout() {
-  try {
-    const token = localStorage.getItem("jwtToken");
-    const response = await fetch("https://backend-berkah.onrender.com/logout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      localStorage.removeItem("jwtToken");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userRole");
-      alert("Logout successful!");
-      window.location.reload(); // Reload halaman untuk memperbarui tampilan
-    } else {
-      alert("Failed to logout.");
-    }
-  } catch (error) {
-    console.error("Error during logout:", error);
-    alert("An error occurred while logging out.");
-  }
-}
-
 // Menangani tampilan tombol logout jika pengguna sudah login
 function updateAuthLinks() {
   const logoutBtn = document.getElementById("logout-btn");
