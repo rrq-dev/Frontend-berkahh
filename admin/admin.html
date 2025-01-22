@@ -1,26 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jumat Berkah</title>
-    <link rel="stylesheet" href="admin.css" />
-  </head>
-  <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="#" class="logo">Jumat Berkah</a>
-        <div class="auth-links">
-          <a href="#">Logout</a>
-        </div>
-      </div>
-    </nav>
-
-    <div id="masjid-container" class="masjid-container">
-      <p id="error-message" style="display: none">Error loading masjid list</p>
-      <!-- Masjid cards will be dynamically inserted here -->
-    </div>
-
-    <script src="main.js"></script>
-  </body>
-</html>
+<!DOCTYPE html>    
+<html lang="en">    
+<head>    
+    <meta charset="UTF-8" />    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />    
+    <title>Jumat Berkah - Admin Dashboard</title>    
+    <link rel="stylesheet" href="admin.css" />    
+</head>    
+<body>    
+    <nav class="navbar">    
+        <div class="container">    
+            <a href="#" class="logo">Jumat Berkah</a>    
+            <div class="auth-links">    
+                <button class="logout-button">Logout</button>    
+            </div>    
+        </div>    
+    </nav>    
+  
+    <div id="masjid-container" class="masjid-container">    
+        <h2>Tambah Masjid</h2>    
+        <form id="addMasjidForm">    
+            <input type="text" id="masjidName" placeholder="Nama Masjid" required />    
+            <input type="text" id="masjidAddress" placeholder="Alamat" required />    
+            <input type="text" id="masjidContact" placeholder="Deskripsi" required />    
+            <button type="submit">Tambah Masjid</button>    
+        </form>    
+  
+        <h2>Daftar Masjid</h2>    
+        <table id="masjidTable">    
+            <thead>    
+                <tr>    
+                    <th>Nama Masjid</th>    
+                    <th>Alamat</th>    
+                    <th>Deskripsi</th>    
+                    <th>Aksi</th>    
+                </tr>    
+            </thead>    
+            <tbody>    
+                <!-- Data masjid akan ditampilkan di sini -->    
+            </tbody>    
+        </table>    
+    </div>    
+  
+    <script src="admin.js"></script>    
+</body>    
+</html>  

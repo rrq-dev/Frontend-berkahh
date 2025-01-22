@@ -1,138 +1,150 @@
-/* Navbar styles */
-body {
-    font-family: "Poppins", sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-  }
+body {          
+  font-family: Arial, sans-serif;          
+  margin: 0;          
+  padding: 0;          
+  background-color: #f4f4f9;          
+}          
   
-  .navbar {
-    background-color: #007bff;
-    color: white;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.navbar {          
+  background-color: #007bff;          
+  color: white;          
+  padding: 15px 0; /* Increased padding for a larger navbar */          
+}          
   
-  .navbar .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+.container {          
+  display: flex;          
+  justify-content: space-between;          
+  align-items: center;          
+  padding: 0 20px;          
+}          
   
-  .navbar .logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: white;
-    text-decoration: none;
-  }
+.logo {          
+  font-size: 28px; /* Increased font size for the logo */        
+  text-decoration: none;        
+  color: white;        
+}        
   
-  .navbar .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
-  }
+.auth-links {        
+  display: flex;        
+  align-items: center;        
+}        
   
-  .navbar .nav-links li a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+.logout-button {        
+  background-color: #ff6347;        
+  color: white;        
+  border: none;        
+  padding: 10px 15px;        
+  cursor: pointer;        
+  border-radius: 4px;        
+  font-size: 16px; /* Increased font size for the button */        
+  margin-left: 20px;        
+}        
   
-  .navbar .nav-links li a:hover {
-    color: #007bff;
-    background-color: #ffcc00;
-  }
+.logout-button:hover {        
+  background-color: #ff4500;        
+}        
   
-  .navbar .auth-links {
-    display: flex;
-    gap: 1rem;
-  }
+.masjid-container {        
+  padding: 20px;        
+}        
   
-  .navbar .auth-links a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+h2 {        
+  margin-bottom: 20px;        
+}        
   
-  .navbar .auth-links a:hover {
-    background-color: #ffcc00;
-    color: #007bff;
-  }
+form {        
+  margin-bottom: 20px;        
+}        
   
-  .search-container {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-  }
+form input {        
+  width: 100%;        
+  padding: 10px;        
+  margin: 5px 0;        
+  box-sizing: border-box;        
+}        
   
-  #search-box {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 10px;
-  }
+form button {        
+  background-color: #4CAF50;        
+  color: white;        
+  padding: 10px 20px;        
+  border: none;        
+  cursor: pointer;        
+}        
   
-  #location-select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 10px;
-  }
+form button:hover {        
+  background-color: #45a049;        
+}        
   
-  #search-button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+.table-box {        
+  border: 1px solid #ddd;        
+  border-radius: 8px;        
+  padding: 20px;        
+  background-color: white;        
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);        
+}        
   
-  #search-button:hover {
-    background-color: #0056b3;
-  }
+.table-box h3 {        
+  margin-bottom: 20px;        
+}        
   
-  .masjid-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+table {        
+  width: 100%;        
+  border-collapse: collapse;        
+  font-size: 14px; /* Decreased font size for the table */        
+}        
   
-  .masjid-card {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 10px;
-    width: 200px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+th, td {        
+  padding: 8px; /* Decreased padding for smaller table cells */        
+  text-align: left;        
+  border-bottom: 1px solid #ddd;        
+}        
   
-  .masjid-card img {
-    width: 100%;
-    border-radius: 4px;
-  }
+th {        
+  background-color: #f2f2f2;        
+  width: 25%; /* Atur lebar kolom header menjadi 25% */        
+}        
   
-  /* Responsive */
-  @media (max-width: 768px) {
-    .navbar .nav-links {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-  }
+td {        
+  width: 25%; /* Atur lebar kolom data menjadi 25% */        
+}        
   
+button.edit, button.delete {        
+  background-color: #4CAF50;        
+  color: white;        
+  border: none;        
+  padding: 5px 10px;        
+  cursor: pointer;        
+  margin: 0 5px;        
+}        
+  
+button.edit:hover {        
+  background-color: #45a049;        
+}        
+  
+button.delete {        
+  background-color: #ff6347;        
+}        
+  
+button.delete:hover {        
+  background-color: #ff4500;        
+}        
+  
+/* Responsive Styles */  
+@media (max-width: 768px) {  
+  .container {  
+    flex-direction: column;  
+    align-items: flex-start;  
+  }  
+  
+  .auth-links {  
+    margin-top: 10px;  
+  }  
+  
+  .table-box {  
+    width: 100%;  
+  }  
+  
+  th, td {  
+    width: auto; /* Adjust width for smaller screens */  
+  }  
+}  
