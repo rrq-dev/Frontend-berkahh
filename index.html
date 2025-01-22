@@ -12,29 +12,18 @@
         <a href="#" class="logo">Jumat Berkah</a>
         <ul class="nav-links">
           <li><a href="#">Home</a></li>
-          <li><a id="logout-btn" href="#">Logout</a></li>
+          <li><a id="logout-btn">Logout</a></li>
         </ul>
       </div>
     </nav>
 
-    <div id="masjid-list"></div>
-    <div id="masjid-details" style="display: none">
-      <h2 id="masjid-name"></h2>
-      <p id="masjid-address"></p>
-      <p id="masjid-description"></p>
-
-      <!-- Star Rating Section -->
-      <div id="rating-section">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
-      </div>
-      <textarea id="comment" placeholder="Leave a comment..."></textarea>
-      <button id="submit-feedback">Submit Feedback</button>
-
-      <div id="feedback-list"></div>
+    <div class="container">
+      <h1>Daftar Masjid</h1>
+      <input type="text" id="search-bar" placeholder="Search masjid..." />
+      <button id="search-button">Search</button>
+      <div id="error-message" style="color: red; display: none"></div>
+      <div id="masjid-list"></div>
+      <div id="masjid-details" style="display: none"></div>
     </div>
 
     <script src="main.js/index.js"></script>
