@@ -58,13 +58,22 @@ document.addEventListener("DOMContentLoaded", () => {
     filteredData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
       masjidItem.className = "masjid-item";
-      masjidItem.innerHTML = `    
-              <h3>${masjid.name}</h3>    
-              <p>${masjid.address}</p>    
-              <p>${masjid.description}</p>    
-              <button class="view-details" data-id="${masjid.id}">View Details</button>    
+      masjidItem.innerHTML = `        
+              <h3>${masjid.name}</h3>        
+              <p>${masjid.address}</p>        
+              <p>${masjid.description}</p>        
+              <button class="view-details" data-id="${masjid.id}">View Details</button>        
           `;
       masjidList.appendChild(masjidItem);
+
+      // Event listener untuk hover pada masjidItem
+      masjidItem.addEventListener("mouseover", () => {
+        masjidItem.style.backgroundColor = getRandomColor(); // Mengubah warna latar belakang saat hover
+      });
+
+      masjidItem.addEventListener("mouseout", () => {
+        masjidItem.style.backgroundColor = ""; // Mengembalikan warna latar belakang saat mouse keluar
+      });
     });
 
     // Menambahkan event listener untuk tombol View Details
@@ -114,12 +123,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk menampilkan detail masjid
   function displayMasjidDetails(masjid) {
-    detailsContainer.innerHTML = `    
-          <h2>${masjid.name}</h2>    
-          <p>Address: ${masjid.address}</p>    
-          <p>Description: ${masjid.description}</p>    
+    detailsContainer.innerHTML = `        
+          <h2>${masjid.name}</h2>        
+          <p>Address: ${masjid.address}</p>        
+          <p>Description: ${masjid.description}</p>        
+          <div class="rating">  
+            <span>Rate this masjid:</span>  
+            <div class="stars" data-id="${masjid.id}">  
+              ${[1, 2, 3, 4, 5]
+                .map(
+                  (star) => `<span class="star" data-value="${star}">★</span>`
+                )
+                .join("")}  
+            </div>  
+            <textarea placeholder="Leave a comment..." class="comment"></textarea>  
+            <button class="submit-feedback">Submit Feedback</button>  
+            <div class="feedback-list"></div>  
+          </div>  
       `;
     detailsContainer.style.display = "block"; // Tampilkan detail
+
+    // Add event listeners for stars and feedback submission
+    const stars = detailsContainer.querySelectorAll(".star");
+    stars.forEach((star) => {
+      star.addEventListener("click", () => {
+        const rating = star.getAttribute("data-value");
+        const comment = detailsContainer.querySelector(".comment").value;
+        submitFeedback(masjid.id, rating, comment);
+      });
+    });
+  }
+
+  // Function to submit feedback
+  async function submitFeedback(masjidId, rating, comment) {
+    // Here you would typically send the feedback to your backend
+    const feedbackList = document.querySelector(".feedback-list");
+    const feedbackItem = document.createElement("div");
+    feedbackItem.innerHTML = `  
+      <p>Rating: ${rating} - Comment: ${comment}</p>  
+      <button class="edit-feedback">Edit</button>  
+      <button class="delete-feedback">Delete</button>  
+    `;
+    feedbackList.appendChild(feedbackItem);
+
+    // Add edit and delete functionality
+    feedbackItem
+      .querySelector(".edit-feedback")
+      .addEventListener("click", () => {
+        const newComment = prompt("Edit your comment:", comment);
+        if (newComment) {
+          feedbackItem.querySelector(
+            "p"
+          ).innerHTML = `Rating: ${rating} - Comment: ${newComment}`;
+        }
+      });
+
+    feedbackItem
+      .querySelector(".delete-feedback")
+      .addEventListener("click", () => {
+        feedbackList.removeChild(feedbackItem);
+      });
   }
 
   // Event listener untuk tombol pencarian
