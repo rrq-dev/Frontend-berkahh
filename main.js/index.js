@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const masjidList = document.getElementById("masjid-list");
   const searchBar = document.getElementById("search-bar");
-  const searchButton = document.getElementById("search-button");
   const errorMessage = document.getElementById("error-message");
   const detailsContainer = document.getElementById("masjid-details");
 
@@ -55,23 +54,33 @@ document.addEventListener("DOMContentLoaded", () => {
       masjid.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Sortir data agar hasil pencarian muncul di atas
+    filteredData.sort((a, b) => {
+      const aMatch = a.name.toLowerCase().indexOf(searchTerm.toLowerCase());
+      const bMatch = b.name.toLowerCase().indexOf(searchTerm.toLowerCase());
+      return aMatch - bMatch;
+    });
+
     filteredData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
       masjidItem.className = "masjid-item";
-      masjidItem.innerHTML = `      
-              <h3>${masjid.name}</h3>      
-              <p>${masjid.address}</p>      
-              <p>${masjid.description}</p>      
-              <button class="view-details" data-id="${masjid.id}">View Details</button>      
+      masjidItem.innerHTML = `        
+              <h3>${masjid.name}</h3>        
+              <p>${masjid.address}</p>        
+              <p>${masjid.description}</p>        
+              <button class="view-details" data-id="${masjid.id}">View Details</button>        
           `;
 
       // Event listener untuk hover pada masjid item
       masjidItem.addEventListener("mouseover", () => {
-        masjidItem.style.backgroundColor = getRandomColor(); // Mengubah warna latar belakang saat hover
+        const randomColor = getRandomColor();
+        masjidItem.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+        masjidItem.style.border = `2px solid ${randomColor}`;
       });
 
       masjidItem.addEventListener("mouseout", () => {
-        masjidItem.style.backgroundColor = ""; // Mengembalikan warna latar belakang saat mouse keluar
+        masjidItem.style.boxShadow = "";
+        masjidItem.style.border = "";
       });
 
       masjidList.appendChild(masjidItem);
@@ -124,16 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk menampilkan detail masjid
   function displayMasjidDetails(masjid) {
-    detailsContainer.innerHTML = `      
-          <h2>${masjid.name}</h2>      
-          <p>Address: ${masjid.address}</p>      
-          <p>Description: ${masjid.description}</p>      
+    detailsContainer.innerHTML = `        
+          <h2>${masjid.name}</h2>        
+          <p>Address: ${masjid.address}</p>        
+          <p>Description: ${masjid.description}</p>        
       `;
     detailsContainer.style.display = "block"; // Tampilkan detail
   }
 
-  // Event listener untuk tombol pencarian
-  searchButton.addEventListener("click", () => {
+  // Event listener untuk input pencarian
+  searchBar.addEventListener("input", () => {
     const searchTerm = searchBar.value;
     fetchMasjidData(searchTerm);
   });
