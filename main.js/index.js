@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cek apakah pengguna sudah login
   const token = localStorage.getItem("jwtToken");
   if (!token) {
-    window.location.href = "auth/login.html"; // Redirect ke halaman login jika belum login
+    window.location.href =
+      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
   }
 
   // Fungsi untuk mengambil semua lokasi masjid

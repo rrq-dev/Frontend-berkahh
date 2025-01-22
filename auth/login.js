@@ -42,7 +42,8 @@ document
 async function fetchMasjidData() {
   const token = localStorage.getItem("jwtToken");
   if (!token) {
-    window.location.href = "auth/login.html"; // Redirect ke halaman login jika token tidak ada
+    window.location.href =
+      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika token tidak ada
     return;
   }
 
