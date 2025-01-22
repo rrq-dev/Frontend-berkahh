@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBar = document.getElementById("search-bar");
   const errorMessage = document.getElementById("error-message");
   const detailsContainer = document.getElementById("masjid-details");
+  const navbarButtons = document.querySelectorAll(".navbar-button");
 
   // Cek apakah pengguna sudah login
   const token = localStorage.getItem("jwtToken");
@@ -177,6 +178,18 @@ document.addEventListener("DOMContentLoaded", () => {
       logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
     }
   }
+
+  // Menambahkan event listener untuk hover pada navbar buttons
+  navbarButtons.forEach((button) => {
+    button.addEventListener("mouseover", () => {
+      const randomColor = getRandomColor();
+      button.style.backgroundColor = randomColor;
+    });
+
+    button.addEventListener("mouseout", () => {
+      button.style.backgroundColor = ""; // Mengembalikan warna asli saat mouse keluar
+    });
+  });
 
   // Inisialisasi
   window.onload = function () {
