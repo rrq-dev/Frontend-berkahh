@@ -13,16 +13,19 @@ async function fetchMasjidData() {
       }
     );
 
-    const masjidData = await response.json();
-
-    if (response.ok) {
-      displayMasjidCards(masjidData);
-    } else {
-      document.getElementById("error-message").style.display = "block";
+    // Cek apakah respons berhasil
+    if (!response.ok) {
+      const errorMessage = await response.text(); // Ambil pesan error dari respons
+      throw new Error(`Error: ${response.status} - ${errorMessage}`);
     }
+
+    const masjidData = await response.json(); // Parse JSON dari respons
+    displayMasjidCards(masjidData); // Tampilkan data masjid
   } catch (error) {
     console.error("Error fetching masjid data:", error);
-    document.getElementById("error-message").style.display = "block";
+    document.getElementById("error-message").innerText =
+      "Error loading masjid list: " + error.message;
+    document.getElementById("error-message").style.display = "block"; // Tampilkan pesan error
   }
 }
 
@@ -46,16 +49,6 @@ function displayMasjidCards(masjidData) {
       feedbackButton.innerText = "Give Feedback";
       feedbackButton.onclick = () => giveFeedback(masjid.id);
       card.appendChild(feedbackButton);
-
-      const updateButton = document.createElement("button");
-      updateButton.innerText = "Update Feedback";
-      updateButton.onclick = () => updateFeedback(masjid.id);
-      card.appendChild(updateButton);
-
-      const deleteButton = document.createElement("button");
-      deleteButton.innerText = "Delete Feedback";
-      deleteButton.onclick = () => deleteFeedback(masjid.id);
-      card.appendChild(deleteButton);
     }
 
     masjidContainer.appendChild(card);
@@ -92,63 +85,6 @@ async function giveFeedback(masjidId) {
   }
 }
 
-// Fungsi untuk memperbarui feedback
-async function updateFeedback(masjidId) {
-  const feedback = prompt("Please provide your updated feedback:");
-  if (feedback) {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ feedback }),
-        }
-      );
-
-      if (response.ok) {
-        alert("Feedback updated successfully!");
-      } else {
-        alert("Failed to update feedback.");
-      }
-    } catch (error) {
-      console.error("Error updating feedback:", error);
-      alert("An error occurred while updating feedback.");
-    }
-  }
-}
-
-// Fungsi untuk menghapus feedback
-async function deleteFeedback(masjidId) {
-  if (confirm("Are you sure you want to delete your feedback?")) {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/masjid/${masjidId}/feedback`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        alert("Feedback deleted successfully!");
-      } else {
-        alert("Failed to delete feedback.");
-      }
-    } catch (error) {
-      console.error("Error deleting feedback:", error);
-      alert("An error occurred while deleting feedback.");
-    }
-  }
-}
-
 // Fungsi untuk logout
 function logout() {
   // Hapus token dari local storage
@@ -156,7 +92,9 @@ function logout() {
   localStorage.removeItem("userId");
   localStorage.removeItem("userRole");
   alert("Logout successful!");
-  window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke halaman utama
+
+  // Redirect ke halaman utama
+  window.location.href = "index.html"; // Ganti dengan URL halaman utama Anda
 }
 
 // Menangani tampilan tombol logout jika pengguna sudah login
@@ -167,10 +105,10 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href =
-      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login
+    logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
   }
 }
+
 // Inisialisasi
 window.onload = function () {
   fetchMasjidData();
