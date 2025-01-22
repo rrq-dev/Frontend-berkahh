@@ -10,26 +10,27 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "auth/login.html"; // Redirect ke halaman login jika belum login
   }
 
-  // Fungsi untuk mengambil semua lokasi masjid dari backend
+  // Fungsi untuk mengambil semua lokasi masjid
   async function fetchMasjidData() {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/getlocationbyid",
+        "https://backend-berkah.onrender.com/getlocation",
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Sertakan token di header
             "Content-Type": "application/json",
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch masjid data");
+        const errorMessage = await response.text(); // Ambil pesan error dari respons
+        throw new Error(`Error: ${errorMessage}`);
       }
 
-      const masjidData = await response.json();
-      displayMasjidList(masjidData);
+      const masjidData = await response.json(); // Parse JSON dari respons
+      displayMasjidList(masjidData); // Tampilkan daftar masjid
     } catch (error) {
       console.error("Error fetching masjid data:", error);
       errorMessage.innerText = "Error loading masjid data.";
@@ -54,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk mengambil data masjid berdasarkan ID
+  // Fungsi untuk mengambil lokasi masjid berdasarkan ID
   async function fetchMasjidById(masjidId) {
     try {
       const response = await fetch(
@@ -62,18 +63,19 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Sertakan token di header
             "Content-Type": "application/json",
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch masjid details");
+        const errorMessage = await response.text(); // Ambil pesan error dari respons
+        throw new Error(`Error: ${errorMessage}`);
       }
 
-      const masjidDetails = await response.json();
-      displayMasjidDetails(masjidDetails);
+      const masjidDetails = await response.json(); // Parse JSON dari respons
+      displayMasjidDetails(masjidDetails); // Tampilkan detail masjid
     } catch (error) {
       console.error("Error fetching masjid details:", error);
       errorMessage.innerText = "Error loading masjid details.";
@@ -106,7 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-  // Ambil data masjid saat halaman dimuat
+
+  // Ambil semua masjid saat halaman dimuat
   fetchMasjidData();
 });
 
