@@ -149,6 +149,16 @@ async function deleteFeedback(masjidId) {
   }
 }
 
+// Fungsi untuk logout
+function logout() {
+  // Hapus token dari local storage
+  localStorage.removeItem("jwtToken");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userRole");
+  alert("Logout successful!");
+  window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke halaman utama
+}
+
 // Menangani tampilan tombol logout jika pengguna sudah login
 function updateAuthLinks() {
   const logoutBtn = document.getElementById("logout-btn");
@@ -157,7 +167,8 @@ function updateAuthLinks() {
     logoutBtn.onclick = logout; // Set fungsi logout
   } else {
     logoutBtn.innerText = "Sign in";
-    logoutBtn.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect ke homepage
+    logoutBtn.href =
+      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login
   }
 }
 // Inisialisasi
