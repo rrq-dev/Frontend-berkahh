@@ -15,28 +15,28 @@
           <li><a href="#">Feedback</a></li>
         </ul>
         <div class="auth-links">
-          <a href="#">Login</a>
-          <a href="#">Register</a>
+          <a href="auth/login.html" id="logout-btn">Sign in</a>
         </div>
       </div>
     </nav>
 
-    <div class="search-container">
-      <input type="text" id="search-box" placeholder="Search masjid..." />
-      <select id="location-select">
-        <option value="">Select Location</option>
-        <option value="bandung">Bandung</option>
-        <option value="jakarta">Jakarta</option>
-        <!-- Add more locations as needed -->
-      </select>
+    <div class="container">
+      <h1>Daftar Lokasi Masjid</h1>
+      <input type="text" id="search-bar" placeholder="Search masjid..." />
       <button id="search-button">Search</button>
+      <div id="error-message" style="color: red; display: none"></div>
+      <div id="masjid-list"></div>
+      <div id="masjid-details" style="display: none"></div>
     </div>
 
+<<<<<<< HEAD
     <div id="masjid-container" class="masjid-container">
       <p id="error-message" style="display: none">Error loading masjid list</p>
       <!-- Masjid cards will be dynamically inserted here -->
     </div>
 
+=======
+>>>>>>> 2474f2e66596ee9a40fbe8025e7ee1bd038618cb
     <script src="main.js/index.js"></script>
   </body>
 </html>
