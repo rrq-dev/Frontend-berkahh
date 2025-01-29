@@ -33,10 +33,24 @@ document
       localStorage.setItem("userId", userId); // Save user ID
       localStorage.setItem("userRole", userRole); // Save user role
 
-      alert("Login successful! Welcome back!");
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to homepage
+      // Use SweetAlert for success notification
+      Swal.fire({
+        title: "Login Successful!",
+        text: "Welcome back!",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        window.location.href =
+          "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to homepage
+      });
     } catch (error) {
       console.error("Error during login:", error);
-      alert("Login failed: " + error.message);
+      // Use SweetAlert for error notification
+      Swal.fire({
+        title: "Login Failed",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   });

@@ -11,33 +11,49 @@ registerForm.addEventListener("submit", async (event) => {
   ).value; // Ambil nilai konfirmasi password
 
   // Kirim data ke backend
-  fetch("https://backend-berkah.onrender.com/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username,
-      email,
-      password,
-      confirm_password: confirmPassword, // Ganti confirmPassword dengan confirm_password
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Registration failed");
+  try {
+    const response = await fetch(
+      "https://backend-berkah.onrender.com/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          confirm_password: confirmPassword, // Ganti confirmPassword dengan confirm_password
+        }),
       }
-      return response.json();
-    })
-    .then((data) => {
-      alert("Registration successful!, " + data.user.username);
+    );
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(errorMessage || "Registration failed");
+    }
+
+    const data = await response.json();
+    // Use SweetAlert for success notification
+    Swal.fire({
+      title: "Registration Successful!",
+      text: `Welcome, ${data.user.username}!`,
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
       localStorage.setItem("jwtToken", data.token); // Simpan token
       localStorage.setItem("userId", data.userId);
       // Redirect to user home page
       window.location.href = "login.html"; // Redirect ke halaman beranda
-    })
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
-      alert("Registration failed: " + error.message);
     });
+  } catch (error) {
+    console.error("There was a problem with the fetch operation:", error);
+    // Use SweetAlert for error notification
+    Swal.fire({
+      title: "Registration Failed",
+      text: error.message,
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
 });

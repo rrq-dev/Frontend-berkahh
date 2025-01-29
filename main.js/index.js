@@ -187,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk logout
   function logout() {
+    console.log("Logout function called");
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
@@ -202,12 +203,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Menangani tampilan tombol logout jika pengguna sudah login
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
-    if (localStorage.getItem("jwtToken")) {
-      logoutBtn.innerText = "Logout";
-      logoutBtn.onclick = logout; // Set fungsi logout
+    if (logoutBtn) {
+      if (localStorage.getItem("jwtToken")) {
+        logoutBtn.innerText = "Logout";
+        logoutBtn.onclick = logout; // Set fungsi logout
+      } else {
+        logoutBtn.innerText = "Sign in";
+        logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+      }
     } else {
-      logoutBtn.innerText = "Sign in";
-      logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+      console.error("Logout button not found");
     }
   }
 
