@@ -55,12 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
       displayMasjidList(masjidData, searchTerm); // Tampilkan daftar masjid
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Error loading masjid data.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      errorMessage.innerText = "Error loading masjid data.";
+      errorMessage.style.display = "block";
     }
   }
 
@@ -150,12 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
       displayMasjidDetails(masjidDetails); // Tampilkan detail masjid
     } catch (error) {
       console.error("Error fetching masjid details:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Error loading masjid details.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      errorMessage.innerText = "Error loading masjid details.";
+      errorMessage.style.display = "block";
     }
   }
 
@@ -187,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk logout
   function logout() {
-    console.log("Logout function called");
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
@@ -203,16 +194,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Menangani tampilan tombol logout jika pengguna sudah login
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-      if (localStorage.getItem("jwtToken")) {
-        logoutBtn.innerText = "Logout";
-        logoutBtn.onclick = logout; // Set fungsi logout
-      } else {
-        logoutBtn.innerText = "Sign in";
-        logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
-      }
+    if (localStorage.getItem("jwtToken")) {
+      logoutBtn.innerText = "Logout";
+      logoutBtn.onclick = logout; // Set fungsi logout
     } else {
-      console.error("Logout button not found");
+      logoutBtn.innerText = "Sign in";
+      logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
     }
   }
 
