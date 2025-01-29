@@ -5,18 +5,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
+  // Flag to check if the session expired alert has been shown
+  let sessionExpiredAlertShown = false;
+
   // Cek apakah pengguna sudah login
   const token = localStorage.getItem("jwtToken");
   if (!token) {
-    Swal.fire({
-      title: "Session Expired",
-      text: "Please log in again.",
-      icon: "warning",
-      confirmButtonText: "OK",
-    }).then(() => {
-      window.location.href =
-        "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
-    });
+    if (!sessionExpiredAlertShown) {
+      sessionExpiredAlertShown = true; // Set the flag to true
+      Swal.fire({
+        title: "Session Expired",
+        text: "Please log in again.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      }).then(() => {
+        window.location.href =
+          "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
+      });
+    }
   }
 
   // Fungsi untuk mengambil semua lokasi masjid
@@ -34,15 +40,18 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (response.status === 401) {
-        Swal.fire({
-          title: "Session Expired",
-          text: "Please log in again.",
-          icon: "warning",
-          confirmButtonText: "OK",
-        }).then(() => {
-          window.location.href =
-            "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
-        });
+        if (!sessionExpiredAlertShown) {
+          sessionExpiredAlertShown = true; // Set the flag to true
+          Swal.fire({
+            title: "Session Expired",
+            text: "Please log in again.",
+            icon: "warning",
+            confirmButtonText: "OK",
+          }).then(() => {
+            window.location.href =
+              "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+          });
+        }
         return;
       }
 
@@ -125,15 +134,18 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (response.status === 401) {
-        Swal.fire({
-          title: "Session Expired",
-          text: "Please log in again.",
-          icon: "warning",
-          confirmButtonText: "OK",
-        }).then(() => {
-          window.location.href =
-            "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
-        });
+        if (!sessionExpiredAlertShown) {
+          sessionExpiredAlertShown = true; // Set the flag to true
+          Swal.fire({
+            title: "Session Expired",
+            text: "Please log in again.",
+            icon: "warning",
+            confirmButtonText: "OK",
+          }).then(() => {
+            window.location.href =
+              "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+          });
+        }
         return;
       }
 
