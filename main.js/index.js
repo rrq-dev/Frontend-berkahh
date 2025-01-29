@@ -8,8 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cek apakah pengguna sudah login
   const token = localStorage.getItem("jwtToken");
   if (!token) {
-    window.location.href =
-      "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
+    Swal.fire({
+      title: "Session Expired",
+      text: "Please log in again.",
+      icon: "warning",
+      confirmButtonText: "OK",
+    }).then(() => {
+      window.location.href =
+        "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
+    });
   }
 
   // Fungsi untuk mengambil semua lokasi masjid
@@ -27,9 +34,15 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (response.status === 401) {
-        alert("Session expired. Please log in again.");
-        window.location.href =
-          "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+        Swal.fire({
+          title: "Session Expired",
+          text: "Please log in again.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href =
+            "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+        });
         return;
       }
 
@@ -42,8 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
       displayMasjidList(masjidData, searchTerm); // Tampilkan daftar masjid
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      errorMessage.innerText = "Error loading masjid data.";
-      errorMessage.style.display = "block";
+      Swal.fire({
+        title: "Error",
+        text: "Error loading masjid data.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   }
 
@@ -112,9 +129,15 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (response.status === 401) {
-        alert("Session expired. Please log in again.");
-        window.location.href =
-          "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+        Swal.fire({
+          title: "Session Expired",
+          text: "Please log in again.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href =
+            "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+        });
         return;
       }
 
@@ -127,8 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
       displayMasjidDetails(masjidDetails); // Tampilkan detail masjid
     } catch (error) {
       console.error("Error fetching masjid details:", error);
-      errorMessage.innerText = "Error loading masjid details.";
-      errorMessage.style.display = "block";
+      Swal.fire({
+        title: "Error",
+        text: "Error loading masjid details.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   }
 
@@ -163,8 +190,13 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
-    alert("Logout successful!");
-    window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+    Swal.fire({
+      title: "Logout Successful",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+    });
   }
 
   // Menangani tampilan tombol logout jika pengguna sudah login
