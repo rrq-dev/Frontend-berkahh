@@ -8,9 +8,31 @@ registerForm.addEventListener("submit", async (event) => {
   const password = document.getElementById("password-input").value;
   const confirmPassword = document.getElementById(
     "confirm-password-input"
-  ).value; // Ambil nilai konfirmasi password
+  ).value;
 
-  // Kirim data ke backend
+  // Validate input fields
+  if (!username || !email || !password || !confirmPassword) {
+    Swal.fire({
+      title: "Registration Failed",
+      text: "All fields are required.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  // Validate password confirmation
+  if (password !== confirmPassword) {
+    Swal.fire({
+      title: "Registration Failed",
+      text: "Passwords do not match.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  // Send data to backend
   try {
     const response = await fetch(
       "https://backend-berkah.onrender.com/register",
@@ -23,14 +45,13 @@ registerForm.addEventListener("submit", async (event) => {
           username,
           email,
           password,
-          confirm_password: confirmPassword, // Ganti confirmPassword dengan confirm_password
         }),
       }
     );
 
     if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage || "Registration failed");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Registration failed");
     }
 
     const data = await response.json();
@@ -41,10 +62,10 @@ registerForm.addEventListener("submit", async (event) => {
       icon: "success",
       confirmButtonText: "OK",
     }).then(() => {
-      localStorage.setItem("jwtToken", data.token); // Simpan token
+      localStorage.setItem("jwtToken", data.token); // Save token
       localStorage.setItem("userId", data.userId);
       // Redirect to user home page
-      window.location.href = "login.html"; // Redirect ke halaman beranda
+      window.location.href = "login.html"; // Redirect to login page
     });
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);
