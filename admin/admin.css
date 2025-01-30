@@ -1,150 +1,207 @@
-body {          
-  font-family: Arial, sans-serif;          
-  margin: 0;          
-  padding: 0;          
-  background-color: #f4f4f9;          
-}          
-  
-.navbar {          
-  background-color: #007bff;          
-  color: white;          
-  padding: 15px 0; /* Increased padding for a larger navbar */          
-}          
-  
-.container {          
-  display: flex;          
-  justify-content: space-between;          
-  align-items: center;          
-  padding: 0 20px;          
-}          
-  
-.logo {          
-  font-size: 28px; /* Increased font size for the logo */        
-  text-decoration: none;        
-  color: white;        
-}        
-  
-.auth-links {        
-  display: flex;        
-  align-items: center;        
-}        
-  
-.logout-button {        
-  background-color: #ff6347;        
-  color: white;        
-  border: none;        
-  padding: 10px 15px;        
-  cursor: pointer;        
-  border-radius: 4px;        
-  font-size: 16px; /* Increased font size for the button */        
-  margin-left: 20px;        
-}        
-  
-.logout-button:hover {        
-  background-color: #ff4500;        
-}        
-  
-.masjid-container {        
-  padding: 20px;        
-}        
-  
-h2 {        
-  margin-bottom: 20px;        
-}        
-  
-form {        
-  margin-bottom: 20px;        
-}        
-  
-form input {        
-  width: 100%;        
-  padding: 10px;        
-  margin: 5px 0;        
-  box-sizing: border-box;        
-}        
-  
-form button {        
-  background-color: #4CAF50;        
-  color: white;        
-  padding: 10px 20px;        
-  border: none;        
-  cursor: pointer;        
-}        
-  
-form button:hover {        
-  background-color: #45a049;        
-}        
-  
-.table-box {        
-  border: 1px solid #ddd;        
-  border-radius: 8px;        
-  padding: 20px;        
-  background-color: white;        
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);        
-}        
-  
-.table-box h3 {        
-  margin-bottom: 20px;        
-}        
-  
-table {        
-  width: 100%;        
-  border-collapse: collapse;        
-  font-size: 14px; /* Decreased font size for the table */        
-}        
-  
-th, td {        
-  padding: 8px; /* Decreased padding for smaller table cells */        
-  text-align: left;        
-  border-bottom: 1px solid #ddd;        
-}        
-  
-th {        
-  background-color: #f2f2f2;        
-  width: 25%; /* Atur lebar kolom header menjadi 25% */        
-}        
-  
-td {        
-  width: 25%; /* Atur lebar kolom data menjadi 25% */        
-}        
-  
-button.edit, button.delete {        
-  background-color: #4CAF50;        
-  color: white;        
-  border: none;        
-  padding: 5px 10px;        
-  cursor: pointer;        
-  margin: 0 5px;        
-}        
-  
-button.edit:hover {        
-  background-color: #45a049;        
-}        
-  
-button.delete {        
-  background-color: #ff6347;        
-}        
-  
-button.delete:hover {        
-  background-color: #ff4500;        
-}        
-  
-/* Responsive Styles */  
-@media (max-width: 768px) {  
-  .container {  
-    flex-direction: column;  
-    align-items: flex-start;  
-  }  
-  
-  .auth-links {  
-    margin-top: 10px;  
-  }  
-  
-  .table-box {  
-    width: 100%;  
-  }  
-  
-  th, td {  
-    width: auto; /* Adjust width for smaller screens */  
-  }  
-}  
+/* Global styles */
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.navbar {
+  background-color: #007bff;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navbar .logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+}
+
+/* Navbar links */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links li {
+  display: inline;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect for navbar links */
+.nav-links a:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Lighten background on hover */
+}
+
+/* Auth links */
+.auth-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.auth-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect for auth links */
+.auth-links a:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Lighten background on hover */
+}
+
+/* Main content styles */
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Masjid container styles */
+.masjid-container {
+  padding: 0;
+}
+
+/* Form styles */
+form {
+  margin-bottom: 2rem;
+}
+
+form input {
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+form button {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #45a049;
+}
+
+/* Table styles */
+.table-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.table-box h3 {
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+/* Button styles for edit and delete */
+button.edit,
+button.delete {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  margin: 0 0.3rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+button.edit:hover {
+  background-color: #45a049;
+}
+
+button.delete {
+  background-color: #ff6347;
+}
+
+button.delete:hover {
+  background-color: #ff4500;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar .nav-links {
+    display: none; /* Hide links on mobile */
+  }
+
+  .navbar .logo {
+    font-size: 1.5rem;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  form input,
+  form button {
+    width: 100%;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  .table-box {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .navbar .nav-links {
+    display: flex; /* Show links on larger screens */
+  }
+}
