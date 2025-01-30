@@ -3,9 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const masjidTableBody = document.querySelector("#masjidTable tbody");
   const searchBar = document.getElementById("search-bar");
   const errorMessage = document.getElementById("error-message");
-  const logoutButton = document.getElementById("logoutButton");
+  const detailsContainer = document.getElementById("masjid-details");
+  const navbarButtons = document.querySelectorAll(".navbar-button");
 
-  // Function to fetch and display masjid data
+  // Function to fetch and display all masjid data
   async function fetchMasjids() {
     try {
       const response = await fetch(
@@ -89,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to add masjid");
       }
 
-      const newMasjid = await response.json();
       Swal.fire({
         title: "Success",
         text: "Masjid added successfully!",
@@ -193,23 +193,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Function to handle logout
-  logoutButton.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    Swal.fire({
-      title: "Logged Out",
-      text: "You have been logged out successfully.",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to login page
-    });
-  });
+  // Function to get a location by ID
+  async function getLocationById(masjidId) {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/getlocation/${masjidId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-  // Search functionality
+      if (!response.ok) {
+        throw new Error("Failed to fetch masjid details");
+      }
+
+      const masjid = await response.json();
+      displayMasjidDetails(masjid);
+    } catch (error) {
+      console.error("Error fetching masjid details:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  }
+
+  // Function to display masjid details
+  function displayMasjidDetails(masjid) {
+    detailsContainer.innerHTML = `
+            <h3>${masjid.name}</h3>
+            <p><strong>Address:</strong> ${masjid.address}</p>
+            <p><strong>Description:</strong> ${masjid.description}</p>
+        `;
+  }
+
+  // Event listener for search functionality
   searchBar.addEventListener("input", () => {
     const searchTerm = searchBar.value.toLowerCase();
     const rows = masjidTableBody.querySelectorAll("tr");
+
     rows.forEach((row) => {
       const masjidName = row.cells[0].textContent.toLowerCase();
       if (masjidName.includes(searchTerm)) {
@@ -220,6 +247,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Fungsi untuk logout
+  function logout() {
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userRole");
+    Swal.fire({
+      title: "Logout Successful",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+    });
+  }
+
+  // Menangani tampilan tombol logout jika pengguna sudah login
+  function updateAuthLinks() {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (localStorage.getItem("jwtToken")) {
+      logoutBtn.innerText = "Logout";
+      logoutBtn.onclick = logout; // Set fungsi logout
+    } else {
+      logoutBtn.innerText = "Sign in";
+      logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+    }
+  }
+
   // Fetch and display masjids on page load
   fetchMasjids();
+  updateAuthLinks();
 });
