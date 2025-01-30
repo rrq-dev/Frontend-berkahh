@@ -46,14 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
     masjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td>${masjid.name}</td>
-                <td>${masjid.address}</td>
-                <td>${masjid.description}</td>
-                <td>
-                    <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                    <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                </td>
-            `;
+                  <td>${masjid.name}</td>
+                  <td>${masjid.address}</td>
+                  <td>${masjid.description}</td>
+                  <td>
+                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
+                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
+                  </td>
+              `;
       masjidTableBody.appendChild(row);
     });
 
@@ -117,9 +117,42 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to handle editing a masjid
   async function handleEdit(event) {
     const masjidId = event.target.getAttribute("data-id");
-    const name = prompt("Enter new name:", "");
-    const address = prompt("Enter new address:", "");
-    const description = prompt("Enter new description:", "");
+
+    const { value: name } = await Swal.fire({
+      title: "Enter new name",
+      input: "text",
+      inputValue: "",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to write something!";
+        }
+      },
+    });
+
+    const { value: address } = await Swal.fire({
+      title: "Enter new address",
+      input: "text",
+      inputValue: "",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to write something!";
+        }
+      },
+    });
+
+    const { value: description } = await Swal.fire({
+      title: "Enter new description",
+      input: "text",
+      inputValue: "",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to write something!";
+        }
+      },
+    });
 
     if (name && address && description) {
       try {
@@ -161,7 +194,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to handle deleting a masjid
   async function handleDelete(event) {
     const masjidId = event.target.getAttribute("data-id");
-    if (confirm("Are you sure you want to delete this masjid?")) {
+
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
       try {
         const response = await fetch(
           "https://backend-berkah.onrender.com/deletelocation",
@@ -180,8 +224,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         Swal.fire({
-          title: "Success",
-          text: "Masjid deleted successfully!",
+          title: "Deleted!",
+          text: "Masjid has been deleted.",
           icon: "success",
           confirmButtonText: "OK",
         });
@@ -232,10 +276,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to display masjid details
   function displayMasjidDetails(masjid) {
     detailsContainer.innerHTML = `
-            <h2>${masjid.name}</h2>
-            <p>Address: ${masjid.address}</p>
-            <p>Description: ${masjid.description}</p>
-        `;
+              <h2>${masjid.name}</h2>
+              <p>Address: ${masjid.address}</p>
+              <p>Description: ${masjid.description}</p>
+          `;
     detailsContainer.style.display = "block"; // Show details
   }
 
