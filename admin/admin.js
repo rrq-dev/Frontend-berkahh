@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
     detailsContainer.style.display = "block"; // Show details
   }
 
-  // Fungsi untuk logout
+  // Function to handle logout
   function logout() {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userId");
@@ -249,19 +249,19 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "success",
       confirmButtonText: "OK",
     }).then(() => {
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect to main page
     });
   }
 
-  // Menangani tampilan tombol logout jika pengguna sudah login
+  // Function to update authentication links
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
     if (localStorage.getItem("jwtToken")) {
       logoutBtn.innerText = "Logout";
-      logoutBtn.onclick = logout; // Set fungsi logout
+      logoutBtn.onclick = logout; // Set logout function
     } else {
       logoutBtn.innerText = "Sign in";
-      logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+      logoutBtn.href = "auth/login.html"; // Redirect to login page
     }
   }
 

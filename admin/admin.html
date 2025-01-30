@@ -6,46 +6,53 @@
     <title>Jumat Berkah - Admin Dashboard</title>
     <link rel="stylesheet" href="admin.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- SweetAlert script -->
   </head>
   <body>
-    <nav class="navbar">
-      <div class="container">
-        <a class="logo">Jumat Berkah</a>
-        <div class="auth-links">
-          <a id="logout-btn">Logout</a>
-        </div>
-      </div>
-    </nav>
-
     <div class="container">
-      <h1>Tambah Masjid</h1>
-      <form id="addMasjidForm">
-        <label for="masjidName">Nama Masjid:</label>
-        <input type="text" id="masjidName" required />
-        <label for="masjidAddress">Alamat:</label>
-        <input type="text" id="masjidAddress" required />
-        <label for="masjidContact">Deskripsi:</label>
-        <textarea id="masjidContact" required></textarea>
-        <button type="submit">Tambah Masjid</button>
-      </form>
+      <nav class="sidebar">
+        <div class="sidebar-header">
+          <h2>Jumat Berkah</h2>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#" id="logoutButton">Logout</a></li>
+        </ul>
+      </nav>
 
-      <h2>Daftar Masjid</h2>
-      <input type="text" id="search-bar" placeholder="Search Masjid..." />
-      <div id="error-message" style="color: red; display: none"></div>
-      <table id="masjidTable">
-        <thead>
-          <tr>
-            <th>Nama Masjid</th>
-            <th>Alamat</th>
-            <th>Deskripsi</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Masjid data will be populated here -->
-        </tbody>
-      </table>
+      <div class="main-content">
+        <h1>Tambah Masjid</h1>
+        <form id="addMasjidForm">
+          <input
+            type="text"
+            id="masjidName"
+            placeholder="Nama Masjid"
+            required
+          />
+          <input type="text" id="masjidAddress" placeholder="Alamat" required />
+          <input
+            type="text"
+            id="masjidContact"
+            placeholder="Deskripsi"
+            required
+          />
+          <button type="submit">Tambah Masjid</button>
+        </form>
+
+        <h2>Daftar Masjid</h2>
+        <input type="text" id="search-bar" placeholder="Search Masjid..." />
+        <table id="masjidTable">
+          <thead>
+            <tr>
+              <th>Nama Masjid</th>
+              <th>Alamat</th>
+              <th>Deskripsi</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data masjid akan ditampilkan di sini -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script src="admin.js"></script>
