@@ -191,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Function to handle deleting a masjid
   async function handleDelete(event) {
     const masjidId = event.target.getAttribute("data-id");
 
@@ -215,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ id: masjidId }),
+            body: JSON.stringify({ id: parseInt(masjidId) }), // Ensure ID is an integer
           }
         );
 
@@ -311,5 +310,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch and display masjids on page load
   fetchMasjids();
+  fetchMasjidById(1); // Fetch masjid details by default
   updateAuthLinks();
 });
