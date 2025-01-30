@@ -41,7 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to render masjid data in the table
   function renderMasjids(masjids) {
     masjidTableBody.innerHTML = "";
-    masjids.forEach((masjid) => {
+    const limitedMasjids = masjids.slice(0, 20); // Limit to 20 entries
+    limitedMasjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
                   <td>${masjid.name}</td>
@@ -66,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", handleDelete);
     });
   }
-
   // Function to handle form submission for adding a new masjid
   addMasjidForm.addEventListener("submit", async (event) => {
     event.preventDefault();
