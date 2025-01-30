@@ -44,14 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
     masjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td>${masjid.name}</td>
-                <td>${masjid.address}</td>
-                <td>${masjid.description}</td>
-                <td>
-                    <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                    <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                </td>
-            `;
+                  <td>${masjid.name}</td>
+                  <td>${masjid.address}</td>
+                  <td>${masjid.description}</td>
+                  <td>
+                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
+                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
+                  </td>
+              `;
       masjidTableBody.appendChild(row);
     });
 
@@ -271,6 +271,49 @@ document.addEventListener("DOMContentLoaded", () => {
       logoutBtn.href = "auth/login.html"; // Redirect to login page
     }
   }
+
+  // Function to filter masjids based on search input
+  function filterMasjids(searchTerm, masjids) {
+    return masjids.filter(
+      (masjid) =>
+        masjid.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        masjid.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        masjid.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  // Event listener for search bar
+  searchBar.addEventListener("input", async (event) => {
+    const searchTerm = event.target.value;
+    try {
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/getlocation",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch masjids");
+      }
+
+      const masjids = await response.json();
+      const filteredMasjids = filterMasjids(searchTerm, masjids);
+      renderMasjids(filteredMasjids);
+    } catch (error) {
+      console.error("Error fetching masjids:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  });
 
   // Fetch and display masjids on page load
   fetchMasjids();
