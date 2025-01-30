@@ -114,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Function to handle editing a masjid
   async function handleEdit(event) {
     const masjidId = event.target.getAttribute("data-id");
 
@@ -164,12 +163,18 @@ document.addEventListener("DOMContentLoaded", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ id: masjidId, name, address, description }),
+            body: JSON.stringify({
+              id: parseInt(masjidId), // Ensure ID is an integer
+              name,
+              address,
+              description,
+            }),
           }
         );
 
         if (!response.ok) {
-          throw new Error("Failed to update masjid");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update masjid");
         }
 
         Swal.fire({
