@@ -23,6 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
       renderMasjids(masjids);
     } catch (error) {
       console.error("Error fetching masjids:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   }
 
@@ -32,14 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
     masjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td>${masjid.name}</td>
-                <td>${masjid.address}</td>
-                <td>${masjid.description}</td>
-                <td>
-                    <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                    <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                </td>
-            `;
+                  <td>${masjid.name}</td>
+                  <td>${masjid.address}</td>
+                  <td>${masjid.description}</td>
+                  <td>
+                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
+                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
+                  </td>
+              `;
       masjidTableBody.appendChild(row);
     });
 
@@ -81,10 +87,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const newMasjid = await response.json();
+      Swal.fire({
+        title: "Success",
+        text: "Masjid added successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
       fetchMasjids();
       addMasjidForm.reset();
     } catch (error) {
       console.error("Error adding masjid:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   });
 
@@ -113,9 +131,21 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Failed to update masjid");
         }
 
+        Swal.fire({
+          title: "Success",
+          text: "Masjid updated successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
         fetchMasjids();
       } catch (error) {
         console.error("Error updating masjid:", error);
+        Swal.fire({
+          title: "Error",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
     }
   }
@@ -141,9 +171,21 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Failed to delete masjid");
         }
 
+        Swal.fire({
+          title: "Success",
+          text: "Masjid deleted successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
         fetchMasjids();
       } catch (error) {
         console.error("Error deleting masjid:", error);
+        Swal.fire({
+          title: "Error",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
     }
   }
