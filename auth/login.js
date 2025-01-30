@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Check user role and redirect accordingly
         if (data.user.role === "admin") {
           window.location.href =
-            "https://rrq-dev.github.io/jumatberkah.github.io/admin.html"; // Redirect to admin dashboard
+            "https://rrq-dev.github.io/jumatberkah.github.io/admin/admin.html"; // Redirect to admin dashboard
         } else {
           window.location.href =
             "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to main page
