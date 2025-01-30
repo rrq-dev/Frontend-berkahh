@@ -2,9 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const addMasjidForm = document.getElementById("addMasjidForm");
   const masjidTableBody = document.querySelector("#masjidTable tbody");
   const searchBar = document.getElementById("search-bar");
-  const errorMessage = document.getElementById("error-message");
   const detailsContainer = document.getElementById("masjid-details");
-  const navbarButtons = document.querySelectorAll(".navbar-button");
 
   // Retrieve the token from localStorage
   const token = localStorage.getItem("jwtToken");
@@ -46,14 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
     masjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                  <td>${masjid.name}</td>
-                  <td>${masjid.address}</td>
-                  <td>${masjid.description}</td>
-                  <td>
-                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                  </td>
-              `;
+                <td>${masjid.name}</td>
+                <td>${masjid.address}</td>
+                <td>${masjid.description}</td>
+                <td>
+                    <button class="edit-button" data-id="${masjid.id}">Edit</button>
+                    <button class="delete-button" data-id="${masjid.id}">Delete</button>
+                </td>
+            `;
       masjidTableBody.appendChild(row);
     });
 
@@ -94,15 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to add masjid");
       }
 
-      const newMasjid = await response.json();
+      await response.json(); // Await the response to ensure it's processed
       Swal.fire({
         title: "Success",
         text: "Masjid added successfully!",
         icon: "success",
         confirmButtonText: "OK",
       });
-      fetchMasjids();
-      addMasjidForm.reset();
+      fetchMasjids(); // Refresh the list
+      addMasjidForm.reset(); // Reset the form
     } catch (error) {
       console.error("Error adding masjid:", error);
       Swal.fire({
@@ -114,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Function to handle editing a masjid
   async function handleEdit(event) {
     const masjidId = event.target.getAttribute("data-id");
 
@@ -183,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "success",
           confirmButtonText: "OK",
         });
-        fetchMasjids();
+        fetchMasjids(); // Refresh the list
       } catch (error) {
         console.error("Error updating masjid:", error);
         Swal.fire({
@@ -196,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Function to handle deleting a masjid
   async function handleDelete(event) {
     const masjidId = event.target.getAttribute("data-id");
 
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "success",
           confirmButtonText: "OK",
         });
-        fetchMasjids();
+        fetchMasjids(); // Refresh the list
       } catch (error) {
         console.error("Error deleting masjid:", error);
         Swal.fire({
@@ -244,47 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
-  }
-
-  // Function to fetch a masjid by ID
-  async function fetchMasjidById(masjidId) {
-    try {
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/getlocation?id=${masjidId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch masjid details");
-      }
-
-      const masjidDetails = await response.json();
-      displayMasjidDetails(masjidDetails);
-    } catch (error) {
-      console.error("Error fetching masjid details:", error);
-      Swal.fire({
-        title: "Error",
-        text: error.message,
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  }
-
-  // Function to display masjid details
-  function displayMasjidDetails(masjid) {
-    detailsContainer.innerHTML = `
-              <h2>${masjid.name}</h2>
-              <p>Address: ${masjid.address}</p>
-              <p>Description: ${masjid.description}</p>
-          `;
-    detailsContainer.style.display = "block"; // Show details
   }
 
   // Function to handle logout
@@ -315,6 +274,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch and display masjids on page load
   fetchMasjids();
-  fetchMasjidById(1); // Fetch masjid details by default
   updateAuthLinks();
 });
