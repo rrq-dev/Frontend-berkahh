@@ -58,14 +58,12 @@ registerForm.addEventListener("submit", async (event) => {
     // Use SweetAlert for success notification
     Swal.fire({
       title: "Registration Successful!",
-      text: `Welcome, ${data.user.username}!`,
+      text: `Welcome, ${data.user}!`,
       icon: "success",
       confirmButtonText: "OK",
     }).then(() => {
-      localStorage.setItem("jwtToken", data.token); // Save token
-      localStorage.setItem("userId", data.userId);
-      // Redirect to user home page
-      window.location.href = "login.html"; // Redirect to login page
+      // Redirect to login page
+      window.location.href = "login.html";
     });
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);

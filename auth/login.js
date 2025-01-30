@@ -1,56 +1,60 @@
-document
-  .getElementById("loginForm")
-  .addEventListener("submit", async (event) => {
-    event.preventDefault(); // Prevent default form submission
+const loginForm = document.getElementById("loginForm");
 
-    const email = document.getElementById("email-input").value;
-    const password = document.getElementById("password-input").value;
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault(); // Prevent default form submission
 
-    try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }), // Send email and password
-        }
-      );
+  const email = document.getElementById("email-input").value;
+  const password = document.getElementById("password-input").value;
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`Login failed: ${errorMessage}`);
-      }
+  // Validate input fields
+  if (!email || !password) {
+    Swal.fire({
+      title: "Login Failed",
+      text: "Email and password are required.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
 
-      const data = await response.json();
-      const token = data.token; // Assume token is in the response
-      const userId = data.user.id; // Get user ID from response
-      const userRole = data.user.role; // Get user role from response
+  try {
+    const response = await fetch("https://backend-berkah.onrender.com/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-      // Save token and user info to local storage
-      localStorage.setItem("jwtToken", token);
-      localStorage.setItem("userId", userId); // Save user ID
-      localStorage.setItem("userRole", userRole); // Save user role
-
-      // Use SweetAlert for success notification
-      Swal.fire({
-        title: "Login Successful!",
-        text: "Welcome back!",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        window.location.href =
-          "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to homepage
-      });
-    } catch (error) {
-      console.error("Error during login:", error);
-      // Use SweetAlert for error notification
-      Swal.fire({
-        title: "Login Failed",
-        text: error.message,
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Login failed");
     }
-  });
+
+    const data = await response.json();
+    // Use SweetAlert for success notification
+    Swal.fire({
+      title: "Login Successful!",
+      text: `Welcome back!`,
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      localStorage.setItem("jwtToken", data.token); // Save token
+      localStorage.setItem("userId", data.user.id); // Save user ID
+      // Redirect to user home page
+      window.location.href = "home.html"; // Adjust the redirect as needed
+    });
+  } catch (error) {
+    console.error("There was a problem with the fetch operation:", error);
+    // Use SweetAlert for error notification
+    Swal.fire({
+      title: "Login Failed",
+      text: error.message,
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+});
