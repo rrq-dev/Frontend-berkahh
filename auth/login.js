@@ -45,7 +45,7 @@ loginForm.addEventListener("submit", async (event) => {
       localStorage.setItem("jwtToken", data.token); // Save token
       localStorage.setItem("userId", data.user.id); // Save user ID
       // Redirect to user home page
-      window.location.href = "home.html"; // Adjust the redirect as needed
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Adjust the redirect as needed
     });
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);
