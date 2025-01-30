@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const addMasjidForm = document.getElementById("addMasjidForm");
   const masjidTableBody = document.querySelector("#masjidTable tbody");
+  const searchBar = document.getElementById("search-bar");
+  const errorMessage = document.getElementById("error-message");
+  const logoutButton = document.getElementById("logoutButton");
 
   // Function to fetch and display masjid data
   async function fetchMasjids() {
@@ -38,14 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
     masjids.forEach((masjid) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                  <td>${masjid.name}</td>
-                  <td>${masjid.address}</td>
-                  <td>${masjid.description}</td>
-                  <td>
-                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                  </td>
-              `;
+                <td>${masjid.name}</td>
+                <td>${masjid.address}</td>
+                <td>${masjid.description}</td>
+                <td>
+                    <button class="edit-button" data-id="${masjid.id}">Edit</button>
+                    <button class="delete-button" data-id="${masjid.id}">Delete</button>
+                </td>
+            `;
       masjidTableBody.appendChild(row);
     });
 
@@ -189,6 +192,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
+
+  // Function to handle logout
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    Swal.fire({
+      title: "Logged Out",
+      text: "You have been logged out successfully.",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io/"; // Redirect to login page
+    });
+  });
+
+  // Search functionality
+  searchBar.addEventListener("input", () => {
+    const searchTerm = searchBar.value.toLowerCase();
+    const rows = masjidTableBody.querySelectorAll("tr");
+    rows.forEach((row) => {
+      const masjidName = row.cells[0].textContent.toLowerCase();
+      if (masjidName.includes(searchTerm)) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
 
   // Fetch and display masjids on page load
   fetchMasjids();

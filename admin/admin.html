@@ -13,7 +13,7 @@
       <div class="container">
         <a href="#" class="logo">Jumat Berkah</a>
         <div class="auth-links">
-          <button class="logout-button">Logout</button>
+          <button class="logout-button" id="logoutButton">Logout</button>
         </div>
       </div>
     </nav>
@@ -33,6 +33,8 @@
       </form>
 
       <h2>Daftar Masjid</h2>
+      <input type="text" id="search-bar" placeholder="Search Masjid..." />
+      <div id="error-message"></div>
       <table id="masjidTable">
         <thead>
           <tr>
