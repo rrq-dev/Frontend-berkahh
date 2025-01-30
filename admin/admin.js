@@ -6,7 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
-  // Function to fetch and display all masjid data
+  // Retrieve the token from localStorage
+  const token = localStorage.getItem("jwtToken");
+
+  // Function to fetch and display all masjids
   async function fetchMasjids() {
     try {
       const response = await fetch(
@@ -14,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -80,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ name, address, description }),
         }
@@ -90,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to add masjid");
       }
 
+      const newMasjid = await response.json();
       Swal.fire({
         title: "Success",
         text: "Masjid added successfully!",
@@ -124,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ id: masjidId, name, address, description }),
           }
@@ -164,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ id: masjidId }),
           }
@@ -193,15 +198,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Function to get a location by ID
-  async function getLocationById(masjidId) {
+  // Function to fetch a masjid by ID
+  async function fetchMasjidById(masjidId) {
     try {
       const response = await fetch(
-        `https://backend-berkah.onrender.com/getlocation/${masjidId}`,
+        `https://backend-berkah.onrender.com/getlocation?id=${masjidId}`,
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -210,8 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to fetch masjid details");
       }
 
-      const masjid = await response.json();
-      displayMasjidDetails(masjid);
+      const masjidDetails = await response.json();
+      displayMasjidDetails(masjidDetails);
     } catch (error) {
       console.error("Error fetching masjid details:", error);
       Swal.fire({
@@ -226,26 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to display masjid details
   function displayMasjidDetails(masjid) {
     detailsContainer.innerHTML = `
-            <h3>${masjid.name}</h3>
-            <p><strong>Address:</strong> ${masjid.address}</p>
-            <p><strong>Description:</strong> ${masjid.description}</p>
+            <h2>${masjid.name}</h2>
+            <p>Address: ${masjid.address}</p>
+            <p>Description: ${masjid.description}</p>
         `;
+    detailsContainer.style.display = "block"; // Show details
   }
-
-  // Event listener for search functionality
-  searchBar.addEventListener("input", () => {
-    const searchTerm = searchBar.value.toLowerCase();
-    const rows = masjidTableBody.querySelectorAll("tr");
-
-    rows.forEach((row) => {
-      const masjidName = row.cells[0].textContent.toLowerCase();
-      if (masjidName.includes(searchTerm)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  });
 
   // Fungsi untuk logout
   function logout() {

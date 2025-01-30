@@ -11,30 +11,28 @@
   <body>
     <nav class="navbar">
       <div class="container">
-        <a href="#" class="logo">Jumat Berkah</a>
+        <a class="logo">Jumat Berkah</a>
         <div class="auth-links">
-          <button class="logout-button" id="logout-btn">Logout</button>
+          <a id="logout-btn">Logout</a>
         </div>
       </div>
     </nav>
 
-    <div id="masjid-container" class="masjid-container">
-      <h2>Tambah Masjid</h2>
+    <div class="container">
+      <h1>Tambah Masjid</h1>
       <form id="addMasjidForm">
-        <input type="text" id="masjidName" placeholder="Nama Masjid" required />
-        <input type="text" id="masjidAddress" placeholder="Alamat" required />
-        <input
-          type="text"
-          id="masjidContact"
-          placeholder="Deskripsi"
-          required
-        />
+        <label for="masjidName">Nama Masjid:</label>
+        <input type="text" id="masjidName" required />
+        <label for="masjidAddress">Alamat:</label>
+        <input type="text" id="masjidAddress" required />
+        <label for="masjidContact">Deskripsi:</label>
+        <textarea id="masjidContact" required></textarea>
         <button type="submit">Tambah Masjid</button>
       </form>
 
       <h2>Daftar Masjid</h2>
       <input type="text" id="search-bar" placeholder="Search Masjid..." />
-      <div id="error-message"></div>
+      <div id="error-message" style="color: red; display: none"></div>
       <table id="masjidTable">
         <thead>
           <tr>
@@ -45,7 +43,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Data masjid akan ditampilkan di sini -->
+          <!-- Masjid data will be populated here -->
         </tbody>
       </table>
     </div>
