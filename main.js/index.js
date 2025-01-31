@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <h3>${masjid.name}</h3>        
               <p>${masjid.address}</p>        
               <p>${masjid.description}</p>        
-              <button class="view-details" data-id="${masjid.id}">View Details</button>        
           `;
 
       // Event listener untuk hover pada masjid item
@@ -107,15 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       masjidList.appendChild(masjidItem);
-    });
-
-    // Menambahkan event listener untuk tombol View Details
-    const viewDetailsButtons = document.querySelectorAll(".view-details");
-    viewDetailsButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const masjidId = button.getAttribute("data-id");
-        fetchMasjidById(masjidId);
-      });
     });
   }
 
