@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Coding by CodingNepal | www.codingnepalweb.com-->
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Login and Registration Form</title>
     <link rel="stylesheet" href="login.css" />
+    <!-- Fontawesome CDN Link -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Include SweetAlert2 CSS -->
     <link
       rel="stylesheet"
@@ -13,20 +19,133 @@
   </head>
   <body>
     <div class="container">
-      <h2>Login</h2>
-      <form id="loginForm">
-        <div class="input-group">
-          <input type="email" id="email-input" placeholder=" " required />
-          <label>Email</label>
+      <input type="checkbox" id="flip" />
+      <div class="cover">
+        <div class="front">
+          <img src="images/frontImg.jpg" alt="" />
+          <div class="text">
+            <span class="text-1"
+              >Every new friend is a <br />
+              new adventure</span
+            >
+            <span class="text-2">Let's get connected</span>
+          </div>
         </div>
-        <div class="input-group">
-          <input type="password" id="password-input" placeholder=" " required />
-          <label>Password</label>
+        <div class="back">
+          <div class="text">
+            <span class="text-1"
+              >Complete miles of journey <br />
+              with one step</span
+            >
+            <span class="text-2">Let's get started</span>
+          </div>
         </div>
-        <button type="submit" class="submit-btn">Login</button>
-      </form>
-
-      <p>Don't have an account? <a href="register.html">Sign here</a></p>
+      </div>
+      <div class="forms">
+        <div class="form-content">
+          <div class="login-form">
+            <div class="title">Login</div>
+            <form id="loginForm">
+              <div class="input-boxes">
+                <div class="input-box">
+                  <i class="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    id="email-input"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-lock"></i>
+                  <input
+                    type="password"
+                    id="password-input"
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+                <div class="text"><a href="#">Forgot password?</a></div>
+                <div class="button input-box">
+                  <input type="submit" value="Submit" />
+                </div>
+                <div class="text sign-up-text">
+                  Don't have an account? <label for="flip">Signup now</label>
+                </div>
+                <div class="button input-box google-login">
+                  <button id="google-login-btn">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 48 48"
+                      class="google-logo"
+                    >
+                      <path
+                        fill="#4285F4"
+                        d="M23.49 12.27c0-.83-.07-1.63-.2-2.4H12v4.73h6.36c-.28 1.48-1.5 2.66-3.36 2.66-2.01 0-3.66-1.65-3.66-3.66s1.65-3.66 3.66-3.66c1.01 0 1.93.42 2.63 1.09l3.06-3.06C25.09 7.09 23.49 6 21.5 6c-4.14 0-7.5 3.36-7.5 7.5s3.36 7.5 7.5 7.5c4.14 0 7.5-3.36 7.5-7.5z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 24c0 1.5.15 2.94.43 4.32l-4.32-4.32C7.15 23.94 6 21.5 6 19c0-2.5 1.5-4.5 3.5-5.5l-4.5-4.5C2.5 12.5 0 15.5 0 19c0 5.5 4.5 10 10 10z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M0 19c0-1.5.5-2.94 1.5-4.5l4.5 4.5C4.5 19 0 19 0 19z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M10 0C4.5 0 0 4.5 0 10c0 1.5.5 2.94 1.5 4.5l4.5-4.5C4.5 7.5 0 4.5 0 4.5C0 2.5 2.5 0 10 0z"
+                      />
+                    </svg>
+                    Login with Google
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="signup-form">
+            <div class="title">Signup</div>
+            <form id="signupForm">
+              <div class="input-boxes">
+                <div class="input-box">
+                  <i class="fas fa-user"></i>
+                  <input
+                    type="text"
+                    id="name-input"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    id="signup-email-input"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-lock"></i>
+                  <input
+                    type="password"
+                    id="signup-password-input"
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+                <div class="button input-box">
+                  <input type="submit" value="Submit" />
+                </div>
+                <div class="text sign-up-text">
+                  Already have an account? <label for="flip">Login now</label>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- Include SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
