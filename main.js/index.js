@@ -5,25 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
-  // Flag to check if the session expired alert has been shown
-  let sessionExpiredAlertShown = false;
-
-  // Cek apakah pengguna sudah login
-  const token = localStorage.getItem("jwtToken");
-  if (!token) {
-    if (!sessionExpiredAlertShown) {
-      sessionExpiredAlertShown = true; // Set the flag to true
-      Swal.fire({
-        title: "Session Expired",
-        text: "Please log in again.",
-        icon: "warning",
-        confirmButtonText: "OK",
-      }).then(() => {
-        window.location.href = "https://jumatberkah.vercel.app/auth/login.html"; // Redirect ke halaman login jika belum login
-      });
-    }
-  }
-
   // Fungsi untuk mengambil semua lokasi masjid
   async function fetchMasjidData(searchTerm = "") {
     try {
@@ -32,56 +13,51 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`, // Sertakan token di header
             "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.status === 401) {
-        if (!sessionExpiredAlertShown) {
-          sessionExpiredAlertShown = true; // Set the flag to true
-          Swal.fire({
-            title: "Session Expired",
-            text: "Please log in again.",
-            icon: "warning",
-            confirmButtonText: "OK",
-          }).then(() => {
-            window.location.href =
-              "https://jumatberkah.vercel.app/auth/login.html";
-          });
-        }
-        return;
-      }
-
       if (!response.ok) {
-        const errorMessage = await response.text(); // Ambil pesan error dari respons
+        const errorMessage = await response.text();
         throw new Error(`Error: ${errorMessage}`);
       }
 
-      const masjidData = await response.json(); // Parse JSON dari respons
-      displayMasjidList(masjidData, searchTerm); // Tampilkan daftar masjid
+      const masjidData = await response.json();
+      displayMasjidList(masjidData, searchTerm);
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      errorMessage.innerText = "Error loading masjid data.";
-      errorMessage.style.display = "block";
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Gagal memuat data masjid!",
+        confirmButtonColor: "#4CAF50",
+      });
     }
   }
 
   // Fungsi untuk menampilkan daftar masjid
   function displayMasjidList(masjidData, searchTerm = "") {
-    masjidList.innerHTML = ""; // Kosongkan daftar sebelum menambahkan yang baru
+    masjidList.innerHTML = "";
 
     const filteredData = masjidData.filter((masjid) =>
       masjid.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Sortir data agar hasil pencarian muncul di atas
     filteredData.sort((a, b) => {
       const aMatch = a.name.toLowerCase().indexOf(searchTerm.toLowerCase());
       const bMatch = b.name.toLowerCase().indexOf(searchTerm.toLowerCase());
       return aMatch - bMatch;
     });
+
+    if (filteredData.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Tidak Ada Hasil",
+        text: "Masjid yang dicari tidak ditemukan",
+        confirmButtonColor: "#4CAF50",
+      });
+    }
 
     filteredData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
@@ -92,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <p>${masjid.description}</p>        
           `;
 
-      // Event listener untuk hover pada masjid item
       masjidItem.addEventListener("mouseover", () => {
         const randomColor = getRandomColor();
         masjidItem.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
@@ -116,39 +91,26 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`, // Sertakan token di header
             "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.status === 401) {
-        if (!sessionExpiredAlertShown) {
-          sessionExpiredAlertShown = true; // Set the flag to true
-          Swal.fire({
-            title: "Session Expired",
-            text: "Please log in again.",
-            icon: "warning",
-            confirmButtonText: "OK",
-          }).then(() => {
-            window.location.href =
-              "https://jumatberkah.vercel.app/auth/login.html";
-          });
-        }
-        return;
-      }
-
       if (!response.ok) {
-        const errorMessage = await response.text(); // Ambil pesan error dari respons
+        const errorMessage = await response.text();
         throw new Error(`Error: ${errorMessage}`);
       }
 
-      const masjidDetails = await response.json(); // Parse JSON dari respons
-      displayMasjidDetails(masjidDetails); // Tampilkan detail masjid
+      const masjidDetails = await response.json();
+      displayMasjidDetails(masjidDetails);
     } catch (error) {
       console.error("Error fetching masjid details:", error);
-      errorMessage.innerText = "Error loading masjid details.";
-      errorMessage.style.display = "block";
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Gagal memuat detail masjid!",
+        confirmButtonColor: "#4CAF50",
+      });
     }
   }
 
@@ -159,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>Address: ${masjid.address}</p>        
           <p>Description: ${masjid.description}</p>        
       `;
-    detailsContainer.style.display = "block"; // Tampilkan detail
+    detailsContainer.style.display = "block";
   }
 
   // Event listener untuk input pencarian
@@ -180,15 +142,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk logout
   function logout() {
-    localStorage.removeItem("jwtToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userRole");
     Swal.fire({
-      title: "Logout Successful",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      window.location.href = "https://jumatberkah.vercel.app/"; // Redirect ke halaman utama
+      title: "Apakah Anda yakin?",
+      text: "Anda akan keluar dari aplikasi",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, Logout!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+        Swal.fire({
+          title: "Berhasil Logout",
+          text: "Anda telah berhasil keluar",
+          icon: "success",
+          confirmButtonColor: "#4CAF50",
+        }).then(() => {
+          window.location.href = "https://jumatberkah.vercel.app/";
+        });
+      }
     });
   }
 
@@ -197,10 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logout-btn");
     if (localStorage.getItem("jwtToken")) {
       logoutBtn.innerText = "Logout";
-      logoutBtn.onclick = logout; // Set fungsi logout
+      logoutBtn.onclick = logout;
     } else {
       logoutBtn.innerText = "Sign in";
-      logoutBtn.href = "auth/login.html"; // Redirect ke halaman login
+      logoutBtn.href = "auth/login.html";
     }
   }
 
@@ -212,13 +188,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     button.addEventListener("mouseout", () => {
-      button.style.backgroundColor = ""; // Mengembalikan warna asli saat mouse keluar
+      button.style.backgroundColor = "";
     });
   });
 
   // Inisialisasi
   window.onload = function () {
-    updateAuthLinks(); // Perbarui tampilan tombol login/logout
-    fetchMasjidData(); // Ambil semua masjid saat halaman dimuat
+    updateAuthLinks();
+    fetchMasjidData();
+
+    // Tampilkan pesan selamat datang
+    Swal.fire({
+      title: "Selamat Datang!",
+      text: "di Aplikasi Jumat Berkah",
+      icon: "success",
+      confirmButtonColor: "#4CAF50",
+      timer: 2000,
+      timerProgressBar: true,
+    });
   };
 });

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jumat Berkah</title>
     <link rel="stylesheet" href="style.css" />
-    <!-- Include SweetAlert2 CSS -->
+    <!-- SweetAlert2 CSS -->
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
   </head>
   <body>
@@ -24,15 +24,25 @@
 
     <div class="container">
       <h1>Daftar Masjid</h1>
-      <input type="text" id="search-bar" placeholder="Search masjid..." />
-      <button id="search-button">Search</button>
-      <div id="error-message" style="color: red; display: none"></div>
+      <div class="search-container">
+        <input
+          type="text"
+          id="search-bar"
+          placeholder="Cari masjid..."
+          autocomplete="off"
+        />
+        <button id="search-button" class="navbar-button">Cari</button>
+      </div>
+
+      <!-- Container untuk daftar masjid -->
       <div id="masjid-list"></div>
+
+      <!-- Container untuk detail masjid -->
       <div id="masjid-details" style="display: none"></div>
     </div>
 
-    <!-- Include SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    <!-- Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="main.js/index.js"></script>
   </body>
 </html>
