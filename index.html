@@ -10,38 +10,92 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
   </head>
   <body>
     <nav class="navbar">
       <div class="container">
-        <a href="#" class="logo">Jumat Berkah</a>
+        <a href="#" class="logo">
+          <i class="fas fa-mosque"></i> Jumat Berkah
+        </a>
         <ul class="nav-links">
-          <li><a href="#" class="navbar-button">Home</a></li>
-          <li><a id="logout-btn" class="navbar-button">Logout</a></li>
+          <li>
+            <a href="#" class="navbar-button"
+              ><i class="fas fa-home"></i> Home</a
+            >
+          </li>
+          <li id="admin-section" style="display: none">
+            <a href="admin/admin.html" class="navbar-button">
+              <i class="fas fa-user-cog"></i> Admin Panel
+            </a>
+          </li>
+          <li>
+            <a id="logout-btn" class="navbar-button">
+              <i class="fas fa-sign-out-alt"></i>
+              <span id="auth-text">Sign in</span>
+            </a>
+          </li>
         </ul>
       </div>
     </nav>
 
     <div class="container">
-      <h1>Daftar Masjid</h1>
+      <div class="welcome-section">
+        <h1><i class="fas fa-mosque"></i> Daftar Masjid</h1>
+        <p>Temukan masjid terdekat untuk ibadah Jumat</p>
+      </div>
+
       <div class="search-container">
-        <input
-          type="text"
-          id="search-bar"
-          placeholder="Cari masjid..."
-          autocomplete="off"
-        />
-        <button id="search-button" class="navbar-button">Cari</button>
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            id="search-bar"
+            placeholder="Cari masjid..."
+            autocomplete="off"
+          />
+        </div>
+        <button id="search-button" class="navbar-button">
+          <i class="fas fa-search"></i> Cari
+        </button>
+      </div>
+
+      <!-- Loading indicator -->
+      <div id="loading-spinner" class="loading-spinner" style="display: none">
+        <i class="fas fa-spinner fa-spin"></i> Memuat data...
       </div>
 
       <!-- Container untuk daftar masjid -->
-      <div id="masjid-list"></div>
+      <div id="masjid-list" class="masjid-grid"></div>
 
       <!-- Container untuk detail masjid -->
-      <div id="masjid-details" style="display: none"></div>
+      <div id="masjid-details" class="masjid-details" style="display: none">
+        <div class="details-content">
+          <button class="close-details">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="details-body"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Script -->
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2024 Jumat Berkah. All rights reserved.</p>
+        <div class="social-links">
+          <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="main.js/index.js"></script>
   </body>
