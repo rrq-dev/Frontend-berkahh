@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchMasjidData(searchTerm = "") {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/getlocation",
+        "https://backend-berkah.onrender.com/retreive/data",
         {
           method: "GET",
           headers: {
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchMasjidById(masjidId) {
     try {
       const response = await fetch(
-        `https://backend-berkah.onrender.com/getlocation?id=${masjidId}`,
+        `https://backend-berkah.onrender.com/retreive/data?id=${masjidId}`,
         {
           method: "GET",
           headers: {
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "success",
           confirmButtonColor: "#4CAF50",
         }).then(() => {
-          window.location.href = "jumatberkah.vercel.app/";
+          window.location.href = "https://jumatberkah.vercel.app/";
         });
       }
     });
