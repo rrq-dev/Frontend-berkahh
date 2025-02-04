@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil Saya - Jumat Berkah</title>
+    <link rel="stylesheet" href="profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <a href="../index.html" class="logo">
+          <i class="fas fa-mosque"></i> Jumat Berkah
+        </a>
+        <ul class="nav-links">
+          <li>
+            <a href="../index.html" class="navbar-button">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-picture">
+            <img
+              id="profilePicture"
+              src="../assets/default-avatar.png"
+              alt="Profile Picture"
+            />
+            <button class="change-picture-btn">
+              <i class="fas fa-camera"></i>
+            </button>
+          </div>
+          <h2><i class="fas fa-user-edit"></i> Edit Profil</h2>
+        </div>
+
+        <form id="profileForm">
+          <div class="form-section">
+            <h3><i class="fas fa-user"></i> Informasi Pribadi</h3>
+            <div class="input-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" required />
+            </div>
+            <div class="input-group">
+              <label for="fullName">Nama Lengkap</label>
+              <input type="text" id="fullName" />
+            </div>
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" required />
+            </div>
+            <div class="input-group">
+              <label for="phoneNumber">Nomor Telepon</label>
+              <input type="tel" id="phoneNumber" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="fas fa-map-marker-alt"></i> Alamat</h3>
+            <div class="input-group">
+              <label for="address">Alamat Lengkap</label>
+              <textarea id="address" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="fas fa-mosque"></i> Informasi Masjid</h3>
+            <div class="input-group">
+              <label for="preferredMasjid">Masjid yang Sering Dikunjungi</label>
+              <input type="text" id="preferredMasjid" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="fas fa-info-circle"></i> Bio</h3>
+            <div class="input-group">
+              <label for="bio">Tentang Saya</label>
+              <textarea id="bio" rows="4"></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="fas fa-lock"></i> Ubah Password</h3>
+            <div class="input-group">
+              <label for="oldPassword">Password Lama</label>
+              <input type="password" id="oldPassword" />
+            </div>
+            <div class="input-group">
+              <label for="newPassword">Password Baru</label>
+              <input type="password" id="newPassword" />
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i> Simpan Perubahan
+            </button>
+            <a href="../index.html" class="cancel-btn">
+              <i class="fas fa-times"></i> Batal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="../main.js/index.js"></script>
+  </body>
+</html>

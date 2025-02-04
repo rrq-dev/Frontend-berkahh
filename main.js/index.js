@@ -165,10 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Menangani tampilan tombol logout dan admin berdasarkan role
+  // Update fungsi updateAuthLinks yang sudah ada
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
     const adminBtn = document.getElementById("admin-btn");
+    const profileBtn = document.getElementById("profile-btn"); // Tambahkan ini
     const token = localStorage.getItem("jwtToken");
     const userRole = localStorage.getItem("userRole");
 
@@ -176,18 +177,37 @@ document.addEventListener("DOMContentLoaded", () => {
       logoutBtn.innerText = "Logout";
       logoutBtn.onclick = logout;
 
-      // Tampilkan tombol admin jika user adalah admin
+      // Tambahkan ini untuk menampilkan tombol profile
+      if (profileBtn) {
+        profileBtn.style.display = "block";
+      }
+
       if (userRole === "admin" && adminBtn) {
         adminBtn.style.display = "block";
         adminBtn.onclick = () => {
-          window.location.href = "admin/admin.html";
+          window.location.href = "../admin/admin.html";
         };
       }
+
+      // Tambahkan ini untuk memuat data profil
+      fetchUserProfile()
+        .then((userProfile) => {
+          if (userProfile) {
+            console.log("User profile loaded:", userProfile);
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading profile:", error);
+        });
     } else {
       logoutBtn.innerText = "Sign in";
-      logoutBtn.href = "auth/login.html";
+      logoutBtn.href = "../auth/login.html";
       if (adminBtn) {
         adminBtn.style.display = "none";
+      }
+      // Tambahkan ini untuk menyembunyikan tombol profile
+      if (profileBtn) {
+        profileBtn.style.display = "none";
       }
     }
   }
@@ -227,4 +247,244 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   };
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Inisialisasi elemen-elemen
+  const profileForm = document.getElementById("profileForm");
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const fullNameInput = document.getElementById("fullName");
+  const phoneNumberInput = document.getElementById("phoneNumber");
+  const addressInput = document.getElementById("address");
+  const preferredMasjidInput = document.getElementById("preferredMasjid");
+  const bioInput = document.getElementById("bio");
+  const oldPasswordInput = document.getElementById("oldPassword");
+  const newPasswordInput = document.getElementById("newPassword");
+  const logoutBtn = document.getElementById("logout-btn");
+  const profilePicture = document.getElementById("profilePicture");
+  const changePictureBtn = document.querySelector(".change-picture-btn");
+
+  // Cek autentikasi
+  const token = localStorage.getItem("jwtToken");
+  const userId = localStorage.getItem("userId");
+
+  if (!token || !userId) {
+    Swal.fire({
+      title: "Akses Ditolak",
+      text: "Silakan login terlebih dahulu",
+      icon: "warning",
+      confirmButtonColor: "#007bff",
+    }).then(() => {
+      window.location.href = "../auth/login.html";
+    });
+    return;
+  }
+
+  // Fungsi untuk mengambil data profil user
+  async function fetchUserProfile() {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        throw new Error("Token atau User ID tidak ditemukan");
+      }
+
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/retreive/data/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil data profil");
+      }
+
+      const users = await response.json();
+      return users.find((user) => user.id === parseInt(userId));
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  }
+
+  // Handle form submission
+  profileForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Validasi input
+    if (!usernameInput.value.trim() || !emailInput.value.trim()) {
+      Swal.fire({
+        title: "Error!",
+        text: "Username dan email harus diisi",
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
+      return;
+    }
+
+    // Prepare update data
+    const updateData = {
+      user_id: parseInt(userId),
+      username: usernameInput.value.trim(),
+      email: emailInput.value.trim(),
+      full_name: fullNameInput.value.trim(),
+      phone_number: phoneNumberInput.value.trim(),
+      address: addressInput.value.trim(),
+      preferred_masjid: preferredMasjidInput.value.trim(),
+      bio: bioInput.value.trim(),
+    };
+
+    // Add password if provided
+    if (oldPasswordInput.value && newPasswordInput.value) {
+      if (newPasswordInput.value.length < 6) {
+        Swal.fire({
+          title: "Error!",
+          text: "Password baru minimal 6 karakter",
+          icon: "error",
+          confirmButtonColor: "#007bff",
+        });
+        return;
+      }
+      updateData.old_password = oldPasswordInput.value;
+      updateData.new_password = newPasswordInput.value;
+    }
+
+    try {
+      // Show loading
+      const loadingAlert = Swal.fire({
+        title: "Menyimpan Perubahan...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      // Send update request
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/updateprofile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Gagal memperbarui profil");
+      }
+
+      // Close loading and show success
+      loadingAlert.close();
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Profil berhasil diperbarui",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      // Redirect to home
+      window.location.href = "../index.html";
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      Swal.fire({
+        title: "Error!",
+        text: error.message,
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
+    }
+  });
+
+  // Handle logout
+  logoutBtn.addEventListener("click", () => {
+    Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Anda akan keluar dari aplikasi",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#007bff",
+      cancelButtonColor: "#dc3545",
+      confirmButtonText: "Ya, Logout!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+        window.location.href = "../auth/login.html";
+      }
+    });
+  });
+
+  // Handle profile picture change
+  changePictureBtn.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          Swal.fire({
+            title: "Error!",
+            text: "Ukuran file maksimal 2MB",
+            icon: "error",
+            confirmButtonColor: "#007bff",
+          });
+          return;
+        }
+
+        try {
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            profilePicture.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+
+          // TODO: Implement image upload to server
+          // const formData = new FormData();
+          // formData.append("profile_picture", file);
+          // ... upload logic ...
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          Swal.fire({
+            title: "Error!",
+            text: "Gagal mengunggah gambar",
+            icon: "error",
+            confirmButtonColor: "#007bff",
+          });
+        }
+      }
+    };
+
+    input.click();
+  });
+
+  // Load initial profile data
+  fetchUserProfile();
+
+  // Update navbar
+  const updateNavbar = () => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      window.location.href = "../auth/login.html";
+    }
+  };
+
+  // Check authentication status periodically
+  setInterval(updateNavbar, 5000);
 });
