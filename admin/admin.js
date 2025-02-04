@@ -1,81 +1,104 @@
 document.addEventListener("DOMContentLoaded", () => {
   const addMasjidForm = document.getElementById("addMasjidForm");
-  const masjidTableBody = document.querySelector("#masjidTable tbody");
   const searchBar = document.getElementById("search-bar");
-  const detailsContainer = document.getElementById("masjid-details");
+  const masjidTable = document
+    .getElementById("masjidTable")
+    .getElementsByTagName("tbody")[0];
+  const logoutBtn = document.getElementById("logout-btn");
 
-  // Retrieve the token from localStorage
+  // Check authentication
   const token = localStorage.getItem("jwtToken");
+  const userRole = localStorage.getItem("userRole");
 
-  // Function to fetch and display all masjids
-  async function fetchMasjids() {
+  if (!token || userRole !== "admin") {
+    Swal.fire({
+      title: "Akses Ditolak!",
+      text: "Anda harus login sebagai admin",
+      icon: "error",
+      confirmButtonColor: "#007bff",
+    }).then(() => {
+      window.location.href = "../auth/login.html";
+    });
+    return;
+  }
+
+  // Fetch and display masjid data
+  const fetchMasjidData = async () => {
     try {
+      Swal.fire({
+        title: "Memuat Data...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/getlocation",
         {
-          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch masjids");
-      }
+      if (!response.ok) throw new Error("Failed to fetch data");
 
-      const masjids = await response.json();
-      renderMasjids(masjids);
+      const data = await response.json();
+      updateTable(data);
+      Swal.close();
     } catch (error) {
-      console.error("Error fetching masjids:", error);
+      console.error("Error fetching data:", error);
       Swal.fire({
-        title: "Error",
-        text: error.message,
+        title: "Error!",
+        text: "Gagal memuat data masjid",
         icon: "error",
-        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
-  }
+  };
 
-  // Function to render masjid data in the table
-  function renderMasjids(masjids) {
-    masjidTableBody.innerHTML = "";
-    const limitedMasjids = masjids.slice(0, 20); // Limit to 20 entries
-    limitedMasjids.forEach((masjid) => {
-      const row = document.createElement("tr");
+  // Update table with masjid data
+  const updateTable = (data) => {
+    masjidTable.innerHTML = "";
+    data.forEach((masjid) => {
+      const row = masjidTable.insertRow();
       row.innerHTML = `
-                  <td>${masjid.name}</td>
-                  <td>${masjid.address}</td>
-                  <td>${masjid.description}</td>
-                  <td>
-                      <button class="edit-button" data-id="${masjid.id}">Edit</button>
-                      <button class="delete-button" data-id="${masjid.id}">Delete</button>
-                  </td>
-              `;
-      masjidTableBody.appendChild(row);
+        <td>${masjid.name}</td>
+        <td>${masjid.address}</td>
+        <td>${masjid.description}</td>
+        <td>
+          <button onclick="editMasjid('${masjid.id}')" class="edit-button">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button onclick="deleteMasjid('${masjid.id}')" class="delete-button">
+            <i class="fas fa-trash"></i> Hapus
+          </button>
+        </td>
+      `;
     });
+  };
 
-    // Add event listeners to edit and delete buttons
-    const editButtons = document.querySelectorAll(".edit-button");
-    editButtons.forEach((button) => {
-      button.addEventListener("click", handleEdit);
-    });
+  // Add new masjid
+  addMasjidForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const deleteButtons = document.querySelectorAll(".delete-button");
-    deleteButtons.forEach((button) => {
-      button.addEventListener("click", handleDelete);
-    });
-  }
-  // Function to handle form submission for adding a new masjid
-  addMasjidForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const name = document.getElementById("masjidName").value;
-    const address = document.getElementById("masjidAddress").value;
-    const description = document.getElementById("masjidContact").value;
+    const masjidData = {
+      name: document.getElementById("masjidName").value,
+      address: document.getElementById("masjidAddress").value,
+      description: document.getElementById("masjidContact").value,
+    };
 
     try {
+      Swal.fire({
+        title: "Menambahkan Masjid...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/createlocation",
         {
@@ -84,77 +107,73 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name, address, description }),
+          body: JSON.stringify(masjidData),
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to add masjid");
-      }
+      if (!response.ok) throw new Error("Failed to add masjid");
 
-      await response.json(); // Await the response to ensure it's processed
       Swal.fire({
-        title: "Success",
-        text: "Masjid added successfully!",
+        title: "Berhasil!",
+        text: "Masjid berhasil ditambahkan",
         icon: "success",
-        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+        timer: 1500,
       });
-      fetchMasjids(); // Refresh the list
-      addMasjidForm.reset(); // Reset the form
+
+      addMasjidForm.reset();
+      fetchMasjidData();
     } catch (error) {
       console.error("Error adding masjid:", error);
       Swal.fire({
-        title: "Error",
-        text: error.message,
+        title: "Error!",
+        text: "Gagal menambahkan masjid",
         icon: "error",
-        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
   });
 
-  // Function to handle editing a masjid
-  async function handleEdit(event) {
-    const masjidId = event.target.getAttribute("data-id");
-
-    const { value: name } = await Swal.fire({
-      title: "Enter new name",
-      input: "text",
-      inputValue: "",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return "You need to write something!";
+  // Edit masjid
+  window.editMasjid = async (id) => {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/retreive/data?id=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      },
-    });
+      );
 
-    const { value: address } = await Swal.fire({
-      title: "Enter new address",
-      input: "text",
-      inputValue: "",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return "You need to write something!";
-        }
-      },
-    });
+      if (!response.ok) throw new Error("Failed to fetch masjid data");
 
-    const { value: description } = await Swal.fire({
-      title: "Enter new description",
-      input: "text",
-      inputValue: "",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return "You need to write something!";
-        }
-      },
-    });
+      const masjid = await response.json();
 
-    if (name && address && description) {
-      try {
-        const response = await fetch(
+      const { value: formValues } = await Swal.fire({
+        title: "Edit Masjid",
+        html: `
+          <input id="swal-name" class="swal2-input" value="${masjid.name}" placeholder="Nama Masjid">
+          <input id="swal-address" class="swal2-input" value="${masjid.address}" placeholder="Alamat">
+          <input id="swal-description" class="swal2-input" value="${masjid.description}" placeholder="Deskripsi">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Simpan",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#007bff",
+        preConfirm: () => {
+          return {
+            id: id,
+            name: document.getElementById("swal-name").value,
+            address: document.getElementById("swal-address").value,
+            description: document.getElementById("swal-description").value,
+          };
+        },
+      });
+
+      if (formValues) {
+        const updateResponse = await fetch(
           "https://backend-berkah.onrender.com/updatelocation",
           {
             method: "PUT",
@@ -162,55 +181,48 @@ document.addEventListener("DOMContentLoaded", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-              id: parseInt(masjidId), // Ensure ID is an integer
-              name,
-              address,
-              description,
-            }),
+            body: JSON.stringify(formValues),
           }
         );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to update masjid");
-        }
+        if (!updateResponse.ok) throw new Error("Failed to update masjid");
 
         Swal.fire({
-          title: "Success",
-          text: "Masjid updated successfully!",
+          title: "Berhasil!",
+          text: "Data masjid berhasil diperbarui",
           icon: "success",
-          confirmButtonText: "OK",
+          confirmButtonColor: "#007bff",
+          timer: 1500,
         });
-        fetchMasjids(); // Refresh the list
-      } catch (error) {
-        console.error("Error updating masjid:", error);
-        Swal.fire({
-          title: "Error",
-          text: error.message,
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+
+        fetchMasjidData();
       }
+    } catch (error) {
+      console.error("Error updating masjid:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal memperbarui data masjid",
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
     }
-  }
+  };
 
-  // Function to handle deleting a masjid
-  async function handleDelete(event) {
-    const masjidId = event.target.getAttribute("data-id");
+  // Delete masjid
+  window.deleteMasjid = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Hapus Masjid?",
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal",
+      });
 
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (result.isConfirmed) {
-      try {
+      if (result.isConfirmed) {
         const response = await fetch(
           "https://backend-berkah.onrender.com/deletelocation",
           {
@@ -219,103 +231,74 @@ document.addEventListener("DOMContentLoaded", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ id: parseInt(masjidId) }), // Ensure ID is an integer
+            body: JSON.stringify({ id: id }),
           }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to delete masjid");
-        }
+        if (!response.ok) throw new Error("Failed to delete masjid");
 
         Swal.fire({
-          title: "Deleted!",
-          text: "Masjid has been deleted.",
+          title: "Terhapus!",
+          text: "Data masjid berhasil dihapus",
           icon: "success",
-          confirmButtonText: "OK",
+          confirmButtonColor: "#007bff",
+          timer: 1500,
         });
-        fetchMasjids(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting masjid:", error);
-        Swal.fire({
-          title: "Error",
-          text: error.message,
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+
+        fetchMasjidData();
       }
-    }
-  }
-
-  // Function to handle logout
-  function logout() {
-    localStorage.removeItem("jwtToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userRole");
-    Swal.fire({
-      title: "Logout Successful",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect to main page
-    });
-  }
-
-  // Function to update authentication links
-  function updateAuthLinks() {
-    const logoutBtn = document.getElementById("logout-btn");
-    if (localStorage.getItem("jwtToken")) {
-      logoutBtn.innerText = "Logout";
-      logoutBtn.onclick = logout; // Set logout function
-    } else {
-      logoutBtn.innerText = "Sign in";
-      logoutBtn.href = "auth/login.html"; // Redirect to login page
-    }
-  }
-
-  // Function to filter masjids based on search input
-  function filterMasjids(searchTerm, masjids) {
-    return masjids.filter(
-      (masjid) =>
-        masjid.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        masjid.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        masjid.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  // Event listener for search bar
-  searchBar.addEventListener("input", async (event) => {
-    const searchTerm = event.target.value;
-    try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/getlocation",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch masjids");
-      }
-
-      const masjids = await response.json();
-      const filteredMasjids = filterMasjids(searchTerm, masjids);
-      renderMasjids(filteredMasjids);
     } catch (error) {
-      console.error("Error fetching masjids:", error);
+      console.error("Error deleting masjid:", error);
       Swal.fire({
-        title: "Error",
-        text: error.message,
+        title: "Error!",
+        text: "Gagal menghapus data masjid",
         icon: "error",
-        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
+  };
+
+  // Search functionality
+  searchBar.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = masjidTable.getElementsByTagName("tr");
+
+    Array.from(rows).forEach((row) => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(searchTerm) ? "" : "none";
+    });
   });
 
-  // Fetch and display masjids on page load
-  fetchMasjids();
-  updateAuthLinks();
+  // Logout functionality
+  logoutBtn.addEventListener("click", () => {
+    Swal.fire({
+      title: "Logout?",
+      text: "Anda akan keluar dari sistem",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Ya, Logout!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+
+        Swal.fire({
+          title: "Berhasil Logout!",
+          text: "Anda akan dialihkan ke halaman login",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = "../auth/login.html";
+        });
+      }
+    });
+  });
+
+  // Initial load
+  fetchMasjidData();
 });
