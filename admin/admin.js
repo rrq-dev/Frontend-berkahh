@@ -301,6 +301,197 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Update table with user data
+  const updateUserTable = (data) => {
+    userTable.innerHTML = "";
+    data.forEach((user) => {
+      const row = userTable.insertRow();
+      row.innerHTML = `
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${user.role.name}</td>
+        <td>
+          <button onclick="editUser('${user.id}')" class="edit-button">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button onclick="deleteUser('${user.id}')" class="delete-button">
+            <i class="fas fa-trash"></i> Hapus
+          </button>
+        </td>
+      `;
+    });
+  };
+
+  // Ubah pemanggilan fungsi di fetchUserData
+  const fetchUserData = async () => {
+    try {
+      Swal.fire({
+        title: "Memuat Data...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/user",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch data");
+
+      const data = await response.json();
+      updateUserTable(data);
+      Swal.close();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal memuat data user",
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
+    }
+  };
+
+  // Edit user
+  window.editUser = async (id) => {
+    try {
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/retreive/user?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const user = await response.json();
+
+      const { value: formValues } = await Swal.fire({
+        title: "Edit User",
+        html: `
+          <input id="swal-username" class="swal2-input" value="${
+            user.username
+          }" placeholder="Username">
+          <input id="swal-email" class="swal2-input" value="${
+            user.email
+          }" placeholder="Email">
+          <select id="swal-role" class="swal2-input">
+            <option value="admin" ${
+              user.role.name === "admin" ? "selected" : ""
+            }>Admin</option>
+            <option value="user" ${
+              user.role.name === "user" ? "selected" : ""
+            }>User</option>
+          </select>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Simpan",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#007bff",
+        preConfirm: () => {
+          return {
+            id: id,
+            username: document.getElementById("swal-username").value,
+            email: document.getElementById("swal-email").value,
+            role: document.getElementById("swal-role").value,
+          };
+        },
+      });
+
+      if (formValues) {
+        const updateResponse = await fetch(
+          "https://backend-berkah.onrender.com/updateuser",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formValues),
+          }
+        );
+
+        if (!updateResponse.ok) throw new Error("Failed to update user");
+
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Data user berhasil diperbarui",
+          icon: "success",
+          confirmButtonColor: "#007bff",
+          timer: 1500,
+        });
+
+        fetchUserData();
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal memperbarui data user",
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
+    }
+  };
+
+  // Delete user
+  window.deleteUser = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Hapus User?",
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal",
+      });
+
+      if (result.isConfirmed) {
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/deleteuser",
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: id }),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to delete user");
+
+        Swal.fire({
+          title: "Terhapus!",
+          text: "Data user berhasil dihapus",
+          icon: "success",
+          confirmButtonColor: "#007bff",
+          timer: 1500,
+        });
+
+        fetchUserData();
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Gagal menghapus data user",
+        icon: "error",
+        confirmButtonColor: "#007bff",
+      });
+    }
+  };
+
   // Initial load
   fetchMasjidData();
+  fetchUserData();
 });
