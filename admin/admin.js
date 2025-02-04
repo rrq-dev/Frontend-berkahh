@@ -312,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
@@ -340,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
