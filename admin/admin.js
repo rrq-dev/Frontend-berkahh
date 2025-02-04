@@ -1,13 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const addMasjidForm = document.getElementById("addMasjidForm");
+  // Inisialisasi elemen-elemen yang mungkin ada di kedua halaman
   const searchBar = document.getElementById("search-bar");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  // Inisialisasi elemen-elemen khusus halaman admin
+  const addMasjidForm = document.getElementById("addMasjidForm");
   const masjidTable = document
     .getElementById("masjidTable")
-    .getElementsByTagName("tbody")[0];
+    ?.getElementsByTagName("tbody")[0];
   const userTable = document
     .getElementById("userTable")
-    .getElementsByTagName("tbody")[0];
-  const logoutBtn = document.getElementById("logout-btn");
+    ?.getElementsByTagName("tbody")[0];
 
   // Check authentication
   const token = localStorage.getItem("jwtToken");
@@ -25,8 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Fungsi untuk menentukan halaman saat ini
+  const isManageUserPage = () => {
+    return window.location.pathname.includes("manage_user.html");
+  };
+
   // Fetch and display masjid data
   const fetchMasjidData = async () => {
+    if (!masjidTable) return; // Skip jika tidak ada masjidTable
+
     try {
       Swal.fire({
         title: "Memuat Data...",
@@ -37,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location",
+        "https://backend-berkah.onrender.com/getlocation",
         {
           headers: {
             "Content-Type": "application/json",
@@ -63,6 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Update table with masjid data
   const updateTable = (data) => {
+    if (!masjidTable) return;
+
     masjidTable.innerHTML = "";
     data.forEach((masjid) => {
       const row = masjidTable.insertRow();
@@ -83,63 +95,65 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Add new masjid
-  addMasjidForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (addMasjidForm) {
+    addMasjidForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const masjidData = {
-      name: document.getElementById("masjidName").value,
-      address: document.getElementById("masjidAddress").value,
-      description: document.getElementById("masjidContact").value,
-    };
+      const masjidData = {
+        name: document.getElementById("masjidName").value,
+        address: document.getElementById("masjidAddress").value,
+        description: document.getElementById("masjidContact").value,
+      };
 
-    try {
-      Swal.fire({
-        title: "Menambahkan Masjid...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/createlocation",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      try {
+        Swal.fire({
+          title: "Menambahkan Masjid...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
           },
-          body: JSON.stringify(masjidData),
-        }
-      );
+        });
 
-      if (!response.ok) throw new Error("Failed to add masjid");
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/createlocation",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(masjidData),
+          }
+        );
 
-      Swal.fire({
-        title: "Berhasil!",
-        text: "Masjid berhasil ditambahkan",
-        icon: "success",
-        confirmButtonColor: "#007bff",
-        timer: 1500,
-      });
+        if (!response.ok) throw new Error("Failed to add masjid");
 
-      addMasjidForm.reset();
-      fetchMasjidData();
-    } catch (error) {
-      console.error("Error adding masjid:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Gagal menambahkan masjid",
-        icon: "error",
-        confirmButtonColor: "#007bff",
-      });
-    }
-  });
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Masjid berhasil ditambahkan",
+          icon: "success",
+          confirmButtonColor: "#007bff",
+          timer: 1500,
+        });
+
+        addMasjidForm.reset();
+        fetchMasjidData();
+      } catch (error) {
+        console.error("Error adding masjid:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "Gagal menambahkan masjid",
+          icon: "error",
+          confirmButtonColor: "#007bff",
+        });
+      }
+    });
+  }
 
   // Edit masjid
   window.editMasjid = async (id) => {
     try {
       const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data/location?id=${id}`,
+        `https://backend-berkah.onrender.com/getlocation?id=${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -257,50 +271,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Search functionality
-  searchBar.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const rows = masjidTable.getElementsByTagName("tr");
-
-    Array.from(rows).forEach((row) => {
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(searchTerm) ? "" : "none";
-    });
-  });
-
-  // Logout functionality
-  logoutBtn.addEventListener("click", () => {
-    Swal.fire({
-      title: "Logout?",
-      text: "Anda akan keluar dari sistem",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Ya, Logout!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        localStorage.removeItem("jwtToken");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("userRole");
-
-        Swal.fire({
-          title: "Berhasil Logout!",
-          text: "Anda akan dialihkan ke halaman login",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          window.location.href =
-            "https://jumatberkah.vercel.app/auth/login.html";
-        });
-      }
-    });
-  });
-
   // Update table with user data
   const updateUserTable = (data) => {
+    if (!userTable) return; // Skip jika tidak ada userTable
+
     userTable.innerHTML = "";
     data.forEach((user) => {
       const row = userTable.insertRow();
@@ -322,6 +296,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch user data
   const fetchUserData = async () => {
+    if (!userTable) return; // Skip jika tidak ada userTable
+
     try {
       Swal.fire({
         title: "Memuat Data...",
@@ -489,7 +465,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Initial load
-  fetchMasjidData();
-  fetchUserData();
+  // Search functionality
+  if (searchBar) {
+    searchBar.addEventListener("input", (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const targetTable = isManageUserPage() ? userTable : masjidTable;
+
+      if (targetTable) {
+        const rows = targetTable.getElementsByTagName("tr");
+        Array.from(rows).forEach((row) => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? "" : "none";
+        });
+      }
+    });
+  }
+
+  // Logout functionality
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      Swal.fire({
+        title: "Logout?",
+        text: "Anda akan keluar dari sistem",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Logout!",
+        cancelButtonText: "Batal",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem("jwtToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userRole");
+
+          Swal.fire({
+            title: "Berhasil Logout!",
+            text: "Anda akan dialihkan ke halaman login",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          }).then(() => {
+            window.location.href =
+              "https://jumatberkah.vercel.app/auth/login.html";
+          });
+        }
+      });
+    });
+  }
+
+  // Inisialisasi halaman berdasarkan path
+  if (isManageUserPage()) {
+    // Jika di halaman manage user, hanya load data user
+    fetchUserData();
+  } else {
+    // Jika di halaman admin (masjid), load kedua data
+    fetchMasjidData();
+    fetchUserData();
+  }
 });

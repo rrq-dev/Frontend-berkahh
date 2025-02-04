@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data",
+        "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
           headers: {
