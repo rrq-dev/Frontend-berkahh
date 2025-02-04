@@ -5,8 +5,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Menangani login dengan Google
   googleLoginBtn.addEventListener("click", () => {
-    window.location.href =
-      "https://backend-berkah.onrender.com/auth/google/login";
+    Swal.fire({
+      title: "Menghubungkan ke Google...",
+      html: "Mohon tunggu sebentar",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    setTimeout(() => {
+      window.location.href =
+        "https://backend-berkah.onrender.com/auth/google/login";
+    }, 800);
   });
 
   loginForm.addEventListener("submit", async (event) => {
@@ -17,15 +29,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!email || !password) {
       Swal.fire({
-        title: "Login Failed",
-        text: "Email and password are required.",
+        title: "Login Gagal",
+        text: "Email dan password harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
       return;
     }
 
     try {
+      Swal.fire({
+        title: "Memproses...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/login",
         {
@@ -42,34 +64,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
+        throw new Error(errorData.error || "Login gagal");
       }
 
       const data = await response.json();
 
-      Swal.fire({
-        title: "Login Successful!",
-        text: `Welcome back!`,
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        localStorage.setItem("jwtToken", data.token);
-        localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("jwtToken", data.token);
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("userRole", data.user.role);
 
-        if (data.user.role === "admin") {
-          window.location.href =
-            "https://jumatberkah.vercel.app/admin/admin.html";
-        } else {
-          window.location.href = "https://jumatberkah.vercel.app/";
-        }
+      Swal.fire({
+        title: "Login Berhasil!",
+        text: "Selamat datang kembali!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      }).then(() => {
+        const redirectUrl =
+          data.user.role === "admin"
+            ? "https://jumatberkah.vercel.app/admin/admin.html"
+            : "https://jumatberkah.vercel.app/";
+
+        window.location.href = redirectUrl;
       });
     } catch (error) {
-      console.error("There was a problem with the fetch operation:", error);
+      console.error("Error during login:", error);
       Swal.fire({
-        title: "Login Failed",
+        title: "Login Gagal",
         text: error.message,
         icon: "error",
         confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
   });
@@ -81,40 +107,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (error) {
     Swal.fire({
-      title: "Login Failed",
+      title: "Login Gagal",
       text: decodeURIComponent(error),
       icon: "error",
       confirmButtonText: "OK",
+      confirmButtonColor: "#007bff",
     });
   } else if (token) {
+    Swal.fire({
+      title: "Memproses login...",
+      html: "Mohon tunggu sebentar",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
-      // Decode token untuk mendapatkan informasi user
       const tokenParts = token.split(".");
       const payload = JSON.parse(atob(tokenParts[1]));
 
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("userId", payload.user_id);
+      localStorage.setItem("userRole", payload.role);
 
-      Swal.fire({
-        title: "Login Successful!",
-        text: "Welcome back!",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        if (payload.role === "admin") {
-          window.location.href =
-            "https://jumatberkah.vercel.app/admin/admin.html";
-        } else {
-          window.location.href = "https://jumatberkah.vercel.app/";
-        }
-      });
+      setTimeout(() => {
+        Swal.fire({
+          title: "Login Berhasil!",
+          text: "Selamat datang kembali!",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        }).then(() => {
+          const redirectUrl =
+            payload.role === "admin"
+              ? "https://jumatberkah.vercel.app/admin/admin.html"
+              : "https://jumatberkah.vercel.app/";
+
+          window.location.href = redirectUrl;
+        });
+      }, 800);
     } catch (error) {
       console.error("Error processing token:", error);
       Swal.fire({
-        title: "Login Failed",
-        text: "Error processing login information",
+        title: "Login Gagal",
+        text: "Error memproses informasi login",
         icon: "error",
         confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
   }
@@ -129,15 +171,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!name || !email || !password) {
       Swal.fire({
-        title: "Registration Failed",
-        text: "All fields are required.",
+        title: "Registrasi Gagal",
+        text: "Semua field harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
       return;
     }
 
     try {
+      Swal.fire({
+        title: "Memproses registrasi...",
+        html: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/register",
         {
@@ -155,26 +208,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Registration failed");
+        throw new Error(errorData.error || "Registrasi gagal");
       }
 
       const data = await response.json();
 
       Swal.fire({
-        title: "Registration Successful!",
-        text: `Welcome, ${data.user}! You can now log in.`,
+        title: "Registrasi Berhasil!",
+        text: `Selamat datang, ${data.user}! Silakan login.`,
         icon: "success",
-        confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true,
       }).then(() => {
         window.location.href = "login.html";
       });
     } catch (error) {
-      console.error("There was a problem with the fetch operation:", error);
+      console.error("Error during registration:", error);
       Swal.fire({
-        title: "Registration Failed",
+        title: "Registrasi Gagal",
         text: error.message,
         icon: "error",
         confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
       });
     }
   });
