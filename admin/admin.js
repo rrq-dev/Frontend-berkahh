@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const response = await fetch(
-        "https://backend-berkah.onrender.com/getlocation",
+        "https://backend-berkah.onrender.com/retreive/data/location",
         {
           headers: {
             "Content-Type": "application/json",
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.editMasjid = async (id) => {
     try {
       const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data?id=${id}`,
+        `https://backend-berkah.onrender.com/retreive/data/location?id=${id}`,
         {
           headers: {
             "Content-Type": "application/json",
