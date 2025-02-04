@@ -5,15 +5,59 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
+  // Handle Google OAuth Callback Token
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+
+  if (token) {
+    try {
+      // Decode token untuk mendapatkan informasi user
+      const tokenParts = token.split(".");
+      if (tokenParts.length !== 3) {
+        throw new Error("Invalid token format");
+      }
+
+      const payload = JSON.parse(atob(tokenParts[1]));
+
+      // Simpan token dan user info
+      localStorage.setItem("jwtToken", token);
+      localStorage.setItem("userId", payload.user_id);
+      localStorage.setItem("userRole", payload.role);
+
+      // Hapus token dari URL tanpa reload halaman
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // Tampilkan pesan selamat datang untuk login Google
+      Swal.fire({
+        title: "Login Berhasil!",
+        text: "Selamat datang kembali!",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+    } catch (error) {
+      console.error("Error processing token:", error);
+      Swal.fire({
+        title: "Login Gagal",
+        text: "Error memproses informasi login",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  }
+
   // Fungsi untuk mengambil semua lokasi masjid
   async function fetchMasjidData(searchTerm = "") {
     try {
+      const token = localStorage.getItem("jwtToken");
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data",
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
@@ -63,10 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const masjidItem = document.createElement("div");
       masjidItem.className = "masjid-item";
       masjidItem.innerHTML = `        
-              <h3>${masjid.name}</h3>        
-              <p>${masjid.address}</p>        
-              <p>${masjid.description}</p>        
-          `;
+        <h3>${masjid.name}</h3>        
+        <p>${masjid.address}</p>        
+        <p>${masjid.description}</p>        
+      `;
 
       masjidItem.addEventListener("mouseover", () => {
         const randomColor = getRandomColor();
@@ -82,53 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
       masjidList.appendChild(masjidItem);
     });
   }
-
-  // Fungsi untuk mengambil lokasi masjid berdasarkan ID
-  async function fetchMasjidById(masjidId) {
-    try {
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data?id=${masjidId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`Error: ${errorMessage}`);
-      }
-
-      const masjidDetails = await response.json();
-      displayMasjidDetails(masjidDetails);
-    } catch (error) {
-      console.error("Error fetching masjid details:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Gagal memuat detail masjid!",
-        confirmButtonColor: "#4CAF50",
-      });
-    }
-  }
-
-  // Fungsi untuk menampilkan detail masjid
-  function displayMasjidDetails(masjid) {
-    detailsContainer.innerHTML = `        
-          <h2>${masjid.name}</h2>        
-          <p>Address: ${masjid.address}</p>        
-          <p>Description: ${masjid.description}</p>        
-      `;
-    detailsContainer.style.display = "block";
-  }
-
-  // Event listener untuk input pencarian
-  searchBar.addEventListener("input", () => {
-    const searchTerm = searchBar.value;
-    fetchMasjidData(searchTerm);
-  });
 
   // Fungsi untuk menghasilkan warna acak
   function getRandomColor() {
@@ -168,17 +165,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Menangani tampilan tombol logout jika pengguna sudah login
+  // Menangani tampilan tombol logout dan admin berdasarkan role
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
-    if (localStorage.getItem("jwtToken")) {
+    const adminBtn = document.getElementById("admin-btn");
+    const token = localStorage.getItem("jwtToken");
+    const userRole = localStorage.getItem("userRole");
+
+    if (token) {
       logoutBtn.innerText = "Logout";
       logoutBtn.onclick = logout;
+
+      // Tampilkan tombol admin jika user adalah admin
+      if (userRole === "admin" && adminBtn) {
+        adminBtn.style.display = "block";
+        adminBtn.onclick = () => {
+          window.location.href = "admin/admin.html";
+        };
+      }
     } else {
       logoutBtn.innerText = "Sign in";
       logoutBtn.href = "auth/login.html";
+      if (adminBtn) {
+        adminBtn.style.display = "none";
+      }
     }
   }
+
+  // Event listener untuk input pencarian
+  searchBar.addEventListener("input", () => {
+    const searchTerm = searchBar.value;
+    fetchMasjidData(searchTerm);
+  });
 
   // Menambahkan event listener untuk hover pada navbar buttons
   navbarButtons.forEach((button) => {
@@ -197,14 +215,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthLinks();
     fetchMasjidData();
 
-    // Tampilkan pesan selamat datang
-    Swal.fire({
-      title: "Selamat Datang!",
-      text: "di Aplikasi Jumat Berkah",
-      icon: "success",
-      confirmButtonColor: "#4CAF50",
-      timer: 2000,
-      timerProgressBar: true,
-    });
+    // Tampilkan pesan selamat datang hanya jika tidak ada token di URL
+    if (!token) {
+      Swal.fire({
+        title: "Selamat Datang!",
+        text: "di Aplikasi Jumat Berkah",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
   };
 });
