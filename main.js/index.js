@@ -19,8 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "warning",
         confirmButtonText: "OK",
       }).then(() => {
-        window.location.href =
-          "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html"; // Redirect ke halaman login jika belum login
+        window.location.href = "https://jumatberkah.vercel.app/auth/login.html"; // Redirect ke halaman login jika belum login
       });
     }
   }
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonText: "OK",
           }).then(() => {
             window.location.href =
-              "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+              "https://jumatberkah.vercel.app/auth/login.html";
           });
         }
         return;
@@ -133,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonText: "OK",
           }).then(() => {
             window.location.href =
-              "https://rrq-dev.github.io/jumatberkah.github.io/auth/login.html";
+              "https://jumatberkah.vercel.app/auth/login.html";
           });
         }
         return;
@@ -189,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "success",
       confirmButtonText: "OK",
     }).then(() => {
-      window.location.href = "https://rrq-dev.github.io/jumatberkah.github.io"; // Redirect ke halaman utama
+      window.location.href = "https://jumatberkah.vercel.app/"; // Redirect ke halaman utama
     });
   }
 
