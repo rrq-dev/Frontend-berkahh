@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "success",
           confirmButtonColor: "#4CAF50",
         }).then(() => {
-          window.location.href = "https://jumatberkah.vercel.app/";
+          window.location.href = "jumatberkah.vercel.app/";
         });
       }
     });
