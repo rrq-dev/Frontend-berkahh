@@ -269,18 +269,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("jwtToken");
   const userId = localStorage.getItem("userId");
 
-  if (!token || !userId) {
-    Swal.fire({
-      title: "Akses Ditolak",
-      text: "Silakan login terlebih dahulu",
-      icon: "warning",
-      confirmButtonColor: "#007bff",
-    }).then(() => {
-      window.location.href = "../auth/login.html";
-    });
-    return;
-  }
-
   // Fungsi untuk mengambil data profil user
   async function fetchUserProfile() {
     try {
