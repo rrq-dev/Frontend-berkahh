@@ -70,30 +70,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Add event listener for Google login button
-  if (googleLoginBtn) {
-    googleLoginBtn.addEventListener("click", () => {
-      // Redirect to Google OAuth login page
-      window.location.href =
-        "https://backend-berkah.onrender.com/auth/google/login";
-    });
-  }
   // Handle Google login callback
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has("googleLogin")) {
-    const userId = urlParams.get("userId"); // Assuming userId is returned in the query params
-    const token = urlParams.get("token"); // Assuming token is returned in the query params
+  if (urlParams.has("token")) {
+    // Ubah dari 'googleLogin' ke 'token'
+    const token = urlParams.get("token");
 
-    if (userId && token) {
-      localStorage.setItem("jwtToken", token); // Save token
-      localStorage.setItem("userId", userId); // Save user ID
+    if (token) {
+      // Decode token untuk mendapatkan informasi user
+      const tokenParts = token.split(".");
+      const payload = JSON.parse(atob(tokenParts[1]));
+
+      localStorage.setItem("jwtToken", token);
+      localStorage.setItem("userId", payload.user_id); // Ambil user_id dari token
+
       Swal.fire({
         title: "Login Successful!",
-        text: `Welcome to the main page, ${userName}!`,
+        text: "Welcome back!",
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
-        window.location.href = "https://jumatberkah.vercel.app/"; // Redirect to main page
+        // Cek role dari payload token
+        if (payload.role === "admin") {
+          window.location.href =
+            "https://jumatberkah.vercel.app/admin/admin.html";
+        } else {
+          window.location.href = "https://jumatberkah.vercel.app/";
+        }
       });
     }
   }
