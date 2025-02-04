@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
+  const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
 
+  // Menangani login dengan Google
+  googleLoginBtn.addEventListener("click", () => {
+    window.location.href =
+      "https://backend-berkah.onrender.com/auth/google/login";
+  });
+
   loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
     const email = document.getElementById("email-input").value;
     const password = document.getElementById("password-input").value;
 
-    // Validate input fields
     if (!email || !password) {
       Swal.fire({
         title: "Login Failed",
@@ -40,27 +46,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      // Use SweetAlert for success notification
+
       Swal.fire({
         title: "Login Successful!",
         text: `Welcome back!`,
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
-        localStorage.setItem("jwtToken", data.token); // Save token
-        localStorage.setItem("userId", data.user.id); // Save user ID
+        localStorage.setItem("jwtToken", data.token);
+        localStorage.setItem("userId", data.user.id);
 
-        // Check user role and redirect accordingly
         if (data.user.role === "admin") {
           window.location.href =
-            "https://jumatberkah.vercel.app/admin/admin.html"; // Redirect to admin dashboard
+            "https://jumatberkah.vercel.app/admin/admin.html";
         } else {
-          window.location.href = "https://jumatberkah.vercel.app/"; // Redirect to main page
+          window.location.href = "https://jumatberkah.vercel.app/";
         }
       });
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
-      // Use SweetAlert for error notification
       Swal.fire({
         title: "Login Failed",
         text: error.message,
@@ -70,19 +74,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle Google login callback
+  // Handle Google OAuth Callback
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has("token")) {
-    // Ubah dari 'googleLogin' ke 'token'
-    const token = urlParams.get("token");
+  const token = urlParams.get("token");
+  const error = urlParams.get("error");
 
-    if (token) {
+  if (error) {
+    Swal.fire({
+      title: "Login Failed",
+      text: decodeURIComponent(error),
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  } else if (token) {
+    try {
       // Decode token untuk mendapatkan informasi user
       const tokenParts = token.split(".");
       const payload = JSON.parse(atob(tokenParts[1]));
 
       localStorage.setItem("jwtToken", token);
-      localStorage.setItem("userId", payload.user_id); // Ambil user_id dari token
+      localStorage.setItem("userId", payload.user_id);
 
       Swal.fire({
         title: "Login Successful!",
@@ -90,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
-        // Cek role dari payload token
         if (payload.role === "admin") {
           window.location.href =
             "https://jumatberkah.vercel.app/admin/admin.html";
@@ -98,17 +108,25 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "https://jumatberkah.vercel.app/";
         }
       });
+    } catch (error) {
+      console.error("Error processing token:", error);
+      Swal.fire({
+        title: "Login Failed",
+        text: "Error processing login information",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   }
+
   // Registration functionality
   signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
     const name = document.getElementById("name-input").value;
     const email = document.getElementById("signup-email-input").value;
     const password = document.getElementById("signup-password-input").value;
 
-    // Validate input fields
     if (!name || !email || !password) {
       Swal.fire({
         title: "Registration Failed",
@@ -141,19 +159,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      // Use SweetAlert for success notification
+
       Swal.fire({
         title: "Registration Successful!",
-        text: `Welcome, ${data.user.name}! You can now log in.`,
+        text: `Welcome, ${data.user}! You can now log in.`,
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
-        // Optionally redirect to login page or clear the form
-        window.location.href = "login.html"; // Redirect to login page
+        window.location.href = "login.html";
       });
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
-      // Use SweetAlert for error notification
       Swal.fire({
         title: "Registration Failed",
         text: error.message,
