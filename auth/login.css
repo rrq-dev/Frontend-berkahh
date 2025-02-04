@@ -13,7 +13,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #7d2ae8; /* Background color */
+  background: #007bff; /* Mengubah ke warna biru yang sama dengan navbar */
   padding: 30px;
 }
 
@@ -21,10 +21,11 @@ body {
   position: relative;
   max-width: 850px;
   width: 100%;
-  background: #fff; /* White background for the form */
+  background: #fff;
   padding: 40px 30px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Shadow effect */
-  perspective: 2700px; /* 3D perspective for flip effect */
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+  perspective: 2700px;
+  border-radius: 12px;
 }
 
 .container .cover {
@@ -41,11 +42,7 @@ body {
 }
 
 .container #flip:checked ~ .cover {
-  transform: rotateY(-180deg); /* Flip effect */
-}
-
-.container #flip:checked ~ .forms .login-form {
-  pointer-events: none; /* Disable login form when flipped */
+  transform: rotateY(-180deg);
 }
 
 .container .cover .front,
@@ -55,17 +52,19 @@ body {
   left: 0;
   height: 100%;
   width: 100%;
+  border-radius: 0 12px 12px 0;
+  overflow: hidden;
 }
 
 .cover .back {
-  transform: rotateY(180deg); /* Back side of the cover */
+  transform: rotateY(180deg);
 }
 
 .container .cover img {
   position: absolute;
   height: 100%;
   width: 100%;
-  object-fit: cover; /* Cover image */
+  object-fit: cover;
   z-index: 10;
 }
 
@@ -78,6 +77,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .container .cover .text::before {
@@ -85,8 +85,8 @@ body {
   position: absolute;
   height: 100%;
   width: 100%;
-  opacity: 0.5; /* Overlay effect */
-  background: #7d2ae8; /* Overlay color */
+  opacity: 0.6;
+  background: #007bff;
 }
 
 .cover .text .text-1,
@@ -94,188 +94,203 @@ body {
   z-index: 20;
   font-size: 26px;
   font-weight: 600;
-  color: #fff; /* Text color */
+  color: #fff;
   text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .cover .text .text-2 {
   font-size: 15px;
   font-weight: 500;
+  margin-top: 10px;
 }
 
 .container .forms {
   height: 100%;
   width: 100%;
-  background: #fff; /* White background for forms */
+  background: #fff;
 }
 
 .container .form-content {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space between login and signup forms */
+  justify-content: space-between;
 }
 
 .form-content .login-form,
 .form-content .signup-form {
-  width: calc(100% / 2 - 25px); /* Responsive width */
+  width: calc(100% / 2 - 25px);
 }
 
 .forms .form-content .title {
   position: relative;
   font-size: 24px;
-  font-weight: 500;
-  color: #333; /* Title color */
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30px;
 }
 
 .forms .form-content .title:before {
   content: "";
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: -10px;
   height: 3px;
-  width: 25px; /* Underline for title */
-  background: #7d2ae8; /* Underline color */
-}
-
-.forms .signup-form .title:before {
-  width: 20px; /* Adjust width for signup title */
+  width: 25px;
+  background: #007bff;
 }
 
 .forms .form-content .input-boxes {
-  margin-top: 30px; /* Space above input boxes */
+  margin-top: 30px;
 }
 
 .forms .form-content .input-box {
   display: flex;
   align-items: center;
-  height: 50px; /* Height of input boxes */
+  height: 50px;
   width: 100%;
-  margin: 10px 0; /* Space between input boxes */
+  margin: 10px 0;
   position: relative;
 }
 
 .form-content .input-box input {
   height: 100%;
   width: 100%;
-  outline: none; /* Remove outline */
-  border: none; /* Remove border */
-  padding: 0 30px; /* Padding inside input */
-  font-size: 16px; /* Font size */
-  font-weight: 500; /* Font weight */
-  border-bottom: 2px solid rgba(0, 0, 0, 0.2); /* Bottom border */
-  transition: all 0.3s ease; /* Transition for focus effect */
+  outline: none;
+  border: none;
+  padding: 0 30px;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .form-content .input-box input:focus,
 .form-content .input-box input:valid {
-  border-color: #7d2ae8; /* Change border color on focus */
+  border-color: #007bff;
 }
 
 .form-content .input-box i {
   position: absolute;
-  color: #7d2ae8; /* Icon color */
-  font-size: 17px; /* Icon size */
+  color: #007bff;
+  font-size: 17px;
 }
 
-.forms .form-content .text {
-  font-size: 14px; /* Font size for text */
-  font-weight: 500; /* Font weight */
-  color: #333; /* Text color */
+/* Divider Style */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
 }
 
-.forms .form-content .text a {
-  text-decoration: none; /* Remove underline */
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
 }
 
-.forms .form-content .text a:hover {
-  text-decoration: underline; /* Underline on hover */
+.divider span {
+  padding: 0 10px;
+  color: #666;
+  font-size: 14px;
 }
 
+/* Button Styles */
 .forms .form-content .button {
-  color: #fff; /* Button text color */
-  margin-top: 40px; /* Space above button */
+  margin-top: 30px;
 }
 
 .forms .form-content .button input {
-  color: #fff; /* Button text color */
-  background: #7d2ae8; /* Button background color */
-  border-radius: 6px; /* Rounded corners */
-  padding: 0; /* Remove padding */
-  cursor: pointer; /* Pointer cursor */
-  transition: all 0.4s ease; /* Transition for hover effect */
+  color: #fff;
+  background: #007bff;
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .forms .form-content .button input:hover {
-  background: #5b13b9; /* Darker background on hover */
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
-.forms .form-content label {
-  color: #5b13b9; /* Label color */
-  cursor: pointer; /* Pointer cursor */
-}
-
-.forms .form-content label:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-
-.forms .form-content .login-text,
-.forms .form-content .sign-up-text {
-  text-align: center; /* Center text */
-  margin-top: 25px; /* Space above text */
-}
-
-.container #flip {
-  display: none; /* Hide checkbox */
-}
-
-/* Updated styles for Google Login Button */
-.forms .form-content .button.input-box.google-login {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+/* Google Login Button */
 .forms .form-content .button.input-box.google-login button {
-  background: #db4437; /* Google Red */
-  border: none;
-  border-radius: 6px;
-  color: #fff;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  color: #333;
   font-size: 16px;
   font-weight: 500;
-  padding: 10px 20px;
+  padding: 12px 20px;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  transition: background 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
 }
 
 .forms .form-content .button.input-box.google-login button:hover {
-  background: #c23321; /* Darker Google Red on hover */
+  background: #f8f9fa;
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
 }
 
-.forms .form-content .button.input-box.google-login button .google-logo {
-  height: 20px; /* Ukuran logo */
-  margin-right: 10px; /* Jarak antara logo dan teks */
+.forms .form-content .button.input-box.google-login button i {
+  color: #db4437;
+  font-size: 20px;
+  position: static;
 }
 
+/* Text Links */
+.forms .form-content .text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.forms .form-content .text a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.forms .form-content .text a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
 @media (max-width: 730px) {
   .container .cover {
-    display: none; /* Hide cover on small screens */
+    display: none;
   }
+
   .form-content .login-form,
   .form-content .signup-form {
-    width: 100%; /* Full width on small screens */
+    width: 100%;
   }
+
   .form-content .signup-form {
-    display: none; /* Hide signup form initially */
+    display: none;
   }
+
   .container #flip:checked ~ .forms .signup-form {
-    display: block; /* Show signup form when flipped */
+    display: block;
   }
+
   .container #flip:checked ~ .forms .login-form {
-    display: none; /* Hide login form when flipped */
+    display: none;
+  }
+
+  .container {
+    padding: 25px 20px;
   }
 }
