@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "error",
       confirmButtonColor: "#007bff",
     }).then(() => {
-      window.location.href = "../auth/login.html";
+      window.location.href = "https://jumatberkah.vercel.app/auth/login.html";
     });
     return;
   }
@@ -141,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `https://backend-berkah.onrender.com/retreive/data?id=${id}`,
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -293,7 +294,8 @@ document.addEventListener("DOMContentLoaded", () => {
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          window.location.href = "../auth/login.html";
+          window.location.href =
+            "https://jumatberkah.vercel.app/auth/login.html";
         });
       }
     });
