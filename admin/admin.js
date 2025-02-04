@@ -66,20 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach((user) => {
       const row = userTable.insertRow();
       row.innerHTML = `
-              <td>${user.username || "-"}</td>
-              <td>${user.email || "-"}</td>
-              <td>${user.role?.name || "-"}</td>
-              <td>
-                  <button onclick="editUser(${user.id})" class="edit-button">
-                      <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button onclick="deleteUser(${
-                    user.id
-                  })" class="delete-button">
-                      <i class="fas fa-trash"></i> Hapus
-                  </button>
-              </td>
-          `;
+          <td>${user.username || "-"}</td>
+          <td>${user.email || "-"}</td>
+          <td>${user.role?.name || "-"}</td>
+          <td>
+              <button onclick="editUser(${user.id})" class="edit-button">
+                  <i class="fas fa-edit"></i> Edit
+              </button>
+              <button onclick="deleteUser(${user.id})" class="delete-button">
+                  <i class="fas fa-trash"></i> Hapus
+              </button>
+          </td>
+      `;
     });
   };
 
@@ -132,8 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user"
       );
-      const data = await response.json();
+      if (!response.ok) throw new Error("Gagal mengambil data");
 
+      const data = await response.json();
       loadingAlert.close();
       updateUserTable(data);
     } catch (error) {
@@ -365,6 +364,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch(
         `https://backend-berkah.onrender.com/retreive/data/user`
       );
+      if (!response.ok) throw new Error("Gagal mengambil data");
+
       const users = await response.json();
       const user = users.find((u) => u.id === id);
 
@@ -375,21 +376,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const { value: formValues } = await Swal.fire({
         title: "Edit Data Pengguna",
         html: `
-                  <input id="swal-username" class="swal2-input" value="${
-                    user.username
-                  }" placeholder="Username">
-                  <input id="swal-email" class="swal2-input" value="${
-                    user.email
-                  }" placeholder="Email">
-                  <select id="swal-role" class="swal2-input">
-                      <option value="1" ${
-                        user.role.name === "admin" ? "selected" : ""
-                      }>Admin</option>
-                      <option value="2" ${
-                        user.role.name === "user" ? "selected" : ""
-                      }>User</option>
-                  </select>
-              `,
+              <input id="swal-username" class="swal2-input" value="${
+                user.username
+              }" placeholder="Username">
+              <input id="swal-email" class="swal2-input" value="${
+                user.email
+              }" placeholder="Email">
+              <select id="swal-role" class="swal2-input">
+                  <option value="1" ${
+                    user.role.name === "admin" ? "selected" : ""
+                  }>Admin</option>
+                  <option value="2" ${
+                    user.role.name === "user" ? "selected" : ""
+                  }>User</option>
+              </select>
+          `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Simpan",
@@ -407,7 +408,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
           }
 
-          return { id, username, email, role_id: parseInt(roleId) };
+          return {
+            id: id,
+            username: username,
+            email: email,
+            role_id: parseInt(roleId),
+          };
         },
       });
 
@@ -483,7 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
           {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
+            body: JSON.stringify({ id: id }),
           }
         );
 
