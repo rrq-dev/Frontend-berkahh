@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const masjidTable = document
     .getElementById("masjidTable")
     .getElementsByTagName("tbody")[0];
+  const userTable = document
+    .getElementById("userTable")
+    .getElementsByTagName("tbody")[0];
   const logoutBtn = document.getElementById("logout-btn");
 
   // Check authentication
@@ -38,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -105,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(masjidData),
         }
@@ -142,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -180,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(formValues),
           }
@@ -230,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ id: id }),
           }
@@ -322,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Ubah pemanggilan fungsi di fetchUserData
+  // Fetch user data
   const fetchUserData = async () => {
     try {
       Swal.fire({
@@ -362,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.editUser = async (id) => {
     try {
       const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/user?id=${id}`,
+        `https://backend-berkah.onrender.com/retreive/data/user?id=${id}`,
         {
           headers: {
             "Content-Type": "application/json",
