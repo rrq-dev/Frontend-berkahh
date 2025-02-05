@@ -70,25 +70,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi fetchMasjidData dengan endpoint yang benar
+  // Perbaikan fungsi checkAuth untuk menangani role dengan lebih baik
+  function checkAuth() {
+    const token = localStorage.getItem("jwtToken");
+    const userId = localStorage.getItem("userId");
+    const userRole = localStorage.getItem("userRole");
+    const isAuthenticated = !!(token && userId);
+
+    return {
+      isAuthenticated,
+      token,
+      userId,
+      userRole,
+      isAdmin: userRole === "admin",
+      isUser: userRole === "user",
+    };
+  }
+
+  // Fungsi untuk handle error dengan lebih baik
+  async function handleError(error, customMessage = null) {
+    console.error(error);
+    await Swal.fire({
+      icon: "error",
+      title: "Error!",
+      text: customMessage || error.message || "Terjadi kesalahan",
+      confirmButtonColor: "#4CAF50",
+    });
+  }
+
+  // Perbaikan fungsi fetchMasjidData dengan error handling yang lebih baik
   async function fetchMasjidData(searchTerm = "") {
     let retries = 3;
 
     while (retries > 0) {
       try {
+        const { token } = checkAuth();
+        if (!token) throw new Error("Token tidak ditemukan");
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        // Menggunakan endpoint yang benar sesuai route.go
         const response = await fetch(
           `https://backend-berkah.onrender.com/retreive/data/location${
-            searchTerm ? `?search=${searchTerm}` : ""
+            searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""
           }`,
           {
             signal: controller.signal,
             cache: "no-store",
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           }
         );
@@ -96,10 +127,14 @@ document.addEventListener("DOMContentLoaded", () => {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error("Gagal mengambil data lokasi masjid");
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || "Gagal mengambil data lokasi masjid"
+          );
         }
 
-        return await response.json();
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         retries--;
         if (retries === 0) {
@@ -134,23 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const masjidCard = createMasjidCard(masjid);
       masjidContainer.appendChild(masjidCard);
     });
-  }
-
-  // Fungsi untuk cek autentikasi dan role
-  function checkAuth() {
-    const token = localStorage.getItem("jwtToken");
-    const userId = localStorage.getItem("userId");
-    const role = localStorage.getItem("role"); // Tambahkan role
-    const isAuthenticated = !!(token && userId);
-
-    return {
-      isAuthenticated,
-      token,
-      userId,
-      role,
-      isAdmin: role === "admin",
-      isUser: role === "user",
-    };
   }
 
   // Fungsi untuk update auth links dan profile picture
@@ -335,20 +353,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk menangani profile picture dengan Promise
+  // Perbaikan fungsi handleProfilePicture dengan validasi URL
   async function handleProfilePicture() {
     const profilePicture = document.getElementById("profilePicture");
     if (!profilePicture) return;
 
     try {
       const savedProfilePic = localStorage.getItem("profilePicture");
+      const defaultAvatar =
+        "https://jumatberkah.vercel.app/assets/default-avatar.png";
 
       if (savedProfilePic) {
         const imageUrl = savedProfilePic.startsWith("http")
           ? savedProfilePic
           : `https://backend-berkah.onrender.com${savedProfilePic}`;
 
-        // Membuat Promise untuk memuat gambar
         await new Promise((resolve, reject) => {
           const img = new Image();
           img.onload = () => {
@@ -356,20 +375,17 @@ document.addEventListener("DOMContentLoaded", () => {
             resolve();
           };
           img.onerror = () => {
-            profilePicture.src =
-              "https://jumatberkah.vercel.app/assets/default-avatar.png";
+            profilePicture.src = defaultAvatar;
             resolve();
           };
           img.src = imageUrl;
         });
       } else {
-        profilePicture.src =
-          "https://jumatberkah.vercel.app/assets/default-avatar.png";
+        profilePicture.src = defaultAvatar;
       }
     } catch (error) {
       console.error("Error loading profile picture:", error);
-      profilePicture.src =
-        "https://jumatberkah.vercel.app/assets/default-avatar.png";
+      profilePicture.src = defaultAvatar;
     }
   }
 
@@ -522,90 +538,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan form submission untuk update profile
-  const profileForm = document.getElementById("editProfileForm");
-  if (profileForm) {
-    let isSubmitting = false;
-    profileForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (isSubmitting) return;
-
-      isSubmitting = true;
-      try {
-        const token = localStorage.getItem("jwtToken");
-        const userId = localStorage.getItem("userId");
-
-        if (!token || !userId) {
-          throw new Error("Token atau User ID tidak ditemukan");
-        }
-
-        const formData = {
-          user_id: parseInt(userId),
-          username: document.getElementById("username").value.trim(),
-          email: document.getElementById("email").value.trim(),
-          preferred_masjid: document
-            .getElementById("preferredMasjid")
-            .value.trim(),
-          bio: document.getElementById("bio")?.value.trim() || "",
-        };
-
-        // Validasi
-        if (!formData.username || !formData.email) {
-          throw new Error("Mohon isi semua field yang wajib");
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          throw new Error("Format email tidak valid");
-        }
-
-        showLoading();
-
-        // Menggunakan endpoint yang benar sesuai route.go
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/updateuser",
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(formData),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Gagal memperbarui profil");
-        }
-
-        await Swal.fire({
-          icon: "success",
-          title: "Berhasil!",
-          text: "Profil berhasil diperbarui",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        window.location.href = "profile.html";
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: error.message || "Terjadi kesalahan saat memperbarui profil",
-          confirmButtonColor: "#4CAF50",
-        });
-      } finally {
-        isSubmitting = false;
-        hideLoading();
-      }
-    });
-  }
-
-  // Perbaikan fungsi initialize dengan better error handling
+  // Perbaikan fungsi initialize dengan better error recovery
   async function initialize() {
     try {
-      const loadingPromise = showLoading();
+      showLoading();
+
+      // Setup auto logout
+      setupAutoLogout();
+
+      // Setup search functionality
+      setupSearch();
+
+      // Update auth links
+      updateAuthLinks();
+
+      // Show welcome message
+      showWelcomeMessage();
 
       const isHomePage =
         window.location.pathname === "/" ||
@@ -613,30 +561,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (isHomePage) {
         try {
-          // Tambahkan timeout untuk keseluruhan operasi
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Operasi timeout")), 10000)
-          );
-
-          const masjidDataPromise = fetchMasjidData();
-
-          // Race antara fetch data dan timeout
-          const masjidData = await Promise.race([
-            masjidDataPromise,
-            timeoutPromise,
-          ]);
-
-          // Cache data untuk penggunaan berikutnya
+          const masjidData = await fetchMasjidData();
           sessionStorage.setItem(
             "cachedMasjidData",
             JSON.stringify(masjidData)
           );
-
           displayMasjidList(masjidData);
         } catch (error) {
-          console.error("Error fetching initial masjid data:", error);
-
-          // Coba gunakan cached data jika ada
           const cachedData = sessionStorage.getItem("cachedMasjidData");
           if (cachedData) {
             displayMasjidList(JSON.parse(cachedData));
@@ -646,55 +577,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     } catch (error) {
-      console.error("Error during initialization:", error);
-      await Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Terjadi kesalahan saat memuat halaman. Mencoba memuat ulang...",
-        confirmButtonColor: "#4CAF50",
-        showConfirmButton: false,
-        timer: 2000,
-      });
-
-      // Auto reload setelah error
+      await handleError(error, "Terjadi kesalahan saat memuat halaman");
       setTimeout(() => window.location.reload(), 2000);
     } finally {
       hideLoading();
     }
   }
 
-  // Perbaikan event listener untuk search dengan debounce yang lebih efisien
-  const searchInput = document.querySelector(".search-input");
-  if (searchInput) {
+  // Perbaikan event listener untuk search dengan debounce yang lebih baik
+  function setupSearch() {
+    const searchInput = document.querySelector(".search-input");
+    if (!searchInput) return;
+
     let debounceTimer;
     let previousSearchTerm = "";
 
+    const performSearch = async (searchTerm) => {
+      try {
+        showLoading();
+        const masjidData = await fetchMasjidData(searchTerm);
+        displayMasjidList(masjidData);
+      } catch (error) {
+        await handleError(error, "Gagal mencari masjid");
+      } finally {
+        hideLoading();
+      }
+    };
+
     searchInput.addEventListener("input", (e) => {
       const searchTerm = e.target.value.trim();
-
-      // Skip jika search term sama dengan sebelumnya
       if (searchTerm === previousSearchTerm) return;
 
       previousSearchTerm = searchTerm;
       clearTimeout(debounceTimer);
 
-      debounceTimer = setTimeout(async () => {
-        try {
-          showLoading();
-          const masjidData = await fetchMasjidData(searchTerm);
-          displayMasjidList(masjidData);
-        } catch (error) {
-          console.error("Error searching masjid:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error!",
-            text: "Gagal mencari masjid. Silakan coba lagi.",
-            confirmButtonColor: "#4CAF50",
-          });
-        } finally {
-          hideLoading();
-        }
-      }, 300); // Kurangi delay debounce
+      debounceTimer = setTimeout(() => performSearch(searchTerm), 300);
     });
   }
 
@@ -712,16 +629,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Jalankan initialize dengan error handling
+  // Event listener untuk DOM Content Loaded
   initialize().catch((error) => {
     console.error("Fatal initialization error:", error);
     hideLoading();
-    Swal.fire({
-      icon: "error",
-      title: "Error Fatal!",
-      text: "Terjadi kesalahan yang tidak diharapkan",
-      confirmButtonColor: "#4CAF50",
-    });
+    handleError(error, "Terjadi kesalahan yang tidak diharapkan");
   });
 
   // Tambahkan CSS untuk loading spinner
