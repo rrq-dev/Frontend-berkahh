@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profil Saya - Jumat Berkah</title>
+    <title>Edit Profil - Jumat Berkah</title>
     <link rel="stylesheet" href="profile_edit.css" />
     <link
       rel="stylesheet"
@@ -23,6 +23,11 @@
               <i class="fas fa-home"></i> Home
             </a>
           </li>
+          <li>
+            <a href="profile.html" class="navbar-button">
+              <i class="fas fa-user"></i> Profile
+            </a>
+          </li>
         </ul>
       </div>
     </nav>
@@ -36,44 +41,44 @@
               src="../assets/default-avatar.png"
               alt="Profile Picture"
             />
-            <button class="change-picture-btn">
+            <button
+              type="button"
+              class="change-picture-btn"
+              id="changePictureBtn"
+            >
               <i class="fas fa-camera"></i>
             </button>
+            <input
+              type="file"
+              id="pictureInput"
+              accept="image/*"
+              style="display: none"
+            />
           </div>
           <h2><i class="fas fa-user-edit"></i> Edit Profil</h2>
         </div>
 
-        <form id="profileForm">
+        <form id="editProfileForm">
           <div class="input-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required />
-          </div>
-          <div class="input-group">
-            <label for="fullName">Nama Lengkap</label>
-            <input type="text" id="fullName" name="fullName" required />
-          </div>
-          <div class="input-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-          <div class="input-group">
-            <label for="phoneNumber">Nomor Telepon</label>
-            <input type="tel" id="phoneNumber" name="phoneNumber" />
+            <h3>Informasi Pribadi</h3>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
           </div>
 
-          <h2>Alamat</h2>
           <div class="input-group">
-            <textarea id="address" name="address" rows="3"></textarea>
-          </div>
-
-          <h2>Masjid Favorit</h2>
-          <div class="input-group">
-            <input type="text" id="preferredMasjid" name="preferredMasjid" />
-          </div>
-
-          <h2>Bio</h2>
-          <div class="input-group">
-            <textarea id="bio" name="bio" rows="3"></textarea>
+            <h3>Masjid Favorit</h3>
+            <div class="form-group">
+              <label for="preferredMasjid">Pilih Masjid Favorit</label>
+              <select id="preferredMasjid" name="preferredMasjid" required>
+                <option value="">Pilih Masjid</option>
+              </select>
+            </div>
           </div>
 
           <div class="button-group">
@@ -87,6 +92,6 @@
         </form>
       </div>
     </div>
-    <script src="../main.js/index.js"></script>
+    <script src="../main.js/profile_edit.js"></script>
   </body>
 </html>

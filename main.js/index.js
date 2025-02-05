@@ -566,4 +566,109 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Inisialisasi
   initialize().catch(console.error);
+
+  // Fungsi untuk mengambil data user dan masjid
+  async function fetchUserAndMasjidData() {
+    const token = localStorage.getItem("jwtToken");
+    const userId = localStorage.getItem("userId");
+
+    if (!token || !userId) {
+      window.location.href = "../auth/login.html";
+      return;
+    }
+
+    try {
+      // Ambil data user
+      const userResponse = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const users = await userResponse.json();
+      const currentUser = users.find((u) => u.id === parseInt(userId));
+
+      if (!currentUser) {
+        throw new Error("User not found");
+      }
+
+      // Ambil data masjid
+      const masjidResponse = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/location"
+      );
+      if (!masjidResponse.ok) {
+        throw new Error("Failed to fetch masjid data");
+      }
+
+      const masjidData = await masjidResponse.json();
+
+      // Update UI dengan data yang diperoleh
+      updateProfileUI(currentUser, masjidData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Gagal memuat data profil",
+        confirmButtonColor: "#4CAF50",
+      });
+    }
+  }
+
+  // Fungsi untuk update UI profile
+  function updateProfileUI(userData, masjidData) {
+    // Update informasi dasar user
+    document.getElementById("username").textContent =
+      userData.username || "Tidak tersedia";
+    document.getElementById("email").textContent =
+      userData.email || "Tidak tersedia";
+
+    // Update profile picture
+    const profilePicture = document.getElementById("profilePicture");
+    if (profilePicture) {
+      if (userData.profile_picture) {
+        profilePicture.src = `https://backend-berkah.onrender.com${userData.profile_picture}`;
+      } else {
+        profilePicture.src = "../assets/default-avatar.png";
+      }
+
+      // Handle error loading image
+      profilePicture.onerror = function () {
+        this.src = "../assets/default-avatar.png";
+      };
+    }
+
+    // Update masjid favorit dan alamat
+    const preferredMasjid = document.getElementById("preferredMasjid");
+    const masjidAddress = document.getElementById("masjidAddress");
+
+    if (userData.preferred_masjid && masjidData) {
+      const userMasjid = masjidData.find(
+        (m) => m.id === parseInt(userData.preferred_masjid)
+      );
+      if (userMasjid) {
+        preferredMasjid.textContent = userMasjid.name || "Belum dipilih";
+        masjidAddress.textContent =
+          userMasjid.address || "Alamat tidak tersedia";
+      } else {
+        preferredMasjid.textContent = "Belum dipilih";
+        masjidAddress.textContent = "Alamat tidak tersedia";
+      }
+    } else {
+      preferredMasjid.textContent = "Belum dipilih";
+      masjidAddress.textContent = "Alamat tidak tersedia";
+    }
+  }
+
+  // Event listener saat halaman dimuat
+  if (window.location.pathname.includes("/profile/")) {
+    fetchUserAndMasjidData();
+  }
 });
