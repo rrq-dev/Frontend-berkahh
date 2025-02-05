@@ -237,18 +237,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk mengambil dan menampilkan data profil user
-  async function fetchUserProfile() {
+  // Fungsi untuk mengambil dan menampilkan data profil
+  async function fetchAndDisplayProfileData() {
+    const token = localStorage.getItem("jwtToken");
+    const userId = localStorage.getItem("userId");
+
+    if (!token || !userId) {
+      window.location.href = "../auth/login.html";
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("jwtToken");
-      const userId = localStorage.getItem("userId");
-
-      if (!token || !userId) {
-        console.log("Token atau User ID tidak ditemukan");
-        return null;
-      }
-
-      const response = await fetch(
+      // Fetch user data
+      const userResponse = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
           headers: {
@@ -257,58 +258,58 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Gagal mengambil data profil");
-      }
+      if (!userResponse.ok) throw new Error("Gagal mengambil data user");
+      const users = await userResponse.json();
+      const currentUser = users.find((u) => u.id === parseInt(userId));
 
-      const users = await response.json();
-      const userProfile = users.find((user) => user.id === parseInt(userId));
+      // Fetch masjid data
+      const masjidResponse = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/location"
+      );
+      if (!masjidResponse.ok) throw new Error("Gagal mengambil data masjid");
+      const masjidData = await masjidResponse.json();
 
-      if (!userProfile) {
-        throw new Error("Profil pengguna tidak ditemukan");
-      }
-
-      // Jika berada di halaman profile, tampilkan data
-      if (window.location.pathname.includes("/profile/")) {
-        // Update informasi pribadi
+      if (window.location.pathname.includes("profile.html")) {
+        // Update profile page
         document.getElementById("username").textContent =
-          userProfile.username || "-";
-        document.getElementById("fullName").textContent =
-          userProfile.full_name || "-";
-        document.getElementById("email").textContent = userProfile.email || "-";
-        document.getElementById("phoneNumber").textContent =
-          userProfile.phone_number || "-";
+          currentUser.username || "-";
+        document.getElementById("email").textContent = currentUser.email || "-";
 
-        // Update alamat
-        document.getElementById("address").textContent =
-          userProfile.address || "-";
+        const preferredMasjid = masjidData.find(
+          (m) => m.id === parseInt(currentUser.preferred_masjid)
+        );
+        document.getElementById("preferredMasjid").textContent = preferredMasjid
+          ? preferredMasjid.name
+          : "Belum diisi";
+        document.getElementById("masjidAddress").textContent = preferredMasjid
+          ? preferredMasjid.address
+          : "Belum diisi";
+      } else if (window.location.pathname.includes("profile_edit.html")) {
+        // Update edit profile page
+        document.getElementById("username").value = currentUser.username || "";
+        document.getElementById("email").value = currentUser.email || "";
 
-        // Update masjid favorit
-        document.getElementById("preferredMasjid").textContent =
-          userProfile.preferred_masjid || "-";
-
-        // Update bio
-        document.getElementById("bio").textContent = userProfile.bio || "-";
-
-        // Update foto profil jika ada
-        const profilePicture = document.getElementById("profilePicture");
-        if (profilePicture && userProfile.profile_picture) {
-          profilePicture.src = `https://backend-berkah.onrender.com${userProfile.profile_picture}`;
-        }
-      }
-
-      return userProfile;
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      if (window.location.pathname.includes("/profile/")) {
-        Swal.fire({
-          title: "Error!",
-          text: "Gagal memuat data profil",
-          icon: "error",
-          confirmButtonColor: "#4CAF50",
+        // Populate masjid dropdown
+        const masjidSelect = document.getElementById("preferredMasjid");
+        masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>';
+        masjidData.forEach((masjid) => {
+          const option = document.createElement("option");
+          option.value = masjid.id;
+          option.textContent = masjid.name;
+          if (currentUser.preferred_masjid === masjid.id.toString()) {
+            option.selected = true;
+          }
+          masjidSelect.appendChild(option);
         });
       }
-      return null;
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Gagal memuat data profil",
+        confirmButtonColor: "#4CAF50",
+      });
     }
   }
 
@@ -567,112 +568,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inisialisasi
   initialize().catch(console.error);
 
-  // Fungsi untuk mengambil data user dan masjid
-  async function fetchUserAndMasjidData() {
-    const token = localStorage.getItem("jwtToken");
-    const userId = localStorage.getItem("userId");
-
-    if (!token || !userId) {
-      window.location.href = "../auth/login.html";
-      return;
-    }
-
-    try {
-      // Ambil data user
-      const userResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!userResponse.ok) {
-        throw new Error("Failed to fetch user data");
-      }
-
-      const users = await userResponse.json();
-      const currentUser = users.find((u) => u.id === parseInt(userId));
-
-      if (!currentUser) {
-        throw new Error("User not found");
-      }
-
-      // Ambil data masjid
-      const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location"
-      );
-
-      if (!masjidResponse.ok) {
-        throw new Error("Failed to fetch masjid data");
-      }
-
-      const masjidData = await masjidResponse.json();
-
-      // Update UI berdasarkan halaman
-      const isEditPage = window.location.pathname.includes("profile_edit.html");
-      const isProfilePage = window.location.pathname.includes("profile.html");
-
-      if (isEditPage) {
-        // Populate form untuk edit
-        document.getElementById("username").value = currentUser.username || "";
-        document.getElementById("email").value = currentUser.email || "";
-
-        // Populate dropdown masjid
-        const masjidSelect = document.getElementById("preferredMasjid");
-        if (masjidSelect) {
-          masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>';
-          masjidData.forEach((masjid) => {
-            const option = document.createElement("option");
-            option.value = masjid.id;
-            option.textContent = masjid.name;
-            if (currentUser.preferred_masjid === masjid.id.toString()) {
-              option.selected = true;
-            }
-            masjidSelect.appendChild(option);
-          });
-        }
-      } else if (isProfilePage) {
-        // Update profile display
-        document.getElementById("username").textContent =
-          currentUser.username || "Tidak tersedia";
-        document.getElementById("email").textContent =
-          currentUser.email || "Tidak tersedia";
-
-        // Update masjid favorit
-        const userMasjid = masjidData.find(
-          (m) => m.id === parseInt(currentUser.preferred_masjid)
-        );
-        document.getElementById("preferredMasjid").textContent = userMasjid
-          ? userMasjid.name
-          : "Belum dipilih";
-        document.getElementById("masjidAddress").textContent = userMasjid
-          ? userMasjid.address
-          : "Alamat tidak tersedia";
-      }
-
-      // Update profile picture di kedua halaman
-      const profilePicture = document.getElementById("profilePicture");
-      if (profilePicture) {
-        if (currentUser.profile_picture) {
-          profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        } else {
-          profilePicture.src = "../assets/default-avatar.png";
-        }
-
-        profilePicture.onerror = function () {
-          this.src = "../assets/default-avatar.png";
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Gagal memuat data",
-        confirmButtonColor: "#4CAF50",
-      });
-    }
+  // Panggil fungsi saat halaman dimuat
+  if (window.location.pathname.includes("/profile/")) {
+    fetchAndDisplayProfileData();
   }
 });
