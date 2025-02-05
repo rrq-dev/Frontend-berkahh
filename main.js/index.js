@@ -322,17 +322,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const elements = {
       username: document.getElementById("username"),
       email: document.getElementById("email"),
+      fullName: document.getElementById("fullName"),
+      phoneNumber: document.getElementById("phoneNumber"),
+      address: document.getElementById("address"),
       bio: document.getElementById("bio"),
       preferredMasjid: document.getElementById("preferredMasjid"),
       profilePicture: document.getElementById("profilePicture"),
+      joinDate: document.getElementById("joinDate"),
+      role: document.getElementById("role"),
     };
 
+    // Update semua field
     if (elements.username)
       elements.username.textContent = currentUser.username || "-";
     if (elements.email) elements.email.textContent = currentUser.email || "-";
+    if (elements.fullName)
+      elements.fullName.textContent = currentUser.full_name || "-";
+    if (elements.phoneNumber)
+      elements.phoneNumber.textContent = currentUser.phone_number || "-";
+    if (elements.address)
+      elements.address.textContent = currentUser.address || "-";
     if (elements.bio)
       elements.bio.textContent = currentUser.bio || "Belum diisi";
+    if (elements.role)
+      elements.role.textContent = currentUser.role?.name || "-";
 
+    // Format dan tampilkan tanggal bergabung
+    if (elements.joinDate && currentUser.join_date) {
+      const date = new Date(currentUser.join_date);
+      elements.joinDate.textContent = date.toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+
+    // Update preferred masjid
     if (elements.preferredMasjid) {
       const preferredMasjid = masjidData.find(
         (m) => m.id === parseInt(currentUser.preferred_masjid)
@@ -342,8 +367,16 @@ document.addEventListener("DOMContentLoaded", () => {
         : "Belum diisi";
     }
 
-    if (elements.profilePicture && currentUser.profile_picture) {
-      elements.profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+    // Update profile picture
+    if (elements.profilePicture) {
+      if (currentUser.profile_picture) {
+        const profilePicUrl = currentUser.profile_picture.startsWith("http")
+          ? currentUser.profile_picture
+          : `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        elements.profilePicture.src = profilePicUrl;
+      } else {
+        elements.profilePicture.src = "../assets/default-avatar.png";
+      }
     }
   }
 
@@ -352,19 +385,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const elements = {
       username: document.getElementById("username"),
       email: document.getElementById("email"),
+      fullName: document.getElementById("fullName"),
+      phoneNumber: document.getElementById("phoneNumber"),
+      address: document.getElementById("address"),
       bio: document.getElementById("bio"),
       preferredMasjid: document.getElementById("preferredMasjid"),
       profilePicture: document.getElementById("profilePicture"),
     };
 
+    // Update form fields
     if (elements.username) elements.username.value = currentUser.username || "";
     if (elements.email) elements.email.value = currentUser.email || "";
+    if (elements.fullName)
+      elements.fullName.value = currentUser.full_name || "";
+    if (elements.phoneNumber)
+      elements.phoneNumber.value = currentUser.phone_number || "";
+    if (elements.address) elements.address.value = currentUser.address || "";
     if (elements.bio) elements.bio.value = currentUser.bio || "";
 
-    if (elements.profilePicture && currentUser.profile_picture) {
-      elements.profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+    // Update profile picture preview
+    if (elements.profilePicture) {
+      if (currentUser.profile_picture) {
+        const profilePicUrl = currentUser.profile_picture.startsWith("http")
+          ? currentUser.profile_picture
+          : `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        elements.profilePicture.src = profilePicUrl;
+      } else {
+        elements.profilePicture.src = "../assets/default-avatar.png";
+      }
     }
 
+    // Update preferred masjid dropdown
     if (elements.preferredMasjid) {
       elements.preferredMasjid.innerHTML =
         '<option value="">Pilih Masjid</option>';
@@ -390,33 +441,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
       isSubmitting = true;
       try {
-        const token = localStorage.getItem("jwtToken");
-        const userId = localStorage.getItem("userId");
+        const formData = new FormData();
 
-        if (!token || !userId) {
-          throw new Error("Token atau User ID tidak ditemukan");
+        // Tambahkan semua field ke FormData
+        formData.append("user_id", localStorage.getItem("userId"));
+        formData.append(
+          "username",
+          document.getElementById("username").value.trim()
+        );
+        formData.append("email", document.getElementById("email").value.trim());
+        formData.append(
+          "full_name",
+          document.getElementById("fullName")?.value.trim() || ""
+        );
+        formData.append(
+          "phone_number",
+          document.getElementById("phoneNumber")?.value.trim() || ""
+        );
+        formData.append(
+          "address",
+          document.getElementById("address")?.value.trim() || ""
+        );
+        formData.append(
+          "preferred_masjid",
+          document.getElementById("preferredMasjid").value.trim()
+        );
+        formData.append(
+          "bio",
+          document.getElementById("bio")?.value.trim() || ""
+        );
+
+        // Handle password update jika ada
+        const oldPassword = document.getElementById("oldPassword")?.value;
+        const newPassword = document.getElementById("newPassword")?.value;
+        if (oldPassword && newPassword) {
+          formData.append("old_password", oldPassword);
+          formData.append("new_password", newPassword);
         }
 
-        const formData = {
-          user_id: parseInt(userId),
-          username: document.getElementById("username").value.trim(),
-          email: document.getElementById("email").value.trim(),
-          preferred_masjid: document
-            .getElementById("preferredMasjid")
-            .value.trim(),
-          bio: document.getElementById("bio")?.value.trim() || "",
-          full_name: "",
-          phone_number: "",
-          address: "",
-        };
-
-        // Validasi
-        if (!formData.username || !formData.email) {
-          throw new Error("Mohon isi semua field yang wajib");
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          throw new Error("Format email tidak valid");
+        // Handle file upload
+        const profilePicInput = document.querySelector('input[type="file"]');
+        if (profilePicInput?.files[0]) {
+          formData.append("profile_picture", profilePicInput.files[0]);
         }
 
         showLoading();
@@ -426,16 +492,25 @@ document.addEventListener("DOMContentLoaded", () => {
           {
             method: "PUT",
             headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             },
-            body: JSON.stringify(formData),
+            body: formData,
           }
         );
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Gagal memperbarui profil");
+        }
+
+        const result = await response.json();
+
+        // Update local storage
+        if (result.user) {
+          localStorage.setItem("username", result.user.username);
+          if (result.user.profile_picture) {
+            localStorage.setItem("profilePicture", result.user.profile_picture);
+          }
         }
 
         await Swal.fire({
@@ -452,11 +527,12 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire({
           icon: "error",
           title: "Error!",
-          text: error.message || "Terjadi kesalahan saat memperbarui profil",
+          text: error.message,
           confirmButtonColor: "#4CAF50",
         });
       } finally {
         isSubmitting = false;
+        hideLoading();
       }
     });
   }
