@@ -529,40 +529,66 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Update fungsi initialize dengan animasi
+  // Fungsi untuk menampilkan welcome message
+  function showWelcomeMessage() {
+    const hasShownWelcome = localStorage.getItem('hasShownWelcome');
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token && !hasShownWelcome) {
+      Swal.fire({
+        title: 'Selamat Datang!',
+        text: 'di Aplikasi Jumat Berkah',
+        icon: 'success',
+        confirmButtonColor: '#4CAF50',
+        timer: 2000,
+        timerProgressBar: true
+      });
+      localStorage.setItem('hasShownWelcome', 'true');
+    }
+  }
+
+  // Fungsi untuk handle auto logout
+  function setupAutoLogout() {
+    // Event listener untuk tab closing atau browser closing
+    window.addEventListener('beforeunload', () => {
+      localStorage.clear(); // Hapus semua data di localStorage
+    });
+
+    // Event listener untuk visibility change (saat user switch tab atau minimize browser)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        localStorage.clear();
+      }
+    });
+  }
+
+  // Update fungsi initialize
   async function initialize() {
-    const token = localStorage.getItem("jwtToken");
-    const isProfilePage = window.location.pathname.includes("/profile/");
+    const token = localStorage.getItem('jwtToken');
+    const isProfilePage = window.location.pathname.includes('/profile/');
 
     // Tambahkan animasi fade in saat load
-    document.body.style.opacity = "0";
-    document.body.style.transition = "opacity 0.5s";
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.5s';
     setTimeout(() => {
-      document.body.style.opacity = "1";
+      document.body.style.opacity = '1';
     }, 100);
 
     // Update auth links dan profile picture
     updateAuthLinks();
 
+    // Setup auto logout
+    setupAutoLogout();
+
     // Welcome message untuk user baru
-    if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
-      localStorage.setItem("welcomeShown", "true");
-      Swal.fire({
-        title: "Selamat Datang!",
-        text: "di Aplikasi Jumat Berkah",
-        icon: "success",
-        confirmButtonColor: "#4CAF50",
-        timer: 2000,
-        timerProgressBar: true,
-      });
-    }
+    showWelcomeMessage();
 
     // Ambil data masjid untuk semua user
     if (!isProfilePage) {
       try {
         await fetchMasjidData();
       } catch (error) {
-        console.error("Error fetching masjid data:", error);
+        console.error('Error fetching masjid data:', error);
       }
     }
   }
