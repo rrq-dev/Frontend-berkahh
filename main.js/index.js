@@ -493,9 +493,9 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           reader.readAsDataURL(file);
 
-          // Prepare form data dengan nama field yang benar
+          // Prepare form data sesuai dengan backend
           const formData = new FormData();
-          formData.append("file", file); // Ubah "profile_picture" menjadi "file"
+          formData.append("profile_picture", file); // Sesuaikan dengan nama field di backend
           formData.append("user_id", localStorage.getItem("userId"));
 
           // Show loading
@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const token = localStorage.getItem("jwtToken");
           const response = await fetch(
-            "https://backend-berkah.onrender.com/profile-picture",
+            "https://backend-berkah.onrender.com/upload/profile-picture", // Sesuaikan dengan endpoint backend
             {
               method: "POST",
               headers: {
@@ -529,8 +529,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Update profile picture dengan URL baru
           const profilePicture = document.getElementById("profilePicture");
-          if (profilePicture && result.profile_picture) {
-            profilePicture.src = `https://backend-berkah.onrender.com${result.profile_picture}`;
+          if (profilePicture && result.url) {
+            profilePicture.src = `https://backend-berkah.onrender.com${result.url}`;
+
+            // Update URL di localStorage jika diperlukan
+            localStorage.setItem("profilePicture", result.url);
           }
 
           Swal.fire({
@@ -604,6 +607,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentUser && currentUser.profile_picture) {
         profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        // Update URL di localStorage jika diperlukan
+        localStorage.setItem("profilePicture", currentUser.profile_picture);
       } else {
         profilePicture.src = "../assets/default-avatar.png";
       }
