@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk mengambil data profil user dengan error handling yang lebih baik
+  // Fungsi untuk mengambil dan menampilkan data profil user
   async function fetchUserProfile() {
     try {
       const token = localStorage.getItem("jwtToken");
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data/user`,
+        "https://backend-berkah.onrender.com/retreive/data/user",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -230,48 +230,54 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (!response.ok) {
-        console.log("Gagal mengambil data profil");
-        return null;
+        throw new Error("Gagal mengambil data profil");
       }
 
       const users = await response.json();
       const userProfile = users.find((user) => user.id === parseInt(userId));
 
-      // Jika berada di halaman profile, isi form dengan data user
+      if (!userProfile) {
+        throw new Error("Profil pengguna tidak ditemukan");
+      }
+
+      // Jika berada di halaman profile, tampilkan data
       if (window.location.pathname.includes("/profile/")) {
-        populateProfileData(userProfile);
+        // Update informasi pribadi
+        document.getElementById("username").textContent =
+          userProfile.username || "-";
+        document.getElementById("fullName").textContent =
+          userProfile.full_name || "-";
+        document.getElementById("email").textContent = userProfile.email || "-";
+        document.getElementById("phoneNumber").textContent =
+          userProfile.phone_number || "-";
+
+        // Update alamat
+        document.getElementById("address").textContent =
+          userProfile.address || "-";
+
+        // Update masjid favorit
+        document.getElementById("preferredMasjid").textContent =
+          userProfile.preferred_masjid || "-";
+
+        // Update foto profil jika ada
+        const profilePicture = document.getElementById("profilePicture");
+        if (profilePicture && userProfile.profile_picture) {
+          profilePicture.src = userProfile.profile_picture;
+        }
       }
 
       return userProfile;
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      return null;
-    }
-  }
-
-  // Fungsi untuk mengisi form profile dengan data user
-  function populateProfileData(profile) {
-    const usernameInput = document.getElementById("username");
-    const emailInput = document.getElementById("email");
-    const fullNameInput = document.getElementById("fullName");
-    const phoneNumberInput = document.getElementById("phoneNumber");
-    const addressInput = document.getElementById("address");
-    const preferredMasjidInput = document.getElementById("preferredMasjid");
-    const bioInput = document.getElementById("bio");
-    const profilePicture = document.getElementById("profilePicture");
-
-    if (profile) {
-      if (usernameInput) usernameInput.value = profile.username || "";
-      if (emailInput) emailInput.value = profile.email || "";
-      if (fullNameInput) fullNameInput.value = profile.full_name || "";
-      if (phoneNumberInput) phoneNumberInput.value = profile.phone_number || "";
-      if (addressInput) addressInput.value = profile.address || "";
-      if (preferredMasjidInput)
-        preferredMasjidInput.value = profile.preferred_masjid || "";
-      if (bioInput) bioInput.value = profile.bio || "";
-      if (profilePicture && profile.profile_picture) {
-        profilePicture.src = profile.profile_picture;
+      if (window.location.pathname.includes("/profile/")) {
+        Swal.fire({
+          title: "Error!",
+          text: "Gagal memuat data profil",
+          icon: "error",
+          confirmButtonColor: "#4CAF50",
+        });
       }
+      return null;
     }
   }
 
