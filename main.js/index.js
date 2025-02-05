@@ -210,7 +210,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }).then((result) => {
       if (result.isConfirmed) {
         // Hapus semua data user dari localStorage
-        localStorage.clear();
+        localStorage.clear(); // Menghapus semua data termasuk token
+
+        // Tambahkan baris ini untuk menghapus token secara spesifik
+        localStorage.removeItem("jwtToken"); // Menghapus token
 
         // Tampilkan pesan sukses tanpa delay
         Swal.fire({
