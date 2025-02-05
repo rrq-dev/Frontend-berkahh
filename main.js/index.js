@@ -222,16 +222,19 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.transition = "opacity 0.5s";
 
         setTimeout(() => {
-          localStorage.removeItem("jwtToken");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userRole");
+          // Hapus semua data user dari localStorage
+          localStorage.clear(); // Menghapus semua data termasuk welcomeShown
 
           Swal.fire({
             title: "Berhasil Logout",
             text: "Anda telah berhasil keluar",
             icon: "success",
             confirmButtonColor: "#4CAF50",
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
           }).then(() => {
+            // Redirect ke halaman utama
             window.location.href = "https://jumatberkah.vercel.app/";
           });
         }, 500);
