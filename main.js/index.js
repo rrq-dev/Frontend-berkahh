@@ -209,13 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Hapus semua data user dari localStorage
         localStorage.clear(); // Menghapus semua data termasuk token
-
-        // Tambahkan baris ini untuk menghapus token secara spesifik
-        localStorage.removeItem("jwtToken"); // Menghapus token
-
-        // Tampilkan pesan sukses tanpa delay
         Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
@@ -224,14 +218,35 @@ document.addEventListener("DOMContentLoaded", () => {
           timer: 1000,
           timerProgressBar: true,
           didClose: () => {
-            // Redirect langsung setelah pesan ditutup
             window.location.href = "https://jumatberkah.vercel.app/";
           },
         });
       }
     });
   }
+  // Setup auto logout setelah periode tidak aktif
+  function setupAutoLogout() {
+    let timeout;
 
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        Swal.fire({
+          title: "Anda telah keluar karena tidak aktif",
+          icon: "warning",
+          confirmButtonColor: "#4CAF50",
+        }).then(() => {
+          localStorage.clear(); // Menghapus semua data termasuk token
+          window.location.href = "../auth/login.html"; // Redirect ke halaman login
+        });
+      }, 15 * 60 * 1000); // 15 menit
+    };
+
+    // Reset timer saat ada interaksi
+    window.onload = resetTimer;
+    window.onmousemove = resetTimer;
+    window.onkeypress = resetTimer;
+  }
   // Fungsi untuk menampilkan loading state
   function showLoading() {
     Swal.fire({
@@ -529,7 +544,15 @@ document.addEventListener("DOMContentLoaded", () => {
       input.click();
     });
   }
-
+  // Fungsi untuk mendapatkan warna acak
+  function getRandomColor() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
   // Fungsi untuk menampilkan welcome message
   function showWelcomeMessage() {
     const hasShownWelcome = localStorage.getItem("hasShownWelcome");
@@ -581,6 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Fungsi untuk inisialisasi
   async function initialize() {
     const { isAuthenticated } = checkAuth();
     const isProfilePage = window.location.pathname.includes("/profile/");
@@ -642,7 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
-        const randomColor = getRandomColor();
+        const randomColor = getRandomColor(); // Memanggil fungsi getRandomColor
         button.style.backgroundColor = randomColor;
       });
 
