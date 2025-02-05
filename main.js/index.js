@@ -132,79 +132,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk cek autentikasi
+  // Fungsi untuk cek autentikasi dan role
   function checkAuth() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
-    return { isAuthenticated: !!(token && userId), token, userId };
+    const role = localStorage.getItem("role"); // Tambahkan role
+    const isAuthenticated = !!(token && userId);
+
+    return {
+      isAuthenticated,
+      token,
+      userId,
+      role,
+      isAdmin: role === "admin",
+      isUser: role === "user",
+    };
   }
 
   // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
-    const { isAuthenticated } = checkAuth();
+    const { isAuthenticated, role } = checkAuth();
     const logoutBtn = document.getElementById("logout-btn");
     const profileBtn = document.getElementById("profile-btn");
     const profilePicture = document.getElementById("profilePicture");
 
-    if (!logoutBtn) return;
-
     if (isAuthenticated) {
-      // User sudah login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-      logoutBtn.onclick = logout;
-      logoutBtn.href = "#";
+      // User atau admin sudah login
+      if (logoutBtn) {
+        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        logoutBtn.onclick = logout;
+        logoutBtn.href = "#";
+      }
 
-      // Tampilkan tombol Profile
+      // Tampilkan tombol Profile untuk semua user yang sudah login
       if (profileBtn) {
         profileBtn.style.display = "block";
         const profileLink = profileBtn.querySelector("a");
         if (profileLink) {
-          profileLink.href = "profile/profile.html";
+          profileLink.href = "/profile/profile.html";
           profileLink.innerHTML = '<i class="fas fa-user"></i> Profile';
         }
       }
 
-      // Update profile picture jika ada
+      // Update profile picture
       if (profilePicture) {
-        const { token, userId } = checkAuth();
-        fetch("https://backend-berkah.onrender.com/retreive/data/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((users) => {
-            const user = users.find((u) => u.id === parseInt(userId));
-            if (user && user.profile_picture) {
-              profilePicture.src = `https://backend-berkah.onrender.com${user.profile_picture}`;
-            } else {
-              // Set default avatar jika tidak ada profile picture
-              profilePicture.src = "../assets/default-avatar.png";
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            // Set default avatar jika terjadi error
-            profilePicture.src = "../assets/default-avatar.png";
-          });
+        fetchAndUpdateProfilePicture();
       }
     } else {
-      // User belum login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
-      logoutBtn.href = "auth/login.html";
-      logoutBtn.onclick = null;
+      // Belum login
+      if (logoutBtn) {
+        logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
+        logoutBtn.href = "/auth/login.html";
+        logoutBtn.onclick = null;
+      }
 
-      // Sembunyikan tombol Profile
       if (profileBtn) {
         profileBtn.style.display = "none";
       }
 
-      // Reset profile picture ke default
       if (profilePicture) {
         profilePicture.src = "../assets/default-avatar.png";
       }
@@ -260,14 +245,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const { isAuthenticated, token, userId } = checkAuth();
 
     if (!isAuthenticated) {
-      window.location.href = "../auth/login.html";
+      Swal.fire({
+        icon: "error",
+        title: "Akses Ditolak",
+        text: "Silakan login terlebih dahulu",
+        confirmButtonColor: "#4CAF50",
+      }).then(() => {
+        window.location.href = "../auth/login.html";
+      });
       return;
     }
 
     try {
       showLoading();
 
-      // Fetch data secara parallel menggunakan Promise.all
       const [userResponse, masjidResponse] = await Promise.all([
         fetch("https://backend-berkah.onrender.com/retreive/data/user", {
           headers: {
@@ -277,8 +268,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("https://backend-berkah.onrender.com/retreive/data/location"),
       ]);
 
-      if (!userResponse.ok) throw new Error("Gagal mengambil data user");
-      if (!masjidResponse.ok) throw new Error("Gagal mengambil data masjid");
+      if (!userResponse.ok || !masjidResponse.ok) {
+        throw new Error("Gagal mengambil data");
+      }
 
       const [users, masjidData] = await Promise.all([
         userResponse.json(),
@@ -288,9 +280,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentUser = users.find((u) => u.id === parseInt(userId));
       if (!currentUser) throw new Error("User tidak ditemukan");
 
-      // Tutup loading setelah data berhasil diambil
       Swal.close();
 
+      // Update halaman sesuai dengan path
       if (window.location.pathname.includes("profile.html")) {
         updateProfilePage(currentUser, masjidData);
       } else if (window.location.pathname.includes("profile_edit.html")) {
@@ -568,6 +560,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Fungsi untuk fetch dan update profile picture
+  async function fetchAndUpdateProfilePicture() {
+    const { token, userId } = checkAuth();
+    const profilePicture = document.getElementById("profilePicture");
+
+    if (!profilePicture) return;
+
+    try {
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const users = await response.json();
+      const currentUser = users.find((u) => u.id === parseInt(userId));
+
+      if (currentUser && currentUser.profile_picture) {
+        profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+      } else {
+        profilePicture.src = "../assets/default-avatar.png";
+      }
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+      profilePicture.src = "../assets/default-avatar.png";
+    }
+  }
+
   // Update fungsi initialize
   async function initialize() {
     const { isAuthenticated } = checkAuth();
@@ -589,15 +614,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // Welcome message untuk user baru
     showWelcomeMessage();
 
-    // Jika di halaman profile, cek autentikasi
-    if (isProfilePage) {
-      if (!isAuthenticated) {
-        window.location.href = "../auth/login.html";
-        return;
-      }
+    // Jika di halaman profile dan sudah login, langsung fetch data
+    if (isProfilePage && isAuthenticated) {
       fetchAndDisplayProfileData();
+    } else if (isProfilePage && !isAuthenticated) {
+      // Jika di halaman profile tapi belum login
+      Swal.fire({
+        icon: "error",
+        title: "Akses Ditolak",
+        text: "Silakan login terlebih dahulu",
+        confirmButtonColor: "#4CAF50",
+      }).then(() => {
+        window.location.href = "../auth/login.html";
+      });
     } else {
-      // Ambil data masjid untuk halaman non-profile
+      // Halaman non-profile
       try {
         await fetchMasjidData();
       } catch (error) {
