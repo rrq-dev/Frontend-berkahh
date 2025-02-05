@@ -345,13 +345,16 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Format email tidak valid");
         }
 
-        // Buat objek data untuk update
+        // Buat objek data untuk update sesuai model UpdatedProfile
         const updateData = {
           user_id: parseInt(userId),
           username,
           email,
           preferred_masjid: preferredMasjid,
           bio,
+          full_name: "",
+          phone_number: "",
+          address: "",
         };
 
         // Tampilkan loading
