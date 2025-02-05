@@ -45,31 +45,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Fungsi untuk menampilkan loading
+  let loadingScreen = null;
+
+  function showLoading() {
+    if (loadingScreen) return loadingScreen;
+
+    loadingScreen = Swal.fire({
+      title: "Loading...",
+      html: '<div class="loading-spinner"></div>',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    return loadingScreen;
+  }
+
+  function hideLoading() {
+    if (loadingScreen) {
+      loadingScreen.close();
+      loadingScreen = null;
+    }
+  }
+
   // Fungsi untuk mengambil data masjid tanpa perlu token
   async function fetchMasjidData(searchTerm = "") {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        `https://backend-berkah.onrender.com/masjid${
+          searchTerm ? `?search=${searchTerm}` : ""
+        }`
       );
 
       if (!response.ok) {
         throw new Error("Gagal mengambil data masjid");
       }
 
-      const masjidData = await response.json();
+      const data = await response.json();
 
       // Hanya panggil displayMasjidList jika berada di halaman utama
       if (!window.location.pathname.includes("/profile/")) {
-        displayMasjidList(masjidData, searchTerm);
+        displayMasjidList(data, searchTerm);
       }
 
-      return masjidData;
+      return data;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
       if (!window.location.pathname.includes("/profile/")) {
@@ -80,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
           confirmButtonColor: "#4CAF50",
         });
       }
+      throw error;
     }
   }
 
@@ -247,60 +270,29 @@ document.addEventListener("DOMContentLoaded", () => {
     window.onmousemove = resetTimer;
     window.onkeypress = resetTimer;
   }
-  // Fungsi untuk menampilkan loading
-  function showLoading() {
-    return Swal.fire({
-      title: "Loading...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  }
 
-  // Fungsi untuk menangani profile picture dengan Promise
-  async function handleProfilePicture() {
-    const profilePicture = document.getElementById("profilePicture");
-    if (!profilePicture) return;
+  // Fungsi untuk menampilkan welcome message
+  function showWelcomeMessage() {
+    const hasShownWelcome = localStorage.getItem("hasShownWelcome");
+    const token = localStorage.getItem("jwtToken");
 
-    try {
-      const savedProfilePic = localStorage.getItem("profilePicture");
-
-      if (savedProfilePic) {
-        const imageUrl = savedProfilePic.startsWith("http")
-          ? savedProfilePic
-          : `https://backend-berkah.onrender.com${savedProfilePic}`;
-
-        // Membuat Promise untuk memuat gambar
-        await new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            profilePicture.src = imageUrl;
-            resolve();
-          };
-          img.onerror = () => {
-            profilePicture.src =
-              "https://jumatberkah.vercel.app/assets/default-avatar.png";
-            resolve();
-          };
-          img.src = imageUrl;
-        });
-      } else {
-        profilePicture.src =
-          "https://jumatberkah.vercel.app/assets/default-avatar.png";
-      }
-    } catch (error) {
-      console.error("Error loading profile picture:", error);
-      profilePicture.src =
-        "https://jumatberkah.vercel.app/assets/default-avatar.png";
+    if (!token && !hasShownWelcome) {
+      Swal.fire({
+        title: "Selamat Datang!",
+        text: "di Aplikasi Jumat Berkah",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      localStorage.setItem("hasShownWelcome", "true");
     }
   }
 
   // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
-    const loadingScreen = await showLoading();
-
     try {
+      await showLoading();
       const { token, userId } = checkAuth();
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
@@ -359,32 +351,82 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Error fetching profile data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Gagal mengambil data profil",
-        confirmButtonColor: "#4CAF50",
-      });
+      throw error;
     } finally {
-      loadingScreen.close();
+      hideLoading();
     }
   }
 
-  // Fungsi untuk menampilkan welcome message
-  function showWelcomeMessage() {
-    const hasShownWelcome = localStorage.getItem("hasShownWelcome");
-    const token = localStorage.getItem("jwtToken");
+  // Fungsi untuk menangani profile picture dengan Promise
+  async function handleProfilePicture() {
+    const profilePicture = document.getElementById("profilePicture");
+    if (!profilePicture) return;
 
-    if (!token && !hasShownWelcome) {
-      Swal.fire({
-        title: "Selamat Datang!",
-        text: "di Aplikasi Jumat Berkah",
-        icon: "success",
-        confirmButtonColor: "#4CAF50",
-        timer: 2000,
-        timerProgressBar: true,
-      });
-      localStorage.setItem("hasShownWelcome", "true");
+    try {
+      const savedProfilePic = localStorage.getItem("profilePicture");
+
+      if (savedProfilePic) {
+        const imageUrl = savedProfilePic.startsWith("http")
+          ? savedProfilePic
+          : `https://backend-berkah.onrender.com${savedProfilePic}`;
+
+        // Membuat Promise untuk memuat gambar
+        await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            profilePicture.src = imageUrl;
+            resolve();
+          };
+          img.onerror = () => {
+            profilePicture.src =
+              "https://jumatberkah.vercel.app/assets/default-avatar.png";
+            resolve();
+          };
+          img.src = imageUrl;
+        });
+      } else {
+        profilePicture.src =
+          "https://jumatberkah.vercel.app/assets/default-avatar.png";
+      }
+    } catch (error) {
+      console.error("Error loading profile picture:", error);
+      profilePicture.src =
+        "https://jumatberkah.vercel.app/assets/default-avatar.png";
+    }
+  }
+
+  // Fungsi untuk mengambil dan menampilkan data profil
+  async function fetchAndUpdateProfilePicture() {
+    const { token, userId } = checkAuth();
+    const profilePicture = document.getElementById("profilePicture");
+
+    if (!profilePicture) return;
+
+    try {
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/retreive/data/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const users = await response.json();
+      const currentUser = users.find((u) => u.id === parseInt(userId));
+
+      if (currentUser && currentUser.profile_picture) {
+        profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        // Update URL di localStorage jika diperlukan
+        localStorage.setItem("profilePicture", currentUser.profile_picture);
+      } else {
+        profilePicture.src = "/assets/default-avatar.png";
+      }
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+      profilePicture.src = "/assets/default-avatar.png";
     }
   }
 
@@ -583,163 +625,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk mengambil dan menampilkan data profil
-  async function fetchAndUpdateProfilePicture() {
-    const { token, userId } = checkAuth();
-    const profilePicture = document.getElementById("profilePicture");
-
-    if (!profilePicture) return;
-
-    try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch user data");
-
-      const users = await response.json();
-      const currentUser = users.find((u) => u.id === parseInt(userId));
-
-      if (currentUser && currentUser.profile_picture) {
-        profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        // Update URL di localStorage jika diperlukan
-        localStorage.setItem("profilePicture", currentUser.profile_picture);
-      } else {
-        profilePicture.src = "/assets/default-avatar.png";
-      }
-    } catch (error) {
-      console.error("Error fetching profile picture:", error);
-      profilePicture.src = "/assets/default-avatar.png";
-    }
-  }
-
-  // Update fungsi untuk halaman edit profile
-  function updateEditProfilePage(currentUser, masjidData) {
-    const elements = {
-      username: document.getElementById("username"),
-      email: document.getElementById("email"),
-      bio: document.getElementById("bio"),
-      preferredMasjid: document.getElementById("preferredMasjid"),
-      profilePicture: document.getElementById("profilePicture"),
-      pictureInput: document.getElementById("pictureInput"),
-    };
-
-    // Update form fields
-    if (elements.username) elements.username.value = currentUser.username || "";
-    if (elements.email) elements.email.value = currentUser.email || "";
-    if (elements.bio) elements.bio.value = currentUser.bio || "";
-
-    // Update profile picture
-    handleProfilePicture();
-
-    // Handle profile picture change
-    const changePictureBtn = document.querySelector(".change-picture-btn");
-    if (changePictureBtn && elements.pictureInput) {
-      changePictureBtn.addEventListener("click", () => {
-        elements.pictureInput.click();
-      });
-
-      elements.pictureInput.addEventListener("change", async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-          // Validasi file
-          if (!file.type.startsWith("image/")) {
-            throw new Error("File harus berupa gambar");
-          }
-
-          if (file.size > 20 * 1024 * 1024) {
-            throw new Error("Ukuran file maksimal 20MB");
-          }
-
-          // Preview image sebelum upload
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (elements.profilePicture) {
-              elements.profilePicture.src = e.target.result;
-            }
-          };
-          reader.readAsDataURL(file);
-
-          // Prepare form data
-          const formData = new FormData();
-          formData.append("profile_picture", file);
-          formData.append("user_id", localStorage.getItem("userId"));
-
-          const token = localStorage.getItem("jwtToken");
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/upload/profile-picture",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData,
-            }
-          );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Gagal mengunggah gambar");
-          }
-
-          const result = await response.json();
-
-          // Simpan URL gambar ke localStorage
-          if (result.url) {
-            localStorage.setItem("profilePicture", result.url);
-            // Update tampilan gambar
-            handleProfilePicture();
-          }
-
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: "Foto profil berhasil diperbarui",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error!",
-            text: error.message || "Gagal mengunggah gambar",
-            confirmButtonColor: "#4CAF50",
-          });
-        }
-      });
-    }
-
-    if (elements.preferredMasjid) {
-      elements.preferredMasjid.innerHTML =
-        '<option value="">Pilih Masjid</option>';
-      masjidData.forEach((masjid) => {
-        const option = document.createElement("option");
-        option.value = masjid.id;
-        option.textContent = masjid.name;
-        if (currentUser.preferred_masjid === masjid.id.toString()) {
-          option.selected = true;
-        }
-        elements.preferredMasjid.appendChild(option);
-      });
-    }
-  }
-
   // Update fungsi initialize
   async function initialize() {
-    const { isAuthenticated } = checkAuth();
-    const isProfilePage = window.location.pathname.includes("/profile/");
-
     try {
-      // Tampilkan loading saat inisialisasi
-      const loadingScreen = await showLoading();
+      await showLoading();
+
+      const { isAuthenticated } = checkAuth();
+      const isProfilePage = window.location.pathname.includes("/profile/");
+      const isHomePage =
+        window.location.pathname === "/" ||
+        window.location.pathname.endsWith("index.html");
 
       // Update auth links
       updateAuthLinks();
@@ -748,12 +643,15 @@ document.addEventListener("DOMContentLoaded", () => {
       setupAutoLogout();
 
       // Welcome message untuk user baru
-      showWelcomeMessage();
+      if (isAuthenticated) {
+        showWelcomeMessage();
+      }
 
       if (isProfilePage) {
         if (isAuthenticated) {
           await fetchAndDisplayProfileData();
         } else {
+          hideLoading();
           await Swal.fire({
             icon: "error",
             title: "Akses Ditolak",
@@ -761,18 +659,34 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonColor: "#4CAF50",
           });
           window.location.href = "../auth/login.html";
+          return;
         }
       }
 
-      loadingScreen.close();
+      if (isHomePage) {
+        try {
+          const masjidData = await fetchMasjidData();
+          displayMasjidList(masjidData);
+        } catch (error) {
+          console.error("Error fetching initial masjid data:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: "Gagal memuat data masjid",
+            confirmButtonColor: "#4CAF50",
+          });
+        }
+      }
     } catch (error) {
       console.error("Error during initialization:", error);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error!",
         text: "Terjadi kesalahan saat memuat halaman",
         confirmButtonColor: "#4CAF50",
       });
+    } finally {
+      hideLoading();
     }
   }
 
@@ -803,5 +717,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Inisialisasi
-  initialize().catch(console.error);
+  initialize().catch((error) => {
+    console.error("Initialization error:", error);
+    hideLoading();
+    Swal.fire({
+      icon: "error",
+      title: "Error!",
+      text: "Terjadi kesalahan saat memuat halaman",
+      confirmButtonColor: "#4CAF50",
+    });
+  });
+
+  // Tambahkan CSS untuk loading spinner
+  const style = document.createElement("style");
+  style.textContent = `
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
 });
