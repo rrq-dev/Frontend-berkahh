@@ -277,17 +277,30 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("bio").textContent =
           currentUser.bio || "Belum diisi";
 
+        // Cari nama masjid berdasarkan preferred_masjid
         const preferredMasjid = masjidData.find(
           (m) => m.id === parseInt(currentUser.preferred_masjid)
         );
         document.getElementById("preferredMasjid").textContent = preferredMasjid
           ? preferredMasjid.name
           : "Belum diisi";
+
+        // Update profile picture jika ada
+        const profilePicture = document.getElementById("profilePicture");
+        if (currentUser.profile_picture) {
+          profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        }
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
         document.getElementById("email").value = currentUser.email || "";
         document.getElementById("bio").value = currentUser.bio || "";
+
+        // Update profile picture jika ada
+        const profilePicture = document.getElementById("profilePicture");
+        if (currentUser.profile_picture) {
+          profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+        }
 
         // Populate masjid dropdown
         const masjidSelect = document.getElementById("preferredMasjid");
