@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error("Ukuran file maksimal 20MB");
           }
 
-          // Preview image
+          // Preview image sebelum upload
           const reader = new FileReader();
           reader.onload = (e) => {
             const profilePicture = document.getElementById("profilePicture");
@@ -493,9 +493,9 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           reader.readAsDataURL(file);
 
-          // Prepare form data
+          // Prepare form data dengan nama field yang benar
           const formData = new FormData();
-          formData.append("profile_picture", file);
+          formData.append("file", file); // Ubah "profile_picture" menjadi "file"
           formData.append("user_id", localStorage.getItem("userId"));
 
           // Show loading
@@ -508,12 +508,13 @@ document.addEventListener("DOMContentLoaded", () => {
             },
           });
 
+          const token = localStorage.getItem("jwtToken");
           const response = await fetch(
             "https://backend-berkah.onrender.com/profile-picture",
             {
               method: "POST",
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+                Authorization: `Bearer ${token}`,
               },
               body: formData,
             }
@@ -522,6 +523,14 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || "Gagal mengunggah gambar");
+          }
+
+          const result = await response.json();
+
+          // Update profile picture dengan URL baru
+          const profilePicture = document.getElementById("profilePicture");
+          if (profilePicture && result.profile_picture) {
+            profilePicture.src = `https://backend-berkah.onrender.com${result.profile_picture}`;
           }
 
           Swal.fire({
