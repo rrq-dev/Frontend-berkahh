@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const searchBar = document.getElementById("search-bar");
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
@@ -45,104 +44,79 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  let loadingInstance = null;
+
   // Fungsi untuk menampilkan loading
   function showLoading() {
-    return Swal.fire({
+    if (loadingInstance) return loadingInstance;
+
+    loadingInstance = Swal.fire({
       title: "Mohon Tunggu...",
       allowOutsideClick: false,
       showConfirmButton: false,
-      willOpen: () => {
+      didOpen: () => {
         Swal.showLoading();
       },
     });
+    return loadingInstance;
   }
 
   // Fungsi untuk menyembunyikan loading
   function hideLoading() {
-    Swal.close();
+    if (loadingInstance) {
+      Swal.close();
+      loadingInstance = null;
+    }
   }
 
-  // Fungsi untuk mengambil data masjid tanpa perlu token
+  // Fungsi untuk fetch data masjid dengan timeout
   async function fetchMasjidData(searchTerm = "") {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+
       const response = await fetch(
         `https://backend-berkah.onrender.com/masjid${
           searchTerm ? `?search=${searchTerm}` : ""
-        }`
+        }`,
+        { signal: controller.signal }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error("Gagal mengambil data masjid");
       }
 
-      const data = await response.json();
-
-      // Hanya panggil displayMasjidList jika berada di halaman utama
-      if (!window.location.pathname.includes("/profile/")) {
-        displayMasjidList(data, searchTerm);
-      }
-
-      return data;
+      return await response.json();
     } catch (error) {
-      console.error("Error fetching masjid data:", error);
-      if (!window.location.pathname.includes("/profile/")) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Gagal memuat data masjid!",
-          confirmButtonColor: "#4CAF50",
-        });
+      if (error.name === "AbortError") {
+        throw new Error("Koneksi timeout, silakan coba lagi");
       }
       throw error;
     }
   }
 
   // Fungsi untuk menampilkan daftar masjid
-  function displayMasjidList(masjidData, searchTerm = "") {
-    const masjidList = document.getElementById("masjid-list");
-    if (!masjidList) return;
+  function displayMasjidList(masjidData) {
+    const masjidContainer = document.querySelector(".masjid-list");
+    if (!masjidContainer) return;
 
-    masjidList.innerHTML = "";
+    masjidContainer.innerHTML = "";
 
-    const filteredData = masjidData.filter((masjid) =>
-      masjid.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (filteredData.length === 0) {
-      masjidList.innerHTML = `
+    if (masjidData.length === 0) {
+      masjidContainer.innerHTML = `
         <div class="no-results">
-          <i class="fas fa-search"></i>
-          <p>Masjid yang dicari tidak ditemukan</p>
+          <i class="fas fa-mosque"></i>
+          <p>Tidak ada masjid yang ditemukan</p>
         </div>
       `;
       return;
     }
 
-    filteredData.forEach((masjid) => {
-      const masjidItem = document.createElement("div");
-      masjidItem.className = "masjid-item";
-      masjidItem.innerHTML = `
-        <div class="masjid-content">
-          <h3>${masjid.name}</h3>
-          <p><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
-          <p><i class="fas fa-info-circle"></i> ${
-            masjid.description || "Tidak ada deskripsi"
-          }</p>
-        </div>
-      `;
-
-      // Tambahkan efek hover
-      masjidItem.addEventListener("mouseover", () => {
-        masjidItem.style.transform = "translateY(-5px)";
-        masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
-      });
-
-      masjidItem.addEventListener("mouseout", () => {
-        masjidItem.style.transform = "translateY(0)";
-        masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
-      });
-
-      masjidList.appendChild(masjidItem);
+    masjidData.forEach((masjid) => {
+      const masjidCard = createMasjidCard(masjid);
+      masjidContainer.appendChild(masjidCard);
     });
   }
 
@@ -616,10 +590,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Update fungsi initialize
+  // Fungsi initialize yang lebih robust
   async function initialize() {
     try {
-      const loadingScreen = await showLoading();
+      showLoading();
 
       const isHomePage =
         window.location.pathname === "/" ||
@@ -634,34 +608,48 @@ document.addEventListener("DOMContentLoaded", () => {
           await Swal.fire({
             icon: "error",
             title: "Error!",
-            text: "Gagal memuat data masjid",
+            text: error.message || "Gagal memuat data masjid",
             confirmButtonColor: "#4CAF50",
           });
         }
       }
-
-      hideLoading();
     } catch (error) {
       console.error("Error during initialization:", error);
-      hideLoading();
       await Swal.fire({
         icon: "error",
         title: "Error!",
         text: "Terjadi kesalahan saat memuat halaman",
         confirmButtonColor: "#4CAF50",
       });
+    } finally {
+      hideLoading();
     }
   }
 
-  // Event listeners untuk search bar dengan debounce
-  if (searchBar && !window.location.pathname.includes("/profile/")) {
+  // Event listener untuk search bar dengan debounce
+  const searchInput = document.querySelector(".search-input");
+  if (searchInput) {
     let debounceTimer;
-    searchBar.addEventListener("input", () => {
+    searchInput.addEventListener("input", (e) => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        const searchTerm = searchBar.value;
-        fetchMasjidData(searchTerm);
-      }, 300);
+      debounceTimer = setTimeout(async () => {
+        const searchTerm = e.target.value.trim();
+        try {
+          showLoading();
+          const masjidData = await fetchMasjidData(searchTerm);
+          displayMasjidList(masjidData);
+        } catch (error) {
+          console.error("Error searching masjid:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: error.message || "Gagal mencari masjid",
+            confirmButtonColor: "#4CAF50",
+          });
+        } finally {
+          hideLoading();
+        }
+      }, 500);
     });
   }
 
@@ -679,14 +667,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Inisialisasi
+  // Jalankan initialize dengan error handling
   initialize().catch((error) => {
-    console.error("Initialization error:", error);
+    console.error("Fatal initialization error:", error);
     hideLoading();
     Swal.fire({
       icon: "error",
-      title: "Error!",
-      text: "Terjadi kesalahan saat memuat halaman",
+      title: "Error Fatal!",
+      text: "Terjadi kesalahan yang tidak diharapkan",
       confirmButtonColor: "#4CAF50",
     });
   });
