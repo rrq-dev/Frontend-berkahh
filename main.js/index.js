@@ -46,29 +46,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fungsi untuk menampilkan loading
-  let loadingScreen = null;
-
   function showLoading() {
-    if (loadingScreen) return loadingScreen;
-
-    loadingScreen = Swal.fire({
-      title: "Loading...",
-      html: '<div class="loading-spinner"></div>',
+    return Swal.fire({
+      title: "Mohon Tunggu...",
       allowOutsideClick: false,
       showConfirmButton: false,
-      didOpen: () => {
+      willOpen: () => {
         Swal.showLoading();
       },
     });
-
-    return loadingScreen;
   }
 
+  // Fungsi untuk menyembunyikan loading
   function hideLoading() {
-    if (loadingScreen) {
-      loadingScreen.close();
-      loadingScreen = null;
-    }
+    Swal.close();
   }
 
   // Fungsi untuk mengambil data masjid tanpa perlu token
@@ -628,40 +619,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update fungsi initialize
   async function initialize() {
     try {
-      await showLoading();
+      const loadingScreen = await showLoading();
 
-      const { isAuthenticated } = checkAuth();
-      const isProfilePage = window.location.pathname.includes("/profile/");
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
-
-      // Update auth links
-      updateAuthLinks();
-
-      // Setup auto logout
-      setupAutoLogout();
-
-      // Welcome message untuk user baru
-      if (isAuthenticated) {
-        showWelcomeMessage();
-      }
-
-      if (isProfilePage) {
-        if (isAuthenticated) {
-          await fetchAndDisplayProfileData();
-        } else {
-          hideLoading();
-          await Swal.fire({
-            icon: "error",
-            title: "Akses Ditolak",
-            text: "Silakan login terlebih dahulu",
-            confirmButtonColor: "#4CAF50",
-          });
-          window.location.href = "../auth/login.html";
-          return;
-        }
-      }
 
       if (isHomePage) {
         try {
@@ -669,7 +631,7 @@ document.addEventListener("DOMContentLoaded", () => {
           displayMasjidList(masjidData);
         } catch (error) {
           console.error("Error fetching initial masjid data:", error);
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error!",
             text: "Gagal memuat data masjid",
@@ -677,16 +639,17 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       }
+
+      hideLoading();
     } catch (error) {
       console.error("Error during initialization:", error);
+      hideLoading();
       await Swal.fire({
         icon: "error",
         title: "Error!",
         text: "Terjadi kesalahan saat memuat halaman",
         confirmButtonColor: "#4CAF50",
       });
-    } finally {
-      hideLoading();
     }
   }
 
