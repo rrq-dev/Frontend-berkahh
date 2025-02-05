@@ -274,6 +274,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("username").textContent =
           currentUser.username || "-";
         document.getElementById("email").textContent = currentUser.email || "-";
+        document.getElementById("bio").textContent =
+          currentUser.bio || "Belum diisi";
 
         const preferredMasjid = masjidData.find(
           (m) => m.id === parseInt(currentUser.preferred_masjid)
@@ -281,13 +283,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preferredMasjid").textContent = preferredMasjid
           ? preferredMasjid.name
           : "Belum diisi";
-        document.getElementById("masjidAddress").textContent = preferredMasjid
-          ? preferredMasjid.address
-          : "Belum diisi";
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
         document.getElementById("email").value = currentUser.email || "";
+        document.getElementById("bio").value = currentUser.bio || "";
 
         // Populate masjid dropdown
         const masjidSelect = document.getElementById("preferredMasjid");
