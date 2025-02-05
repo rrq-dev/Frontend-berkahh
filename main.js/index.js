@@ -132,16 +132,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Fungsi untuk cek autentikasi
+  function checkAuth() {
+    const token = localStorage.getItem("jwtToken");
+    const userId = localStorage.getItem("userId");
+    return { isAuthenticated: !!(token && userId), token, userId };
+  }
+
   // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
+    const { isAuthenticated } = checkAuth();
     const logoutBtn = document.getElementById("logout-btn");
     const profileBtn = document.getElementById("profile-btn");
     const profilePicture = document.getElementById("profilePicture");
-    const token = localStorage.getItem("jwtToken");
 
     if (!logoutBtn) return;
 
-    if (token) {
+    if (isAuthenticated) {
       // User sudah login
       logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
       logoutBtn.onclick = logout;
@@ -159,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update profile picture jika ada
       if (profilePicture) {
-        const userId = localStorage.getItem("userId");
+        const { token, userId } = checkAuth();
         fetch("https://backend-berkah.onrender.com/retreive/data/user", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -250,10 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
-    const token = localStorage.getItem("jwtToken");
-    const userId = localStorage.getItem("userId");
+    const { isAuthenticated, token, userId } = checkAuth();
 
-    if (!token || !userId) {
+    if (!isAuthenticated) {
       window.location.href = "../auth/login.html";
       return;
     }
@@ -531,32 +537,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk menampilkan welcome message
   function showWelcomeMessage() {
-    const hasShownWelcome = localStorage.getItem('hasShownWelcome');
-    const token = localStorage.getItem('jwtToken');
+    const hasShownWelcome = localStorage.getItem("hasShownWelcome");
+    const token = localStorage.getItem("jwtToken");
 
     if (!token && !hasShownWelcome) {
       Swal.fire({
-        title: 'Selamat Datang!',
-        text: 'di Aplikasi Jumat Berkah',
-        icon: 'success',
-        confirmButtonColor: '#4CAF50',
+        title: "Selamat Datang!",
+        text: "di Aplikasi Jumat Berkah",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
         timer: 2000,
-        timerProgressBar: true
+        timerProgressBar: true,
       });
-      localStorage.setItem('hasShownWelcome', 'true');
+      localStorage.setItem("hasShownWelcome", "true");
     }
   }
 
   // Fungsi untuk handle auto logout
   function setupAutoLogout() {
     // Event listener untuk tab closing atau browser closing
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener("beforeunload", () => {
       localStorage.clear(); // Hapus semua data di localStorage
     });
 
     // Event listener untuk visibility change (saat user switch tab atau minimize browser)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
         localStorage.clear();
       }
     });
@@ -564,14 +570,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Update fungsi initialize
   async function initialize() {
-    const token = localStorage.getItem('jwtToken');
-    const isProfilePage = window.location.pathname.includes('/profile/');
+    const { isAuthenticated } = checkAuth();
+    const isProfilePage = window.location.pathname.includes("/profile/");
 
     // Tambahkan animasi fade in saat load
-    document.body.style.opacity = '0';
-    document.body.style.transition = 'opacity 0.5s';
+    document.body.style.opacity = "0";
+    document.body.style.transition = "opacity 0.5s";
     setTimeout(() => {
-      document.body.style.opacity = '1';
+      document.body.style.opacity = "1";
     }, 100);
 
     // Update auth links dan profile picture
@@ -583,12 +589,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Welcome message untuk user baru
     showWelcomeMessage();
 
-    // Ambil data masjid untuk semua user
-    if (!isProfilePage) {
+    // Jika di halaman profile, cek autentikasi
+    if (isProfilePage) {
+      if (!isAuthenticated) {
+        window.location.href = "../auth/login.html";
+        return;
+      }
+      fetchAndDisplayProfileData();
+    } else {
+      // Ambil data masjid untuk halaman non-profile
       try {
         await fetchMasjidData();
       } catch (error) {
-        console.error('Error fetching masjid data:', error);
+        console.error("Error fetching masjid data:", error);
       }
     }
   }
@@ -619,20 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Cek autentikasi untuk halaman profile
-  if (window.location.pathname.includes("/profile/")) {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      window.location.href = "../auth/login.html";
-      return;
-    }
-  }
-
   // Inisialisasi
   initialize().catch(console.error);
-
-  // Panggil fungsi saat halaman dimuat
-  if (window.location.pathname.includes("/profile/")) {
-    fetchAndDisplayProfileData();
-  }
 });
