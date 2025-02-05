@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const masjidList = document.getElementById("masjid-list");
   const searchBar = document.getElementById("search-bar");
-  const errorMessage = document.getElementById("error-message");
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
@@ -84,22 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil data masjid dengan error handling
+  // Fungsi untuk mengambil data masjid tanpa perlu token
   async function fetchMasjidData(searchTerm = "") {
     try {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        console.log("Token tidak ditemukan");
-        return;
-      }
-
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -433,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Hanya ambil data masjid jika di halaman utama
+    // Ambil data masjid untuk semua user (dengan atau tanpa token)
     if (!isProfilePage) {
       try {
         await fetchMasjidData();
