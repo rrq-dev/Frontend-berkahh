@@ -165,116 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function updateAuthLinks() {
-    const logoutBtn = document.getElementById("logout-btn");
-    const adminBtn = document.getElementById("admin-btn");
-    const profileBtn = document.getElementById("profile-btn");
-    const token = localStorage.getItem("jwtToken");
-    const userRole = localStorage.getItem("userRole");
-
-    if (token) {
-      // User sudah login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-      logoutBtn.onclick = logout;
-
-      // Tampilkan tombol Edit Profile
-      if (profileBtn) {
-        profileBtn.style.display = "block";
-        profileBtn.querySelector("a").innerHTML =
-          '<i class="fas fa-user-edit"></i> Edit Profile';
-      }
-
-      if (userRole === "admin" && adminBtn) {
-        adminBtn.style.display = "block";
-        adminBtn.onclick = () => {
-          window.location.href = "../admin/admin.html";
-        };
-      }
-    } else {
-      // User belum login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
-      logoutBtn.href = "../auth/login.html";
-
-      // Sembunyikan tombol Edit Profile
-      if (profileBtn) {
-        profileBtn.style.display = "none";
-      }
-
-      if (adminBtn) {
-        adminBtn.style.display = "none";
-      }
-    }
-  }
-
-  // Tambahkan ini untuk memuat data profil
-  fetchUserProfile()
-    .then((userProfile) => {
-      if (userProfile) {
-        console.log("User profile loaded:", userProfile);
-      }
-    })
-    .catch((error) => {
-      console.error("Error loading profile:", error);
-    });
-
-  // Event listener untuk input pencarian
-  searchBar.addEventListener("input", () => {
-    const searchTerm = searchBar.value;
-    fetchMasjidData(searchTerm);
-  });
-
-  // Menambahkan event listener untuk hover pada navbar buttons
-  navbarButtons.forEach((button) => {
-    button.addEventListener("mouseover", () => {
-      const randomColor = getRandomColor();
-      button.style.backgroundColor = randomColor;
-    });
-
-    button.addEventListener("mouseout", () => {
-      button.style.backgroundColor = "";
-    });
-  });
-
-  // Inisialisasi
-  window.onload = function () {
-    updateAuthLinks();
-    fetchMasjidData();
-
-    // Tampilkan pesan selamat datang hanya jika tidak ada token di URL
-    if (!token) {
-      Swal.fire({
-        title: "Selamat Datang!",
-        text: "di Aplikasi Jumat Berkah",
-        icon: "success",
-        confirmButtonColor: "#4CAF50",
-        timer: 2000,
-        timerProgressBar: true,
-      });
-    }
-  };
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Inisialisasi elemen-elemen
-  const profileForm = document.getElementById("profileForm");
-  const usernameInput = document.getElementById("username");
-  const emailInput = document.getElementById("email");
-  const fullNameInput = document.getElementById("fullName");
-  const phoneNumberInput = document.getElementById("phoneNumber");
-  const addressInput = document.getElementById("address");
-  const preferredMasjidInput = document.getElementById("preferredMasjid");
-  const bioInput = document.getElementById("bio");
-  const oldPasswordInput = document.getElementById("oldPassword");
-  const newPasswordInput = document.getElementById("newPassword");
-  const logoutBtn = document.getElementById("logout-btn");
-  const profilePicture = document.getElementById("profilePicture");
-  const changePictureBtn = document.querySelector(".change-picture-btn");
-
-  // Cek autentikasi
-  const token = localStorage.getItem("jwtToken");
-  const userId = localStorage.getItem("userId");
-
-  // Tambahkan fungsi untuk mengambil data profil user
+  // Pindahkan deklarasi fetchUserProfile ke atas sebelum digunakan
   async function fetchUserProfile() {
     try {
       const token = localStorage.getItem("jwtToken");
@@ -307,9 +198,132 @@ document.addEventListener("DOMContentLoaded", () => {
       return users.find((user) => user.id === parseInt(userId));
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      throw error;
+      return null; // Return null jika terjadi error
     }
   }
+
+  // Update fungsi updateAuthLinks untuk menangani error dengan lebih baik
+  async function updateAuthLinks() {
+    const logoutBtn = document.getElementById("logout-btn");
+    const adminBtn = document.getElementById("admin-btn");
+    const profileBtn = document.getElementById("profile-btn");
+    const token = localStorage.getItem("jwtToken");
+    const userRole = localStorage.getItem("userRole");
+
+    if (!logoutBtn) return; // Guard clause jika elemen tidak ditemukan
+
+    if (token) {
+      // User sudah login
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+      logoutBtn.onclick = logout;
+      logoutBtn.href = "#"; // Hapus href karena menggunakan onclick
+
+      // Tampilkan tombol Edit Profile
+      if (profileBtn) {
+        profileBtn.style.display = "block";
+        const profileLink = profileBtn.querySelector("a");
+        if (profileLink) {
+          profileLink.innerHTML =
+            '<i class="fas fa-user-edit"></i> Edit Profile';
+        }
+      }
+
+      if (userRole === "admin" && adminBtn) {
+        adminBtn.style.display = "block";
+        adminBtn.onclick = () => {
+          window.location.href = "../admin/admin.html";
+        };
+      }
+    } else {
+      // User belum login
+      logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
+      logoutBtn.href = "../auth/login.html";
+      logoutBtn.onclick = null; // Hapus onclick handler
+
+      // Sembunyikan tombol Edit Profile
+      if (profileBtn) {
+        profileBtn.style.display = "none";
+      }
+
+      if (adminBtn) {
+        adminBtn.style.display = "none";
+      }
+    }
+  }
+
+  // Inisialisasi dengan async/await
+  async function initialize() {
+    updateAuthLinks();
+    await fetchMasjidData();
+
+    // Tampilkan pesan selamat datang hanya jika tidak ada token di URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (!token) {
+      Swal.fire({
+        title: "Selamat Datang!",
+        text: "di Aplikasi Jumat Berkah",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+  }
+
+  // Panggil initialize
+  initialize().catch(console.error);
+
+  // Tambahkan ini untuk memuat data profil
+  fetchUserProfile()
+    .then((userProfile) => {
+      if (userProfile) {
+        console.log("User profile loaded:", userProfile);
+      }
+    })
+    .catch((error) => {
+      console.error("Error loading profile:", error);
+    });
+
+  // Event listener untuk input pencarian
+  searchBar.addEventListener("input", () => {
+    const searchTerm = searchBar.value;
+    fetchMasjidData(searchTerm);
+  });
+
+  // Menambahkan event listener untuk hover pada navbar buttons
+  navbarButtons.forEach((button) => {
+    button.addEventListener("mouseover", () => {
+      const randomColor = getRandomColor();
+      button.style.backgroundColor = randomColor;
+    });
+
+    button.addEventListener("mouseout", () => {
+      button.style.backgroundColor = "";
+    });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Inisialisasi elemen-elemen
+  const profileForm = document.getElementById("profileForm");
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const fullNameInput = document.getElementById("fullName");
+  const phoneNumberInput = document.getElementById("phoneNumber");
+  const addressInput = document.getElementById("address");
+  const preferredMasjidInput = document.getElementById("preferredMasjid");
+  const bioInput = document.getElementById("bio");
+  const oldPasswordInput = document.getElementById("oldPassword");
+  const newPasswordInput = document.getElementById("newPassword");
+  const logoutBtn = document.getElementById("logout-btn");
+  const profilePicture = document.getElementById("profilePicture");
+  const changePictureBtn = document.querySelector(".change-picture-btn");
+
+  // Cek autentikasi
+  const token = localStorage.getItem("jwtToken");
+  const userId = localStorage.getItem("userId");
 
   // Handle form submission
   profileForm.addEventListener("submit", async (e) => {
