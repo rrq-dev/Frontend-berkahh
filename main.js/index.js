@@ -165,21 +165,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Update fungsi updateAuthLinks yang sudah ada
   function updateAuthLinks() {
     const logoutBtn = document.getElementById("logout-btn");
     const adminBtn = document.getElementById("admin-btn");
-    const profileBtn = document.getElementById("profile-btn"); // Tambahkan ini
+    const profileBtn = document.getElementById("profile-btn");
     const token = localStorage.getItem("jwtToken");
     const userRole = localStorage.getItem("userRole");
 
     if (token) {
-      logoutBtn.innerText = "Logout";
+      // User sudah login
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
       logoutBtn.onclick = logout;
 
-      // Tambahkan ini untuk menampilkan tombol profile
+      // Tampilkan tombol Edit Profile
       if (profileBtn) {
         profileBtn.style.display = "block";
+        profileBtn.querySelector("a").innerHTML =
+          '<i class="fas fa-user-edit"></i> Edit Profile';
       }
 
       if (userRole === "admin" && adminBtn) {
@@ -188,29 +190,32 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "../admin/admin.html";
         };
       }
-
-      // Tambahkan ini untuk memuat data profil
-      fetchUserProfile()
-        .then((userProfile) => {
-          if (userProfile) {
-            console.log("User profile loaded:", userProfile);
-          }
-        })
-        .catch((error) => {
-          console.error("Error loading profile:", error);
-        });
     } else {
-      logoutBtn.innerText = "Sign in";
+      // User belum login
+      logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
       logoutBtn.href = "../auth/login.html";
-      if (adminBtn) {
-        adminBtn.style.display = "none";
-      }
-      // Tambahkan ini untuk menyembunyikan tombol profile
+
+      // Sembunyikan tombol Edit Profile
       if (profileBtn) {
         profileBtn.style.display = "none";
       }
+
+      if (adminBtn) {
+        adminBtn.style.display = "none";
+      }
     }
   }
+
+  // Tambahkan ini untuk memuat data profil
+  fetchUserProfile()
+    .then((userProfile) => {
+      if (userProfile) {
+        console.log("User profile loaded:", userProfile);
+      }
+    })
+    .catch((error) => {
+      console.error("Error loading profile:", error);
+    });
 
   // Event listener untuk input pencarian
   searchBar.addEventListener("input", () => {
@@ -269,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("jwtToken");
   const userId = localStorage.getItem("userId");
 
-  // Fungsi untuk mengambil data profil user
+  // Tambahkan fungsi untuk mengambil data profil user
   async function fetchUserProfile() {
     try {
       const token = localStorage.getItem("jwtToken");
@@ -279,7 +284,11 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Token atau User ID tidak ditemukan");
       }
 
-      const response = await fetch(
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 5000)
+      );
+
+      const fetchPromise = fetch(
         `https://backend-berkah.onrender.com/retreive/data/user`,
         {
           headers: {
@@ -287,6 +296,8 @@ document.addEventListener("DOMContentLoaded", () => {
           },
         }
       );
+
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
 
       if (!response.ok) {
         throw new Error("Gagal mengambil data profil");
