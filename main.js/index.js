@@ -70,29 +70,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi fetchMasjidData dengan retry mechanism dan timeout yang lebih pendek
+  // Perbaikan fungsi fetchMasjidData dengan endpoint yang benar
   async function fetchMasjidData(searchTerm = "") {
     let retries = 3;
 
     while (retries > 0) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // Kurangi timeout jadi 5 detik
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+        // Menggunakan endpoint yang benar sesuai route.go
         const response = await fetch(
-          `https://backend-berkah.onrender.com/masjid${
+          `https://backend-berkah.onrender.com/retreive/data/location${
             searchTerm ? `?search=${searchTerm}` : ""
           }`,
           {
             signal: controller.signal,
-            cache: "no-store", // Hindari caching
+            cache: "no-store",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            },
           }
         );
 
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error("Gagal mengambil data masjid");
+          throw new Error("Gagal mengambil data lokasi masjid");
         }
 
         return await response.json();
@@ -104,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           throw error;
         }
-        // Tunggu sebentar sebelum retry
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
@@ -267,11 +270,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil dan menampilkan data profil
+  // Perbaikan fungsi fetchAndDisplayProfileData dengan endpoint yang benar
   async function fetchAndDisplayProfileData() {
     try {
       await showLoading();
       const { token, userId } = checkAuth();
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
@@ -281,21 +285,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch user data");
+      if (!response.ok) throw new Error("Gagal mengambil data pengguna");
 
       const users = await response.json();
       const currentUser = users.find((u) => u.id === parseInt(userId));
 
       if (currentUser) {
-        // Update profile picture di localStorage
         if (currentUser.profile_picture) {
           localStorage.setItem("profilePicture", currentUser.profile_picture);
         }
-
-        // Update tampilan profile picture
         await handleProfilePicture();
 
-        // Update informasi profil lainnya
+        // Update informasi profil
         const elements = {
           username: document.getElementById("username"),
           email: document.getElementById("email"),
@@ -303,7 +304,6 @@ document.addEventListener("DOMContentLoaded", () => {
           preferredMasjid: document.getElementById("preferredMasjid"),
         };
 
-        // Update text content dengan null check
         if (elements.username)
           elements.username.textContent = currentUser.username || "-";
         if (elements.email)
@@ -311,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.bio)
           elements.bio.textContent = currentUser.bio || "Belum ada bio";
 
-        // Update preferred masjid jika ada
+        // Update preferred masjid dengan endpoint yang benar
         if (elements.preferredMasjid && currentUser.preferred_masjid) {
           try {
             const masjidData = await fetchMasjidData();
@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Handle form submission dengan debounce
+  // Perbaikan form submission untuk update profile
   const profileForm = document.getElementById("editProfileForm");
   if (profileForm) {
     let isSubmitting = false;
@@ -547,9 +547,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .getElementById("preferredMasjid")
             .value.trim(),
           bio: document.getElementById("bio")?.value.trim() || "",
-          full_name: "",
-          phone_number: "",
-          address: "",
         };
 
         // Validasi
@@ -563,8 +560,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showLoading();
 
+        // Menggunakan endpoint yang benar sesuai route.go
         const response = await fetch(
-          "https://backend-berkah.onrender.com/updateprofile",
+          "https://backend-berkah.onrender.com/updateuser",
           {
             method: "PUT",
             headers: {
@@ -599,6 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } finally {
         isSubmitting = false;
+        hideLoading();
       }
     });
   }
