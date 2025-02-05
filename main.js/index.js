@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const masjidData = await masjidResponse.json();
 
       if (window.location.pathname.includes("profile.html")) {
-        // Update profile page
+        // Update profile page dengan data terbaru
         document.getElementById("username").textContent =
           currentUser.username || "-";
         document.getElementById("email").textContent = currentUser.email || "-";
@@ -330,16 +330,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // Validasi input
         const username = document.getElementById("username").value.trim();
         const email = document.getElementById("email").value.trim();
-        const fullName = document.getElementById("fullName").value.trim();
-        const phoneNumber = document.getElementById("phoneNumber").value.trim();
-        const address = document.getElementById("address").value.trim();
         const preferredMasjid = document
           .getElementById("preferredMasjid")
           .value.trim();
         const bio = document.getElementById("bio")?.value.trim() || "";
 
         // Validasi dasar
-        if (!username || !email || !fullName) {
+        if (!username || !email) {
           throw new Error("Mohon isi semua field yang wajib");
         }
 
@@ -353,9 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
           user_id: parseInt(userId),
           username,
           email,
-          full_name: fullName,
-          phone_number: phoneNumber,
-          address,
           preferred_masjid: preferredMasjid,
           bio,
         };
@@ -395,6 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
+        // Redirect ke halaman profile setelah berhasil update
         window.location.href = "profile.html";
       } catch (error) {
         console.error("Error updating profile:", error);
