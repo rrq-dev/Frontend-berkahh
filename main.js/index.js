@@ -237,6 +237,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Fungsi untuk menampilkan loading state
+  function showLoading() {
+    Swal.fire({
+      title: "Memuat...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  }
+
   // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
@@ -248,90 +259,120 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // Fetch user data
-      const userResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
+      showLoading();
+
+      // Fetch data secara parallel menggunakan Promise.all
+      const [userResponse, masjidResponse] = await Promise.all([
+        fetch("https://backend-berkah.onrender.com/retreive/data/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        }),
+        fetch("https://backend-berkah.onrender.com/retreive/data/location"),
+      ]);
 
       if (!userResponse.ok) throw new Error("Gagal mengambil data user");
-      const users = await userResponse.json();
-      const currentUser = users.find((u) => u.id === parseInt(userId));
-
-      // Fetch masjid data
-      const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location"
-      );
       if (!masjidResponse.ok) throw new Error("Gagal mengambil data masjid");
-      const masjidData = await masjidResponse.json();
+
+      const [users, masjidData] = await Promise.all([
+        userResponse.json(),
+        masjidResponse.json(),
+      ]);
+
+      const currentUser = users.find((u) => u.id === parseInt(userId));
+      if (!currentUser) throw new Error("User tidak ditemukan");
+
+      // Tutup loading setelah data berhasil diambil
+      Swal.close();
 
       if (window.location.pathname.includes("profile.html")) {
-        // Update profile page dengan data terbaru
-        document.getElementById("username").textContent =
-          currentUser.username || "-";
-        document.getElementById("email").textContent = currentUser.email || "-";
-        document.getElementById("bio").textContent =
-          currentUser.bio || "Belum diisi";
-
-        // Cari nama masjid berdasarkan preferred_masjid
-        const preferredMasjid = masjidData.find(
-          (m) => m.id === parseInt(currentUser.preferred_masjid)
-        );
-        document.getElementById("preferredMasjid").textContent = preferredMasjid
-          ? preferredMasjid.name
-          : "Belum diisi";
-
-        // Update profile picture jika ada
-        const profilePicture = document.getElementById("profilePicture");
-        if (currentUser.profile_picture) {
-          profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        }
+        updateProfilePage(currentUser, masjidData);
       } else if (window.location.pathname.includes("profile_edit.html")) {
-        // Update edit profile page
-        document.getElementById("username").value = currentUser.username || "";
-        document.getElementById("email").value = currentUser.email || "";
-        document.getElementById("bio").value = currentUser.bio || "";
-
-        // Update profile picture jika ada
-        const profilePicture = document.getElementById("profilePicture");
-        if (currentUser.profile_picture) {
-          profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        }
-
-        // Populate masjid dropdown
-        const masjidSelect = document.getElementById("preferredMasjid");
-        masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>';
-        masjidData.forEach((masjid) => {
-          const option = document.createElement("option");
-          option.value = masjid.id;
-          option.textContent = masjid.name;
-          if (currentUser.preferred_masjid === masjid.id.toString()) {
-            option.selected = true;
-          }
-          masjidSelect.appendChild(option);
-        });
+        updateEditProfilePage(currentUser, masjidData);
       }
     } catch (error) {
       console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Gagal memuat data profil",
+        text: error.message || "Gagal memuat data profil",
         confirmButtonColor: "#4CAF50",
       });
     }
   }
 
-  // Handle profile form submission
-  const profileForm = document.getElementById("profileForm");
+  // Fungsi untuk update halaman profile
+  function updateProfilePage(currentUser, masjidData) {
+    const elements = {
+      username: document.getElementById("username"),
+      email: document.getElementById("email"),
+      bio: document.getElementById("bio"),
+      preferredMasjid: document.getElementById("preferredMasjid"),
+      profilePicture: document.getElementById("profilePicture"),
+    };
+
+    if (elements.username)
+      elements.username.textContent = currentUser.username || "-";
+    if (elements.email) elements.email.textContent = currentUser.email || "-";
+    if (elements.bio)
+      elements.bio.textContent = currentUser.bio || "Belum diisi";
+
+    if (elements.preferredMasjid) {
+      const preferredMasjid = masjidData.find(
+        (m) => m.id === parseInt(currentUser.preferred_masjid)
+      );
+      elements.preferredMasjid.textContent = preferredMasjid
+        ? preferredMasjid.name
+        : "Belum diisi";
+    }
+
+    if (elements.profilePicture && currentUser.profile_picture) {
+      elements.profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+    }
+  }
+
+  // Fungsi untuk update halaman edit profile
+  function updateEditProfilePage(currentUser, masjidData) {
+    const elements = {
+      username: document.getElementById("username"),
+      email: document.getElementById("email"),
+      bio: document.getElementById("bio"),
+      preferredMasjid: document.getElementById("preferredMasjid"),
+      profilePicture: document.getElementById("profilePicture"),
+    };
+
+    if (elements.username) elements.username.value = currentUser.username || "";
+    if (elements.email) elements.email.value = currentUser.email || "";
+    if (elements.bio) elements.bio.value = currentUser.bio || "";
+
+    if (elements.profilePicture && currentUser.profile_picture) {
+      elements.profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
+    }
+
+    if (elements.preferredMasjid) {
+      elements.preferredMasjid.innerHTML =
+        '<option value="">Pilih Masjid</option>';
+      masjidData.forEach((masjid) => {
+        const option = document.createElement("option");
+        option.value = masjid.id;
+        option.textContent = masjid.name;
+        if (currentUser.preferred_masjid === masjid.id.toString()) {
+          option.selected = true;
+        }
+        elements.preferredMasjid.appendChild(option);
+      });
+    }
+  }
+
+  // Handle form submission dengan debounce
+  const profileForm = document.getElementById("editProfileForm");
   if (profileForm) {
+    let isSubmitting = false;
     profileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (isSubmitting) return;
 
+      isSubmitting = true;
       try {
         const token = localStorage.getItem("jwtToken");
         const userId = localStorage.getItem("userId");
@@ -340,45 +381,29 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Token atau User ID tidak ditemukan");
         }
 
-        // Validasi input
-        const username = document.getElementById("username").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const preferredMasjid = document
-          .getElementById("preferredMasjid")
-          .value.trim();
-        const bio = document.getElementById("bio")?.value.trim() || "";
-
-        // Validasi dasar
-        if (!username || !email) {
-          throw new Error("Mohon isi semua field yang wajib");
-        }
-
-        // Validasi email
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          throw new Error("Format email tidak valid");
-        }
-
-        // Buat objek data untuk update sesuai model UpdatedProfile
-        const updateData = {
+        const formData = {
           user_id: parseInt(userId),
-          username,
-          email,
-          preferred_masjid: preferredMasjid,
-          bio,
+          username: document.getElementById("username").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          preferred_masjid: document
+            .getElementById("preferredMasjid")
+            .value.trim(),
+          bio: document.getElementById("bio")?.value.trim() || "",
           full_name: "",
           phone_number: "",
           address: "",
         };
 
-        // Tampilkan loading
-        Swal.fire({
-          title: "Memperbarui Profil",
-          text: "Mohon tunggu...",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+        // Validasi
+        if (!formData.username || !formData.email) {
+          throw new Error("Mohon isi semua field yang wajib");
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          throw new Error("Format email tidak valid");
+        }
+
+        showLoading();
 
         const response = await fetch(
           "https://backend-berkah.onrender.com/updateprofile",
@@ -388,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(updateData),
+            body: JSON.stringify(formData),
           }
         );
 
@@ -405,7 +430,6 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
-        // Redirect ke halaman profile setelah berhasil update
         window.location.href = "profile.html";
       } catch (error) {
         console.error("Error updating profile:", error);
@@ -415,6 +439,8 @@ document.addEventListener("DOMContentLoaded", () => {
           text: error.message || "Terjadi kesalahan saat memperbarui profil",
           confirmButtonColor: "#4CAF50",
         });
+      } finally {
+        isSubmitting = false;
       }
     });
   }
