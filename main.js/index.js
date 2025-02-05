@@ -287,51 +287,75 @@ document.addEventListener("DOMContentLoaded", () => {
     profileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const formData = new FormData(profileForm);
-      const updateData = {
-        user_id: parseInt(localStorage.getItem("userId")),
-        username: formData.get("username"),
-        email: formData.get("email"),
-        full_name: formData.get("fullName"),
-        phone_number: formData.get("phoneNumber"),
-        address: formData.get("address"),
-        preferred_masjid: formData.get("preferredMasjid"),
-        bio: formData.get("bio"),
-      };
-
-      const oldPassword = formData.get("oldPassword");
-      const newPassword = formData.get("newPassword");
-      if (oldPassword && newPassword) {
-        if (newPassword.length < 6) {
-          Swal.fire({
-            title: "Error!",
-            text: "Password baru minimal 6 karakter",
-            icon: "error",
-            confirmButtonColor: "#4CAF50",
-          });
-          return;
-        }
-        updateData.old_password = oldPassword;
-        updateData.new_password = newPassword;
-      }
-
       try {
+        const token = localStorage.getItem("jwtToken");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          throw new Error("Token atau User ID tidak ditemukan");
+        }
+
+        // Ambil semua nilai input
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const fullName = document.getElementById("fullName").value;
+        const phoneNumber = document.getElementById("phoneNumber").value;
+        const address = document.getElementById("address").value;
+        const preferredMasjid =
+          document.getElementById("preferredMasjid").value;
+        const bio = document.getElementById("bio").value;
+        const oldPassword = document.getElementById("oldPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+
+        // Buat objek data untuk update
+        const updateData = {
+          user_id: parseInt(userId),
+          username,
+          email,
+          full_name: fullName,
+          phone_number: phoneNumber,
+          address,
+          preferred_masjid: preferredMasjid,
+          bio,
+        };
+
+        // Tambahkan password jika diisi
+        if (oldPassword && newPassword) {
+          if (newPassword.length < 6) {
+            throw new Error("Password baru minimal 6 karakter");
+          }
+          updateData.old_password = oldPassword;
+          updateData.new_password = newPassword;
+        }
+
+        // Tampilkan loading
+        Swal.fire({
+          title: "Memperbarui Profil",
+          text: "Mohon tunggu...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         const response = await fetch(
           "https://backend-berkah.onrender.com/updateprofile",
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(updateData),
           }
         );
 
         if (!response.ok) {
-          throw new Error("Gagal memperbarui profil");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Gagal memperbarui profil");
         }
 
+        // Sukses
         await Swal.fire({
           title: "Berhasil!",
           text: "Profil berhasil diperbarui",
@@ -340,12 +364,13 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
-        window.location.href = "../index.html";
+        // Redirect ke halaman profile
+        window.location.href = "profile.html";
       } catch (error) {
         console.error("Error updating profile:", error);
         Swal.fire({
           title: "Error!",
-          text: error.message,
+          text: error.message || "Terjadi kesalahan saat memperbarui profil",
           icon: "error",
           confirmButtonColor: "#4CAF50",
         });
@@ -356,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle profile picture change
   const changePictureBtn = document.querySelector(".change-picture-btn");
   if (changePictureBtn) {
-    changePictureBtn.addEventListener("click", () => {
+    changePictureBtn.addEventListener("click", async () => {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
@@ -364,32 +389,53 @@ document.addEventListener("DOMContentLoaded", () => {
       input.onchange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-          if (file.size > 2 * 1024 * 1024) {
-            Swal.fire({
-              title: "Error!",
-              text: "Ukuran file maksimal 2MB",
-              icon: "error",
-              confirmButtonColor: "#4CAF50",
-            });
-            return;
-          }
-
           try {
+            if (file.size > 2 * 1024 * 1024) {
+              throw new Error("Ukuran file maksimal 2MB");
+            }
+
+            // Tampilkan preview gambar
             const reader = new FileReader();
             reader.onload = (e) => {
-              document.getElementById("profilePicture").src = e.target.result;
+              const profilePicture = document.getElementById("profilePicture");
+              if (profilePicture) {
+                profilePicture.src = e.target.result;
+              }
             };
             reader.readAsDataURL(file);
 
-            // TODO: Implement image upload to server
-            // const formData = new FormData();
-            // formData.append("profile_picture", file);
-            // ... upload logic ...
+            // Upload gambar ke server
+            const formData = new FormData();
+            formData.append("profile_picture", file);
+            formData.append("user_id", localStorage.getItem("userId"));
+
+            const token = localStorage.getItem("jwtToken");
+            const response = await fetch(
+              "https://backend-berkah.onrender.com/profile-picture",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Gagal mengunggah gambar");
+            }
+
+            Swal.fire({
+              title: "Berhasil!",
+              text: "Foto profil berhasil diperbarui",
+              icon: "success",
+              confirmButtonColor: "#4CAF50",
+            });
           } catch (error) {
             console.error("Error uploading image:", error);
             Swal.fire({
               title: "Error!",
-              text: "Gagal mengunggah gambar",
+              text: error.message,
               icon: "error",
               confirmButtonColor: "#4CAF50",
             });
