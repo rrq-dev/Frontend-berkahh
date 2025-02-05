@@ -56,38 +56,39 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
-            password,
+            email: email,
+            password: password,
           }),
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Login gagal");
-      }
-
       const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.error || "Username atau password salah");
+      }
+
+      // Simpan data ke localStorage
       localStorage.setItem("jwtToken", data.token);
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userRole", data.user.role);
 
-      Swal.fire({
+      await Swal.fire({
         title: "Login Berhasil!",
         text: "Selamat datang kembali!",
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
         timerProgressBar: true,
-      }).then(() => {
-        const redirectUrl =
-          data.user.role === "admin"
-            ? "https://jumatberkah.vercel.app/admin/admin.html"
-            : "https://jumatberkah.vercel.app/";
-
-        window.location.href = redirectUrl;
       });
+
+      // Redirect berdasarkan role
+      const redirectUrl =
+        data.user.role === "admin"
+          ? "https://jumatberkah.vercel.app/admin/admin.html"
+          : "https://jumatberkah.vercel.app/";
+
+      window.location.href = redirectUrl;
     } catch (error) {
       console.error("Error during login:", error);
       Swal.fire({
@@ -165,14 +166,26 @@ document.addEventListener("DOMContentLoaded", () => {
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const name = document.getElementById("name-input").value;
+    const username = document.getElementById("name-input").value;
     const email = document.getElementById("signup-email-input").value;
     const password = document.getElementById("signup-password-input").value;
 
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       Swal.fire({
         title: "Registrasi Gagal",
         text: "Semua field harus diisi.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+      });
+      return;
+    }
+
+    // Validasi password minimal 6 karakter
+    if (password.length < 6) {
+      Swal.fire({
+        title: "Registrasi Gagal",
+        text: "Password minimal 6 karakter",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#007bff",
@@ -199,35 +212,35 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name,
-            email,
-            password,
+            username: username,
+            email: email,
+            password: password,
           }),
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Registrasi gagal");
-      }
-
       const data = await response.json();
 
-      Swal.fire({
+      if (!response.ok) {
+        throw new Error(data.error || "Registrasi gagal");
+      }
+
+      await Swal.fire({
         title: "Registrasi Berhasil!",
-        text: `Selamat datang, ${data.user}! Silakan login.`,
+        text: "Silakan login dengan akun baru Anda",
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
         timerProgressBar: true,
-      }).then(() => {
-        window.location.href = "login.html";
       });
+
+      // Redirect ke halaman login
+      window.location.href = "login.html";
     } catch (error) {
       console.error("Error during registration:", error);
       Swal.fire({
         title: "Registrasi Gagal",
-        text: error.message,
+        text: error.message || "Terjadi kesalahan saat registrasi",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#007bff",
