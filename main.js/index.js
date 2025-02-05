@@ -165,27 +165,27 @@ document.addEventListener("DOMContentLoaded", () => {
             Authorization: `Bearer ${token}`,
           },
         })
-          .then((response) => response.json())
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
           .then((users) => {
             const user = users.find((u) => u.id === parseInt(userId));
             if (user && user.profile_picture) {
               profilePicture.src = `https://backend-berkah.onrender.com${user.profile_picture}`;
+            } else {
+              // Set default avatar jika tidak ada profile picture
+              profilePicture.src = "../assets/default-avatar.png";
             }
           })
-          .catch(console.error);
+          .catch((error) => {
+            console.error("Error:", error);
+            // Set default avatar jika terjadi error
+            profilePicture.src = "../assets/default-avatar.png";
+          });
       }
-
-      // Tambahkan animasi hover untuk tombol
-      [logoutBtn, profileBtn].forEach((btn) => {
-        if (btn) {
-          btn.addEventListener("mouseover", () => {
-            btn.style.transform = "translateY(-2px)";
-          });
-          btn.addEventListener("mouseout", () => {
-            btn.style.transform = "translateY(0)";
-          });
-        }
-      });
     } else {
       // User belum login
       logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
@@ -217,27 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Tambahkan animasi fade out
-        document.body.style.opacity = "0";
-        document.body.style.transition = "opacity 0.5s";
+        // Hapus semua data user dari localStorage
+        localStorage.clear();
 
-        setTimeout(() => {
-          // Hapus semua data user dari localStorage
-          localStorage.clear(); // Menghapus semua data termasuk welcomeShown
-
-          Swal.fire({
-            title: "Berhasil Logout",
-            text: "Anda telah berhasil keluar",
-            icon: "success",
-            confirmButtonColor: "#4CAF50",
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          }).then(() => {
-            // Redirect ke halaman utama
+        // Tampilkan pesan sukses tanpa delay
+        Swal.fire({
+          title: "Berhasil Logout",
+          text: "Anda telah berhasil keluar",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didClose: () => {
+            // Redirect langsung setelah pesan ditutup
             window.location.href = "https://jumatberkah.vercel.app/";
-          });
-        }, 500);
+          },
+        });
       }
     });
   }
