@@ -548,21 +548,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk handle auto logout
-  function setupAutoLogout() {
-    // Event listener untuk tab closing atau browser closing
-    window.addEventListener("beforeunload", () => {
-      localStorage.clear(); // Hapus semua data di localStorage
-    });
-
-    // Event listener untuk visibility change (saat user switch tab atau minimize browser)
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        localStorage.clear();
-      }
-    });
-  }
-
   // Fungsi untuk fetch dan update profile picture
   async function fetchAndUpdateProfilePicture() {
     const { token, userId } = checkAuth();
