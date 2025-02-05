@@ -25,6 +25,43 @@ body {
   z-index: 1000;
 }
 
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 /* Container dengan animasi fade-in */
 .container {
   max-width: 1200px;
@@ -110,121 +147,106 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.profile-name {
-  font-size: 1.4rem;
-  font-weight: 600;
-  text-align: center;
-  animation: slideUp 0.5s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.profile-role {
-  font-size: 0.95rem;
-  opacity: 0;
-  animation: fadeIn 0.5s ease-out forwards;
-  animation-delay: 0.2s;
-}
-
-/* Right Section dengan animasi */
-.profile-info {
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  align-content: start;
-}
-
-.info-section {
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 12px;
+/* Camera button dengan animasi pulse */
+.change-picture-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
-  height: fit-content;
-  opacity: 0;
-  animation: slideIn 0.5s ease-out forwards;
+  animation: pulse 2s infinite;
 }
 
-.info-section:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.info-section:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.info-section:nth-child(3) {
-  animation-delay: 0.3s;
-}
-.info-section:nth-child(4) {
-  animation-delay: 0.4s;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
+@keyframes pulse {
+  0% {
+    transform: scale(1);
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
-.info-section:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+/* Form styling dengan animasi focus */
+.form-section {
+  padding: 2rem;
+  overflow-y: auto;
 }
 
-.info-section h2 {
-  color: #007bff;
-  margin-bottom: 0.8rem;
-  font-size: 1.1rem;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
+.input-group {
+  margin-bottom: 1.5rem;
   position: relative;
 }
 
-.info-section h2::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #007bff;
-  transition: width 0.3s ease;
+.input-group label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #495057;
+  font-weight: 500;
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
 
-.info-section:hover h2::after {
+.input-group input,
+.input-group textarea {
   width: 100%;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
 }
 
-/* Edit Button dengan animasi */
-.edit-profile-btn {
-  background: #007bff;
-  color: white;
-  text-decoration: none;
-  padding: 0.8rem 1.5rem;
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+/* Button styling dengan hover animations */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 0.8rem 1.8rem;
   border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
-  width: fit-content;
-  margin: 1rem auto 0;
+  border: none;
+}
+
+.save-btn {
+  background: #007bff;
+  color: white;
   position: relative;
   overflow: hidden;
 }
 
-.edit-profile-btn::after {
+.save-btn::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -237,13 +259,24 @@ body {
   transition: width 0.6s ease, height 0.6s ease;
 }
 
-.edit-profile-btn:hover::after {
+.save-btn:hover::after {
   width: 300px;
   height: 300px;
 }
 
-.edit-profile-btn:hover {
+.save-btn:hover {
   background: #0056b3;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
@@ -252,25 +285,28 @@ body {
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #1a1a1a;
+    color: #ffffff;
   }
 
   .profile-card {
     background: #2d2d2d;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
 
-  .info-section {
+  .input-group input,
+  .input-group textarea {
     background: #333333;
-    border: 1px solid #404040;
+    color: #ffffff;
+    border-color: #444444;
   }
 
-  .info-section h2 {
-    color: #66b0ff;
-    border-bottom-color: #404040;
-  }
-
-  .info-section p {
+  .input-group label {
     color: #e0e0e0;
+  }
+
+  .input-group input:focus,
+  .input-group textarea:focus {
+    border-color: #1a75ff;
+    box-shadow: 0 0 0 3px rgba(26, 117, 255, 0.1);
   }
 }
 
@@ -280,10 +316,6 @@ body {
     grid-template-columns: 1fr;
     max-width: 600px;
   }
-
-  .profile-info {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 576px) {
@@ -291,8 +323,12 @@ body {
     padding: 0 0.8rem;
   }
 
-  .profile-picture {
-    width: 140px;
-    height: 140px;
+  .button-group {
+    flex-direction: column;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
   }
 }
