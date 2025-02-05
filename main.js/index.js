@@ -292,10 +292,13 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preferredMasjid").textContent =
           userProfile.preferred_masjid || "-";
 
+        // Update bio
+        document.getElementById("bio").textContent = userProfile.bio || "-";
+
         // Update foto profil jika ada
         const profilePicture = document.getElementById("profilePicture");
         if (profilePicture && userProfile.profile_picture) {
-          profilePicture.src = userProfile.profile_picture;
+          profilePicture.src = `https://backend-berkah.onrender.com${userProfile.profile_picture}`;
         }
       }
 
@@ -338,8 +341,6 @@ document.addEventListener("DOMContentLoaded", () => {
           .getElementById("preferredMasjid")
           .value.trim();
         const bio = document.getElementById("bio")?.value.trim() || "";
-        const oldPassword = document.getElementById("oldPassword")?.value || "";
-        const newPassword = document.getElementById("newPassword")?.value || "";
 
         // Validasi dasar
         if (!username || !email || !fullName) {
@@ -363,15 +364,6 @@ document.addEventListener("DOMContentLoaded", () => {
           bio,
         };
 
-        // Tambahkan password jika diisi
-        if (oldPassword && newPassword) {
-          if (newPassword.length < 6) {
-            throw new Error("Password baru minimal 6 karakter");
-          }
-          updateData.old_password = oldPassword;
-          updateData.new_password = newPassword;
-        }
-
         // Tampilkan loading
         Swal.fire({
           title: "Memperbarui Profil",
@@ -394,10 +386,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
 
-        const responseData = await response.json();
-
         if (!response.ok) {
-          throw new Error(responseData.message || "Gagal memperbarui profil");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Gagal memperbarui profil");
         }
 
         await Swal.fire({
