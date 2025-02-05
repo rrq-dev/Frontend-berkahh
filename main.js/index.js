@@ -84,41 +84,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil semua lokasi masjid
+  // Fungsi untuk mengambil data masjid dengan error handling
   async function fetchMasjidData(searchTerm = "") {
     try {
       const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        console.log("Token tidak ditemukan");
+        return;
+      }
+
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`Error: ${errorMessage}`);
+        throw new Error("Gagal mengambil data masjid");
       }
 
       const masjidData = await response.json();
-      displayMasjidList(masjidData, searchTerm);
+
+      // Hanya panggil displayMasjidList jika berada di halaman utama
+      if (!window.location.pathname.includes("/profile/")) {
+        displayMasjidList(masjidData, searchTerm);
+      }
+
+      return masjidData;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Gagal memuat data masjid!",
-        confirmButtonColor: "#4CAF50",
-      });
+      // Hanya tampilkan alert error jika di halaman utama
+      if (!window.location.pathname.includes("/profile/")) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Gagal memuat data masjid!",
+          confirmButtonColor: "#4CAF50",
+        });
+      }
     }
   }
 
   // Fungsi untuk menampilkan daftar masjid
   function displayMasjidList(masjidData, searchTerm = "") {
+    const masjidList = document.getElementById("masjid-list");
+    if (!masjidList) return; // Guard clause jika elemen tidak ditemukan
+
     masjidList.innerHTML = "";
 
     const filteredData = masjidData.filter((masjid) =>
@@ -388,24 +404,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi initialize yang memanggil updateAuthLinks
+  // Update fungsi initialize
   async function initialize() {
     const token = localStorage.getItem("jwtToken");
+    const isProfilePage = window.location.pathname.includes("/profile/");
 
-    // Panggil updateAuthLinks
+    // Update auth links untuk semua halaman
     updateAuthLinks();
 
-    // Coba ambil data user profile jika ada token
-    if (token) {
-      try {
-        await fetchUserProfile();
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      }
-    }
-
-    // Tampilkan pesan selamat datang hanya jika tidak ada token
-    if (!token && !window.location.pathname.includes("/profile/")) {
+    // Jika tidak ada token dan bukan di halaman profile, tampilkan welcome message
+    if (!token && !isProfilePage) {
       Swal.fire({
         title: "Selamat Datang!",
         text: "di Aplikasi Jumat Berkah",
@@ -416,36 +424,34 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Ambil data masjid
-    try {
-      await fetchMasjidData();
-    } catch (error) {
-      console.error("Error fetching masjid data:", error);
+    // Jika ada token, coba ambil data user
+    if (token) {
+      try {
+        await fetchUserProfile();
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    }
+
+    // Hanya ambil data masjid jika di halaman utama
+    if (!isProfilePage) {
+      try {
+        await fetchMasjidData();
+      } catch (error) {
+        console.error("Error fetching masjid data:", error);
+      }
     }
   }
 
-  // Panggil initialize
-  initialize().catch(console.error);
-
-  // Cek autentikasi setiap 5 detik untuk halaman profile
-  if (window.location.pathname.includes("/profile/")) {
-    setInterval(() => {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        window.location.href = "../auth/login.html";
-      }
-    }, 5000);
-  }
-
-  // Event listener untuk input pencarian
-  if (searchBar) {
+  // Event listeners hanya untuk halaman utama
+  if (searchBar && !window.location.pathname.includes("/profile/")) {
     searchBar.addEventListener("input", () => {
       const searchTerm = searchBar.value;
       fetchMasjidData(searchTerm);
     });
   }
 
-  // Event listener untuk navbar buttons
+  // Navbar button effects untuk semua halaman
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
@@ -458,4 +464,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
+  // Cek autentikasi untuk halaman profile
+  if (window.location.pathname.includes("/profile/")) {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      window.location.href = "../auth/login.html";
+      return;
+    }
+  }
+
+  // Inisialisasi
+  initialize().catch(console.error);
 });
