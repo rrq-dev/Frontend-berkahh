@@ -609,8 +609,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const masjidData = await masjidResponse.json();
 
-      // Update UI dengan data yang diperoleh
-      updateProfileUI(currentUser, masjidData);
+      // Update UI berdasarkan halaman yang aktif
+      if (window.location.pathname.includes("profile_edit.html")) {
+        updateProfileEditUI(currentUser, masjidData);
+      } else if (window.location.pathname.includes("profile.html")) {
+        updateProfileUI(currentUser, masjidData);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       Swal.fire({
@@ -624,11 +628,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk update UI profile
   function updateProfileUI(userData, masjidData) {
+    if (!userData) return;
+
     // Update informasi dasar user
-    document.getElementById("username").textContent =
-      userData.username || "Tidak tersedia";
-    document.getElementById("email").textContent =
-      userData.email || "Tidak tersedia";
+    const usernameEl = document.getElementById("username");
+    const emailEl = document.getElementById("email");
+    const preferredMasjidEl = document.getElementById("preferredMasjid");
+    const masjidAddressEl = document.getElementById("masjidAddress");
+
+    if (usernameEl)
+      usernameEl.textContent = userData.username || "Tidak tersedia";
+    if (emailEl) emailEl.textContent = userData.email || "Tidak tersedia";
 
     // Update profile picture
     const profilePicture = document.getElementById("profilePicture");
@@ -639,36 +649,126 @@ document.addEventListener("DOMContentLoaded", () => {
         profilePicture.src = "../assets/default-avatar.png";
       }
 
-      // Handle error loading image
       profilePicture.onerror = function () {
         this.src = "../assets/default-avatar.png";
       };
     }
 
     // Update masjid favorit dan alamat
-    const preferredMasjid = document.getElementById("preferredMasjid");
-    const masjidAddress = document.getElementById("masjidAddress");
-
     if (userData.preferred_masjid && masjidData) {
       const userMasjid = masjidData.find(
         (m) => m.id === parseInt(userData.preferred_masjid)
       );
       if (userMasjid) {
-        preferredMasjid.textContent = userMasjid.name || "Belum dipilih";
-        masjidAddress.textContent =
-          userMasjid.address || "Alamat tidak tersedia";
+        if (preferredMasjidEl) preferredMasjidEl.textContent = userMasjid.name;
+        if (masjidAddressEl) masjidAddressEl.textContent = userMasjid.address;
       } else {
-        preferredMasjid.textContent = "Belum dipilih";
-        masjidAddress.textContent = "Alamat tidak tersedia";
+        if (preferredMasjidEl) preferredMasjidEl.textContent = "Belum dipilih";
+        if (masjidAddressEl)
+          masjidAddressEl.textContent = "Alamat tidak tersedia";
       }
     } else {
-      preferredMasjid.textContent = "Belum dipilih";
-      masjidAddress.textContent = "Alamat tidak tersedia";
+      if (preferredMasjidEl) preferredMasjidEl.textContent = "Belum dipilih";
+      if (masjidAddressEl)
+        masjidAddressEl.textContent = "Alamat tidak tersedia";
     }
   }
 
-  // Event listener saat halaman dimuat
-  if (window.location.pathname.includes("/profile/")) {
-    fetchUserAndMasjidData();
+  // Fungsi untuk update UI halaman edit profile
+  function updateProfileEditUI(userData, masjidData) {
+    if (!userData) return;
+
+    // Update form fields
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
+    const masjidSelect = document.getElementById("preferredMasjid");
+
+    if (usernameInput) usernameInput.value = userData.username || "";
+    if (emailInput) emailInput.value = userData.email || "";
+
+    // Update profile picture
+    const profilePicture = document.getElementById("profilePicture");
+    if (profilePicture) {
+      if (userData.profile_picture) {
+        profilePicture.src = `https://backend-berkah.onrender.com${userData.profile_picture}`;
+      } else {
+        profilePicture.src = "../assets/default-avatar.png";
+      }
+
+      profilePicture.onerror = function () {
+        this.src = "../assets/default-avatar.png";
+      };
+    }
+
+    // Populate masjid dropdown
+    if (masjidSelect && masjidData) {
+      masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>';
+      masjidData.forEach((masjid) => {
+        const option = document.createElement("option");
+        option.value = masjid.id;
+        option.textContent = masjid.name;
+        if (userData.preferred_masjid === masjid.id.toString()) {
+          option.selected = true;
+        }
+        masjidSelect.appendChild(option);
+      });
+    }
   }
+
+  // Event listener untuk form submit di halaman edit
+  document.addEventListener("DOMContentLoaded", () => {
+    const editForm = document.getElementById("editProfileForm");
+    if (editForm) {
+      editForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem("jwtToken");
+        const userId = localStorage.getItem("userId");
+
+        const formData = {
+          user_id: parseInt(userId),
+          username: document.getElementById("username").value,
+          email: document.getElementById("email").value,
+          preferred_masjid: document.getElementById("preferredMasjid").value,
+        };
+
+        try {
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/update/profile",
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(formData),
+            }
+          );
+
+          if (!response.ok) throw new Error("Failed to update profile");
+
+          await Swal.fire({
+            icon: "success",
+            title: "Berhasil",
+            text: "Profil berhasil diperbarui",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          window.location.href = "profile.html";
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Gagal memperbarui profil",
+          });
+        }
+      });
+    }
+
+    // Cek dan load data profile jika berada di halaman profile atau edit profile
+    if (window.location.pathname.includes("/profile/")) {
+      fetchUserAndMasjidData();
+    }
+  });
 });
