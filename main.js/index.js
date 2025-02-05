@@ -596,7 +596,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Update fungsi initialize
   async function initialize() {
     const { isAuthenticated } = checkAuth();
     const isProfilePage = window.location.pathname.includes("/profile/");
@@ -618,18 +617,20 @@ document.addEventListener("DOMContentLoaded", () => {
     showWelcomeMessage();
 
     // Jika di halaman profile dan sudah login, langsung fetch data
-    if (isProfilePage && isAuthenticated) {
-      fetchAndDisplayProfileData();
-    } else if (isProfilePage && !isAuthenticated) {
-      // Jika di halaman profile tapi belum login
-      Swal.fire({
-        icon: "error",
-        title: "Akses Ditolak",
-        text: "Silakan login terlebih dahulu",
-        confirmButtonColor: "#4CAF50",
-      }).then(() => {
-        window.location.href = "../auth/login.html";
-      });
+    if (isProfilePage) {
+      if (isAuthenticated) {
+        fetchAndDisplayProfileData(); // Ambil data profil jika sudah login
+      } else {
+        // Jika di halaman profile tapi belum login
+        Swal.fire({
+          icon: "error",
+          title: "Akses Ditolak",
+          text: "Silakan login terlebih dahulu",
+          confirmButtonColor: "#4CAF50",
+        }).then(() => {
+          window.location.href = "../auth/login.html"; // Redirect ke halaman login
+        });
+      }
     } else {
       // Halaman non-profile
       try {
