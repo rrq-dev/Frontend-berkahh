@@ -139,26 +139,32 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
         : baseUrl;
 
-      const data = await baseFetch(url);
+      const response = await fetch(url, {
+        method: "GET",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
 
-      // Validasi struktur data dari backend
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Data masjid:", data); // Debugging
+
       if (!Array.isArray(data)) {
         throw new Error("Format data masjid tidak valid");
       }
 
-      // Mapping data sesuai dengan struktur backend
-      return data.map((masjid) => ({
-        id: masjid.id,
-        name: masjid.name,
-        address: masjid.address,
-        latitude: masjid.latitude,
-        longitude: masjid.longitude,
-        capacity: masjid.capacity,
-        friday_prayer_time: masjid.friday_prayer_time,
-        image_url: masjid.image_url,
-      }));
+      return data;
     } catch (error) {
-      throw new Error(`Gagal mengambil data masjid: ${error.message}`);
+      console.error("Error fetching masjid data:", error);
+      await handleError(error, "Gagal mengambil data masjid");
+      return [];
     } finally {
       hideLoading();
     }
@@ -166,41 +172,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk mengambil data user
   async function fetchUserData() {
-    try {
-      const { token, userId } = checkAuth();
-      if (!token || !userId) {
-        throw new Error("Tidak ada token atau userId");
-      }
+    const token = localStorage.getItem("jwtToken");
+    const userId = localStorage.getItem("userId");
 
-      const data = await baseFetch(
+    if (!token || !userId) {
+      throw new Error("Token atau userId tidak ditemukan");
+    }
+
+    try {
+      const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
+          method: "GET",
+          mode: "cors",
+          credentials: "include",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "X-Requested-With": "XMLHttpRequest",
           },
         }
       );
 
-      // Validasi data user dari backend
-      if (!Array.isArray(data)) {
-        throw new Error("Format data user tidak valid");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const currentUser = data.find((user) => user.id === parseInt(userId));
+      const users = await response.json();
+      console.log("User data:", users); // Debugging
+
+      const currentUser = users.find((u) => u.id === parseInt(userId));
       if (!currentUser) {
         throw new Error("User tidak ditemukan");
       }
 
-      return {
-        id: currentUser.id,
-        username: currentUser.username,
-        email: currentUser.email,
-        bio: currentUser.bio,
-        profile_picture: currentUser.profile_picture,
-        preferred_masjid: currentUser.preferred_masjid,
-      };
+      return currentUser;
     } catch (error) {
-      throw new Error(`Gagal mengambil data user: ${error.message}`);
+      console.error("Error fetching user data:", error);
+      await handleError(error, "Gagal mengambil data user");
+      throw error;
     }
   }
 
@@ -618,10 +628,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.onkeypress = resetTimer;
   }
 
-  // Perbaikan fungsi showWelcomeMessage
+  // Fungsi untuk menampilkan welcome message
   function showWelcomeMessage() {
     const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
-    const { isAuthenticated } = checkAuth();
+    const isAuthenticated = localStorage.getItem("jwtToken") !== null;
 
     if (!hasShownWelcome) {
       Swal.fire({
@@ -830,32 +840,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Perbaikan initialize untuk halaman profile
   async function initialize() {
     try {
-      const { isAuthenticated } = checkAuth();
+      showWelcomeMessage(); // Show welcome message first
 
+      const isAuthenticated = localStorage.getItem("jwtToken") !== null;
       updateAuthLinks();
 
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
+      const isProfilePage = window.location.pathname.includes("/profile/");
 
       if (isHomePage) {
         setupSearch();
-        try {
-          const masjidData = await fetchMasjidData();
-          if (masjidData && Array.isArray(masjidData)) {
-            displayMasjidList(masjidData);
-          } else {
-            throw new Error("Data masjid tidak valid");
-          }
-        } catch (error) {
-          await handleError(error, "Gagal memuat data masjid");
-        }
-      }
-
-      // Show welcome message after successful data load
-      if (isAuthenticated) {
-        showWelcomeMessage();
-        setupAutoLogout();
+        const masjidData = await fetchMasjidData();
+        displayMasjidList(masjidData);
+      } else if (isProfilePage && isAuthenticated) {
+        const userData = await fetchUserData();
+        await displayProfileData(userData);
       }
     } catch (error) {
       console.error("Initialization error:", error);
