@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const switchButtons = document.querySelectorAll(".switch-btn");
   const backBtn = document.getElementById("back-to-login");
   const googleButtons = document.querySelectorAll(".google-btn");
+  const submitButtons = document.querySelectorAll('button[type="submit"]');
 
   // Handle error dari URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -43,13 +44,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Check if user is logged in
+  const token = localStorage.getItem("jwtToken");
+  if (token) {
+    redirectBasedOnRole(token);
+  }
+
   // Reset forms function
   const resetForms = () => {
     if (signInForm) signInForm.reset();
     if (signUpForm) signUpForm.reset();
   };
 
-  // Switch between sign in and sign up forms
+  // Switch to login form with animation
+  const switchToLogin = () => {
+    container.classList.remove("active");
+    resetForms();
+  };
+
+  // Switch form handlers
   switchButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       e.preventDefault();
@@ -60,44 +73,100 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Back button handler
   if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      container.classList.remove("active");
-      resetForms();
-    });
+    backBtn.addEventListener("click", switchToLogin);
   }
 
-  // Handle form submissions
+  // Login function
+  async function login(email, password) {
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Register function
+  async function register(name, email, password) {
+    try {
+      const response = await fetch("http://localhost:8080/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role: "user", // default role
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Registration failed");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Update form submission handlers
   if (signInForm) {
     signInForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const submitBtn = signInForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
       try {
         showLoading();
-        const email = signInForm.querySelector("input[type='email']").value;
+        const email = signInForm.querySelector('input[type="email"]').value;
         const password = signInForm.querySelector(
-          "input[type='password']"
+          'input[type="password"]'
         ).value;
 
-        // Add your sign in logic here
-        console.log("Sign in:", { email, password });
+        const data = await login(email, password);
 
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+        // Save token
+        localStorage.setItem("jwtToken", data.token);
 
         hideLoading();
-        Swal.fire({
+        await Swal.fire({
           title: "Success!",
-          text: "Sign in successful",
+          text: "Login successful",
           icon: "success",
           confirmButtonColor: "#a2d6b5",
         });
+
+        // Redirect based on user role
+        redirectBasedOnRole(data.token);
       } catch (error) {
         hideLoading();
-        console.error("Sign in error:", error);
+        console.error("Login error:", error);
         Swal.fire({
           title: "Error",
-          text: "Failed to sign in. Please try again.",
+          text: error.message || "Failed to login. Please try again.",
           icon: "error",
           confirmButtonColor: "#a2d6b5",
         });
+      } finally {
+        submitBtn.disabled = false;
       }
     });
   }
@@ -105,35 +174,40 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signUpForm) {
     signUpForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const submitBtn = signUpForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
       try {
         showLoading();
-        const name = signUpForm.querySelector("input[type='text']").value;
-        const email = signUpForm.querySelector("input[type='email']").value;
+        const name = signUpForm.querySelector('input[type="text"]').value;
+        const email = signUpForm.querySelector('input[type="email"]').value;
         const password = signUpForm.querySelector(
-          "input[type='password']"
+          'input[type="password"]'
         ).value;
 
-        // Add your sign up logic here
-        console.log("Sign up:", { name, email, password });
-
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+        await register(name, email, password);
 
         hideLoading();
-        Swal.fire({
+        await Swal.fire({
           title: "Success!",
-          text: "Account created successfully",
+          text: "Account created successfully! Please login.",
           icon: "success",
           confirmButtonColor: "#a2d6b5",
         });
+
+        // Switch to login form after successful registration
+        switchToLogin();
       } catch (error) {
         hideLoading();
-        console.error("Sign up error:", error);
+        console.error("Registration error:", error);
         Swal.fire({
           title: "Error",
-          text: "Failed to create account. Please try again.",
+          text: error.message || "Failed to create account. Please try again.",
           icon: "error",
           confirmButtonColor: "#a2d6b5",
         });
+      } finally {
+        submitBtn.disabled = false;
       }
     });
   }
@@ -250,20 +324,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle successful login (callback dari Auth0)
-  const token = urlParams.get("token");
-  if (token) {
-    // Simpan token
-    localStorage.setItem("jwtToken", token);
+  // Helper function to redirect based on user role
+  function redirectBasedOnRole(token) {
+    try {
+      const decoded = parseJwt(token);
+      const redirectUrl =
+        decoded.role === "admin"
+          ? "https://jumatberkah.vercel.app/admin/admin.html"
+          : "https://jumatberkah.vercel.app/";
 
-    // Redirect ke halaman yang sesuai
-    const userRole = parseJwt(token).role;
-    const redirectUrl =
-      userRole === "admin"
-        ? "https://jumatberkah.vercel.app/admin/admin.html"
-        : "https://jumatberkah.vercel.app/";
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error("Error redirecting:", error);
+      localStorage.removeItem("jwtToken");
+    }
+  }
 
-    window.location.href = redirectUrl;
+  // Helper function to parse JWT
+  function parseJwt(token) {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Error parsing JWT:", error);
+      return {};
+    }
   }
 });
 
@@ -276,27 +371,6 @@ function generateRandomString(length) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
-}
-
-// Helper function untuk parse JWT
-function parseJwt(token) {
-  try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
-
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Error parsing JWT:", error);
-    return {};
-  }
 }
 
 // Add these CSS keyframes to your CSS file
