@@ -98,35 +98,220 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Perbaikan fungsi fetchMasjidData
+  // Fungsi untuk handle fetch requests dengan retry dan timeout
+  async function fetchWithRetry(url, options = {}, retries = 3) {
+    let lastError;
+
+    for (let i = 0; i < retries; i++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error(`Attempt ${i + 1} failed:`, error);
+        lastError = error;
+
+        if (i < retries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  // Fungsi untuk mengambil data masjid dengan proper error handling
   async function fetchMasjidData(searchTerm = "") {
     try {
       const { token } = checkAuth();
+      const baseUrl =
+        "https://backend-berkah.onrender.com/retreive/data/location";
+      const url = searchTerm
+        ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
+        : baseUrl;
 
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data/location${
-          searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""
-        }`,
+      const data = await fetchWithRetry(url, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Error fetching masjid data:", error);
+      throw new Error("Gagal mengambil data masjid");
+    }
+  }
+
+  // Fungsi untuk mengambil detail masjid
+  async function fetchMasjidDetail(masjidId) {
+    try {
+      const { token } = checkAuth();
+      const url = `https://backend-berkah.onrender.com/retreive/data/location/${masjidId}`;
+
+      return await fetchWithRetry(url, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching masjid detail:", error);
+      throw new Error("Gagal mengambil detail masjid");
+    }
+  }
+
+  // Fungsi untuk mengambil data user dengan proper error handling
+  async function fetchUserData() {
+    try {
+      const { token, userId } = checkAuth();
+      if (!token || !userId) {
+        throw new Error("Tidak ada token atau userId");
+      }
+
+      const data = await fetchWithRetry(
+        "https://backend-berkah.onrender.com/retreive/data/user",
         {
-          method: "GET",
           headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Gagal mengambil data lokasi masjid");
+      if (!Array.isArray(data)) {
+        throw new Error("Format data tidak valid");
       }
 
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      const currentUser = data.find((u) => u.id === parseInt(userId));
+      if (!currentUser) {
+        throw new Error("User tidak ditemukan");
+      }
+
+      return currentUser;
     } catch (error) {
-      console.error("Error in fetchMasjidData:", error);
-      throw error;
+      console.error("Error fetching user data:", error);
+      throw new Error("Gagal mengambil data user");
     }
   }
+
+  // Perbaikan fungsi fetchAndDisplayProfileData
+  async function fetchAndDisplayProfileData() {
+    try {
+      showLoading();
+
+      const currentUser = await fetchUserData();
+
+      // Update profile picture
+      if (currentUser.profile_picture) {
+        localStorage.setItem("profilePicture", currentUser.profile_picture);
+        await handleProfilePicture();
+      }
+
+      // Update profile info
+      const elements = {
+        username: document.getElementById("username"),
+        email: document.getElementById("email"),
+        bio: document.getElementById("bio"),
+        preferredMasjid: document.getElementById("preferredMasjid"),
+      };
+
+      if (elements.username)
+        elements.username.textContent = currentUser.username || "-";
+      if (elements.email) elements.email.textContent = currentUser.email || "-";
+      if (elements.bio)
+        elements.bio.textContent = currentUser.bio || "Belum ada bio";
+
+      // Update preferred masjid
+      if (elements.preferredMasjid && currentUser.preferred_masjid) {
+        try {
+          const masjid = await fetchMasjidDetail(currentUser.preferred_masjid);
+          elements.preferredMasjid.textContent = masjid.name;
+        } catch (error) {
+          console.error("Error fetching preferred masjid:", error);
+          elements.preferredMasjid.textContent = "Belum dipilih";
+        }
+      }
+    } catch (error) {
+      console.error("Error in fetchAndDisplayProfileData:", error);
+      await handleError(error, "Gagal memuat data profil");
+    } finally {
+      hideLoading();
+    }
+  }
+
+  // Fungsi untuk update profile
+  async function updateProfile(formData) {
+    try {
+      const { token } = checkAuth();
+
+      const response = await fetchWithRetry(
+        "https://backend-berkah.onrender.com/update/profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw new Error("Gagal mengupdate profil");
+    }
+  }
+
+  // Event listener untuk form edit profile
+  document.addEventListener("DOMContentLoaded", () => {
+    const editProfileForm = document.getElementById("editProfileForm");
+    if (editProfileForm) {
+      editProfileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          showLoading();
+
+          const formData = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            bio: document.getElementById("bio").value,
+            preferred_masjid: document.getElementById("preferredMasjid").value,
+          };
+
+          await updateProfile(formData);
+
+          await Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            text: "Profil berhasil diperbarui",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          window.location.href = "profile.html";
+        } catch (error) {
+          await handleError(error, "Gagal mengupdate profil");
+        } finally {
+          hideLoading();
+        }
+      });
+    }
+  });
 
   // Tambahkan fungsi createMasjidCard
   function createMasjidCard(masjid) {
