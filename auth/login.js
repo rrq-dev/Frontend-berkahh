@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      // Pastikan URL callback sudah benar
+      // Gunakan URL callback frontend
       const redirectUri = encodeURIComponent(
         "https://jumatberkah.vercel.app/auth/callback"
       );
