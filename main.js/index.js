@@ -358,35 +358,42 @@ document.addEventListener("DOMContentLoaded", () => {
     window.onkeypress = resetTimer;
   }
 
-  // Fungsi untuk menampilkan welcome message
+  // Perbaikan fungsi showWelcomeMessage
   function showWelcomeMessage() {
-    const hasShownWelcome = localStorage.getItem("hasShownWelcome");
-    const token = localStorage.getItem("jwtToken");
+    const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
+    const { isAuthenticated } = checkAuth();
 
-    if (!token && !hasShownWelcome) {
+    if (!hasShownWelcome) {
       Swal.fire({
-        title: "Selamat Datang!",
-        text: "di Aplikasi Jumat Berkah",
+        title: isAuthenticated
+          ? "Selamat datang kembali!"
+          : "Selamat Datang di Aplikasi Jumat Berkah",
         icon: "success",
-        confirmButtonColor: "#4CAF50",
         timer: 2000,
         timerProgressBar: true,
+        showConfirmButton: false,
       });
-      localStorage.setItem("hasShownWelcome", "true");
+      sessionStorage.setItem("hasShownWelcome", "true");
     }
   }
 
-  // Perbaikan fungsi fetchAndDisplayProfileData dengan endpoint yang benar
+  // Perbaikan fungsi fetchAndDisplayProfileData
   async function fetchAndDisplayProfileData() {
     try {
-      await showLoading();
       const { token, userId } = checkAuth();
+      if (!token || !userId) {
+        window.location.href = "/auth/login.html";
+        return;
+      }
+
+      showLoading();
 
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -397,45 +404,53 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentUser = users.find((u) => u.id === parseInt(userId));
 
       if (currentUser) {
+        // Update profile picture jika ada
         if (currentUser.profile_picture) {
           localStorage.setItem("profilePicture", currentUser.profile_picture);
+          await handleProfilePicture();
         }
-        await handleProfilePicture();
 
         // Update informasi profil
-        const elements = {
-          username: document.getElementById("username"),
-          email: document.getElementById("email"),
-          bio: document.getElementById("bio"),
-          preferredMasjid: document.getElementById("preferredMasjid"),
-        };
+        document.querySelector('[data-field="username"]').textContent =
+          currentUser.username || "-";
+        document.querySelector('[data-field="email"]').textContent =
+          currentUser.email || "-";
+        document.querySelector('[data-field="bio"]').textContent =
+          currentUser.bio || "Belum ada bio";
 
-        if (elements.username)
-          elements.username.textContent = currentUser.username || "-";
-        if (elements.email)
-          elements.email.textContent = currentUser.email || "-";
-        if (elements.bio)
-          elements.bio.textContent = currentUser.bio || "Belum ada bio";
-
-        // Update preferred masjid dengan endpoint yang benar
-        if (elements.preferredMasjid && currentUser.preferred_masjid) {
+        // Update masjid favorit
+        if (currentUser.preferred_masjid) {
           try {
-            const masjidData = await fetchMasjidData();
-            const masjid = masjidData.find(
-              (m) => m.id === parseInt(currentUser.preferred_masjid)
+            const masjidResponse = await fetch(
+              `https://backend-berkah.onrender.com/retreive/data/location/${currentUser.preferred_masjid}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              }
             );
-            elements.preferredMasjid.textContent = masjid
-              ? masjid.name
-              : "Belum dipilih";
+
+            if (masjidResponse.ok) {
+              const masjid = await masjidResponse.json();
+              document.querySelector(
+                '[data-field="masjid-favorit"]'
+              ).textContent = masjid.name;
+            }
           } catch (error) {
-            console.error("Error fetching masjid data:", error);
-            elements.preferredMasjid.textContent = "Belum dipilih";
+            console.error("Error fetching preferred masjid:", error);
+            document.querySelector(
+              '[data-field="masjid-favorit"]'
+            ).textContent = "Belum dipilih";
           }
+        } else {
+          document.querySelector('[data-field="masjid-favorit"]').textContent =
+            "Belum dipilih";
         }
       }
     } catch (error) {
       console.error("Error fetching profile data:", error);
-      throw error;
+      await handleError(error, "Gagal memuat data profil");
     } finally {
       hideLoading();
     }
@@ -626,67 +641,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi initialize
-  async function initialize() {
-    try {
-      // Update auth links terlebih dahulu
-      updateAuthLinks();
-
-      // Tampilkan welcome message
-      const { isAuthenticated } = checkAuth();
-      if (isAuthenticated) {
-        Swal.fire({
-          title: "Selamat datang kembali!",
-          icon: "success",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
-      }
-
-      // Setup auto logout
-      setupAutoLogout();
-
-      // Setup search functionality
-      setupSearch();
-
-      const isHomePage =
-        window.location.pathname === "/" ||
-        window.location.pathname.endsWith("index.html");
-
-      if (isHomePage) {
-        try {
-          showLoading();
-          const masjidData = await fetchMasjidData();
-          displayMasjidList(masjidData);
-        } catch (error) {
-          console.error("Error loading masjid data:", error);
-          const masjidList = document.getElementById("masjid-list");
-          if (masjidList) {
-            masjidList.innerHTML = `
-              <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>Gagal memuat data masjid. Silakan coba lagi.</p>
-              </div>
-            `;
-          }
-        } finally {
-          hideLoading();
-        }
-      }
-    } catch (error) {
-      console.error("Initialization error:", error);
-      await handleError(error, "Terjadi kesalahan saat memuat halaman");
-    }
-  }
-
-  // Perbaikan event listener untuk search dengan debounce yang lebih baik
+  // Perbaikan fungsi setupSearch
   function setupSearch() {
-    const searchInput = document.querySelector(".search-input");
-    if (!searchInput) return;
+    const searchInput = document.getElementById("search-bar");
+    const searchButton = document.getElementById("search-button");
+
+    if (!searchInput || !searchButton) return;
 
     let debounceTimer;
-    let previousSearchTerm = "";
 
     const performSearch = async (searchTerm) => {
       try {
@@ -694,21 +656,65 @@ document.addEventListener("DOMContentLoaded", () => {
         const masjidData = await fetchMasjidData(searchTerm);
         displayMasjidList(masjidData);
       } catch (error) {
+        console.error("Search error:", error);
         await handleError(error, "Gagal mencari masjid");
       } finally {
         hideLoading();
       }
     };
 
+    // Event listener untuk input
     searchInput.addEventListener("input", (e) => {
-      const searchTerm = e.target.value.trim();
-      if (searchTerm === previousSearchTerm) return;
-
-      previousSearchTerm = searchTerm;
       clearTimeout(debounceTimer);
-
-      debounceTimer = setTimeout(() => performSearch(searchTerm), 300);
+      const searchTerm = e.target.value.trim();
+      debounceTimer = setTimeout(() => performSearch(searchTerm), 500);
     });
+
+    // Event listener untuk button search
+    searchButton.addEventListener("click", () => {
+      const searchTerm = searchInput.value.trim();
+      performSearch(searchTerm);
+    });
+
+    // Event listener untuk enter key
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const searchTerm = searchInput.value.trim();
+        performSearch(searchTerm);
+      }
+    });
+  }
+
+  // Perbaikan initialize untuk halaman profile
+  async function initialize() {
+    try {
+      const { isAuthenticated } = checkAuth();
+
+      // Update auth links
+      updateAuthLinks();
+
+      // Show welcome message using sessionStorage
+      showWelcomeMessage();
+
+      // Setup auto logout
+      setupAutoLogout();
+
+      const isProfilePage = window.location.pathname.includes("/profile/");
+      const isHomePage =
+        window.location.pathname === "/" ||
+        window.location.pathname.endsWith("index.html");
+
+      if (isProfilePage && isAuthenticated) {
+        await fetchAndDisplayProfileData();
+      } else if (isHomePage) {
+        setupSearch();
+        const masjidData = await fetchMasjidData();
+        displayMasjidList(masjidData);
+      }
+    } catch (error) {
+      console.error("Initialization error:", error);
+      await handleError(error, "Terjadi kesalahan saat memuat halaman");
+    }
   }
 
   // Perbaikan event listener untuk navbar buttons
