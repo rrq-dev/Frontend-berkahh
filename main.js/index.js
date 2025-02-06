@@ -48,16 +48,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fungsi untuk fetch data masjid
   async function fetchMasjidData() {
     try {
+      showLoading();
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
-          credentials: "include", // Penting untuk CORS dengan credentials
+          credentials: "include",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
             Origin: "https://jumatberkah.vercel.app",
           },
+          mode: "cors",
         }
       );
 
@@ -66,13 +68,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      // Proses data seperti biasa
-      displayMasjidList(data);
+      hideLoading();
+      return displayMasjidList(data);
     } catch (error) {
       console.error("Error fetching masjid data:", error);
+      hideLoading();
       Swal.fire({
         title: "Error",
-        text: "Gagal memuat data masjid",
+        text: "Gagal memuat data masjid. Silakan coba lagi nanti.",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#2e7d32",
@@ -91,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/json",
           Origin: "https://jumatberkah.vercel.app",
         },
+        mode: "cors",
       };
 
       if (body) {
@@ -118,17 +122,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // Gunakan fungsi makeAPIRequest untuk semua request
   async function searchMasjid(query) {
     try {
-      const data = await makeAPIRequest(
+      showLoading();
+      const response = await fetch(
         `https://backend-berkah.onrender.com/search?q=${encodeURIComponent(
           query
-        )}`
+        )}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Origin: "https://jumatberkah.vercel.app",
+          },
+          mode: "cors",
+        }
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      hideLoading();
       displayMasjidList(data);
     } catch (error) {
       console.error("Search error:", error);
+      hideLoading();
       Swal.fire({
         title: "Error",
-        text: "Gagal melakukan pencarian",
+        text: "Gagal melakukan pencarian. Silakan coba lagi.",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#2e7d32",
@@ -699,5 +722,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Panggil fungsi saat halaman dimuat
   if (window.location.pathname.includes("/profile/")) {
     fetchAndDisplayProfileData();
+  }
+
+  // Fungsi untuk menampilkan loading
+  function showLoading() {
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = "loading-overlay";
+    loadingDiv.innerHTML = `
+      <div class="loading-spinner"></div>
+      <p>Memuat data...</p>
+    `;
+    document.body.appendChild(loadingDiv);
+  }
+
+  function hideLoading() {
+    const loadingDiv = document.getElementById("loading-overlay");
+    if (loadingDiv) {
+      loadingDiv.remove();
+    }
   }
 });
