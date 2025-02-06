@@ -83,18 +83,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk menampilkan daftar masjid
+  // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
   function displayMasjidList(masjidData, searchTerm = "") {
     const masjidList = document.getElementById("masjid-list");
     if (!masjidList) return;
 
     masjidList.innerHTML = "";
 
-    const filteredData = masjidData.filter((masjid) =>
-      masjid.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter dan sort masjid berdasarkan relevansi pencarian
+    const filteredAndSortedData = masjidData
+      .map((masjid) => {
+        const name = masjid.name.toLowerCase();
+        const search = searchTerm.toLowerCase();
 
-    if (filteredData.length === 0) {
+        // Hitung skor relevansi
+        let score = 0;
+        if (name === search) score = 100; // Match sempurna
+        else if (name.startsWith(search)) score = 75; // Match di awal
+        else if (name.includes(search)) score = 50; // Match sebagian
+
+        return { ...masjid, score };
+      })
+      .filter((masjid) => masjid.score > 0) // Filter yang relevan saja
+      .sort((a, b) => b.score - a.score); // Sort berdasarkan skor
+
+    if (filteredAndSortedData.length === 0) {
       masjidList.innerHTML = `
         <div class="no-results">
           <i class="fas fa-search"></i>
@@ -104,12 +117,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    filteredData.forEach((masjid) => {
+    filteredAndSortedData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
       masjidItem.className = "masjid-item";
+
+      // Highlight teks yang cocok dengan pencarian
+      const highlightedName = searchTerm
+        ? masjid.name.replace(
+            new RegExp(searchTerm, "gi"),
+            (match) => `<span class="highlight">${match}</span>`
+          )
+        : masjid.name;
+
       masjidItem.innerHTML = `
         <div class="masjid-content">
-          <h3>${masjid.name}</h3>
+          <h3>${highlightedName}</h3>
           <p><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
           <p><i class="fas fa-info-circle"></i> ${
             masjid.description || "Tidak ada deskripsi"
@@ -117,10 +139,11 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      // Tambahkan efek hover
+      // Tambahkan efek hover dengan animasi yang lebih smooth
       masjidItem.addEventListener("mouseover", () => {
         masjidItem.style.transform = "translateY(-5px)";
         masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+        masjidItem.style.transition = "all 0.3s ease";
       });
 
       masjidItem.addEventListener("mouseout", () => {
@@ -494,16 +517,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Event listeners untuk search bar dengan debounce
+  // Event listeners untuk search bar dengan debounce yang lebih responsif
   if (searchBar && !window.location.pathname.includes("/profile/")) {
     let debounceTimer;
-    searchBar.addEventListener("input", () => {
+
+    searchBar.addEventListener("input", (e) => {
+      // Tampilkan loading indicator
+      const loadingSpinner = document.getElementById("loading-spinner");
+      if (loadingSpinner) loadingSpinner.style.display = "block";
+
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        const searchTerm = searchBar.value;
-        fetchMasjidData(searchTerm);
-      }, 300);
+      debounceTimer = setTimeout(async () => {
+        const searchTerm = e.target.value;
+        await fetchMasjidData(searchTerm);
+
+        // Sembunyikan loading indicator
+        if (loadingSpinner) loadingSpinner.style.display = "none";
+      }, 300); // Reduced debounce time for better responsiveness
     });
+
+    // Tambahkan event listener untuk tombol search
+    const searchButton = document.getElementById("search-button");
+    if (searchButton) {
+      searchButton.addEventListener("click", async () => {
+        const searchTerm = searchBar.value;
+        await fetchMasjidData(searchTerm);
+      });
+    }
   }
 
   // Navbar button effects untuk semua halaman
