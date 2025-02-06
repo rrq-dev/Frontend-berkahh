@@ -300,43 +300,40 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
-}
-
-.login-box {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 400px;
+  max-height: 100vh;
+  padding: clamp(16px, 5vh, 40px);
+  box-sizing: border-box;
 }
 
 .login-content {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
+  width: 100%;
+  max-width: min(90vw, 400px);
+  height: auto;
+  max-height: calc(100vh - 40px);
 }
 
 .button.input-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: clamp(8px, 2vw, 10px);
   width: auto;
-  height: 45px;
-  margin: 35px 0;
+  height: clamp(40px, 6vh, 45px);
+  margin: clamp(16px, 3vh, 35px) 0;
   background: #2e7d32;
   border: none;
   border-radius: 5px;
   color: #fff;
-  font-size: 16px;
+  font-size: clamp(14px, 2vw, 16px);
   font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-  padding: 0 25px;
+  padding: 0 clamp(20px, 4vw, 25px);
 }
 
 .button.input-box:hover {
@@ -344,8 +341,8 @@ body {
 }
 
 .button.input-box img {
-  width: 20px;
-  height: 20px;
+  width: clamp(16px, 3vw, 20px);
+  height: clamp(16px, 3vw, 20px);
   object-fit: contain;
 }
 
@@ -397,10 +394,25 @@ body {
   background-color: #2e7d32 !important;
 }
 
-/* Responsive adjustments */
+/* Tablet */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .login-content {
+    max-width: min(80vw, 350px);
+  }
+
+  .button.input-box {
+    height: clamp(42px, 5vh, 45px);
+  }
+}
+
+/* Mobile */
 @media (max-width: 480px) {
-  .login-box {
-    padding: 20px;
+  .login-container {
+    padding: 16px;
+  }
+
+  .login-content {
+    max-width: min(85vw, 300px);
   }
 
   .button.input-box {
@@ -410,7 +422,7 @@ body {
   }
 
   .button.input-box img {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 }
