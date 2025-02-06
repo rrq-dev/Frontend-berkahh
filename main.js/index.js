@@ -45,41 +45,116 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil data masjid tanpa perlu token
-  async function fetchMasjidData(searchTerm = "") {
+  // Fungsi untuk fetch data masjid
+  async function fetchMasjidData() {
     try {
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
+          credentials: "include", // Penting untuk CORS dengan credentials
           headers: {
+            Accept: "application/json",
             "Content-Type": "application/json",
+            Origin: "https://jumatberkah.vercel.app",
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Gagal mengambil data masjid");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const masjidData = await response.json();
-
-      // Hanya panggil displayMasjidList jika berada di halaman utama
-      if (!window.location.pathname.includes("/profile/")) {
-        displayMasjidList(masjidData, searchTerm);
-      }
-
-      return masjidData;
+      const data = await response.json();
+      // Proses data seperti biasa
+      displayMasjidList(data);
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      if (!window.location.pathname.includes("/profile/")) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Gagal memuat data masjid!",
-          confirmButtonColor: "#4CAF50",
-        });
+      Swal.fire({
+        title: "Error",
+        text: "Gagal memuat data masjid",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2e7d32",
+      });
+    }
+  }
+
+  // Update fungsi untuk semua request API lainnya
+  async function makeAPIRequest(url, method = "GET", body = null) {
+    try {
+      const options = {
+        method: method,
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Origin: "https://jumatberkah.vercel.app",
+        },
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
       }
+
+      const token = localStorage.getItem("jwtToken");
+      if (token) {
+        options.headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API request error:", error);
+      throw error;
+    }
+  }
+
+  // Gunakan fungsi makeAPIRequest untuk semua request
+  async function searchMasjid(query) {
+    try {
+      const data = await makeAPIRequest(
+        `https://backend-berkah.onrender.com/search?q=${encodeURIComponent(
+          query
+        )}`
+      );
+      displayMasjidList(data);
+    } catch (error) {
+      console.error("Search error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal melakukan pencarian",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2e7d32",
+      });
+    }
+  }
+
+  // Update fungsi login juga
+  async function handleLogin(credentials) {
+    try {
+      const response = await makeAPIRequest(
+        "https://backend-berkah.onrender.com/login",
+        "POST",
+        credentials
+      );
+
+      // Proses response login
+      if (response.token) {
+        localStorage.setItem("jwtToken", response.token);
+        // Redirect atau update UI sesuai kebutuhan
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     }
   }
 
@@ -578,7 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
         const searchTerm = e.target.value;
-        await fetchMasjidData(searchTerm);
+        await searchMasjid(searchTerm);
 
         // Sembunyikan loading indicator
         if (loadingSpinner) loadingSpinner.style.display = "none";
@@ -590,7 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchButton) {
       searchButton.addEventListener("click", async () => {
         const searchTerm = searchBar.value;
-        await fetchMasjidData(searchTerm);
+        await searchMasjid(searchTerm);
       });
     }
   }
