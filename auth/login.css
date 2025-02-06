@@ -414,3 +414,43 @@ body::before {
     max-width: 100%;
   }
 }
+
+/* Tambahkan CSS untuk back button */
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.back-btn:hover {
+  color: var(--primary);
+}
+
+.back-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover svg {
+  transform: translateX(-4px);
+}
+
+/* Update media query */
+@media (max-width: 768px) {
+  .back-btn {
+    top: 12px;
+    left: 12px;
+  }
+}

@@ -254,6 +254,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.location.href = redirectUrl;
   }
+
+  // Add back button functionality
+  const backBtn = document.getElementById("back-to-login");
+
+  backBtn.addEventListener("click", () => {
+    container.classList.remove("active");
+  });
 });
 
 // Helper function untuk generate random string
