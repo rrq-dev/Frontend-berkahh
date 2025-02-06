@@ -436,27 +436,36 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Buat grid container untuk masjid
+    const masjidGrid = document.createElement("div");
+    masjidGrid.className = "masjid-grid";
+
     // Tampilkan setiap masjid
     masjidData.forEach((masjid) => {
-      const masjidElement = document.createElement("div");
-      masjidElement.className = "masjid-item";
-      masjidElement.innerHTML = `
-        <h2>${masjid.name}</h2>
-        <p><i class="fas fa-map-marker-alt"></i> ${
-          masjid.address || "Alamat tidak tersedia"
-        }</p>
-        <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
-          masjid.friday_prayer_time || "Tidak tersedia"
-        }</p>
-        <p><i class="fas fa-users"></i> Kapasitas: ${
-          masjid.capacity || "Tidak tersedia"
-        }</p>
-        <button onclick="showMasjidDetails(${
-          masjid.id
-        })" class="detail-btn">Detail</button>
+      const masjidItem = document.createElement("div");
+      masjidItem.className = "masjid-item";
+      masjidItem.innerHTML = `
+        <h3>${masjid.name}</h3>
+        <p>
+          <i class="fas fa-map-marker-alt"></i> 
+          ${masjid.address || "Alamat tidak tersedia"}
+        </p>
+        <p>
+          <i class="fas fa-clock"></i> 
+          Waktu Sholat Jumat: ${masjid.friday_prayer_time || "Tidak tersedia"}
+        </p>
+        <p>
+          <i class="fas fa-users"></i> 
+          Kapasitas: ${masjid.capacity || "Tidak tersedia"}
+        </p>
+        <button onclick="showMasjidDetails(${masjid.id})" class="detail-btn">
+          Detail
+        </button>
       `;
-      container.appendChild(masjidElement);
+      masjidGrid.appendChild(masjidItem);
     });
+
+    container.appendChild(masjidGrid);
   }
 
   // Tambahkan fungsi showMasjidDetails jika belum ada
