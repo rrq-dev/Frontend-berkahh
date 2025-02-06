@@ -8,6 +8,21 @@ const ENDPOINTS = {
   DELETE_USER: "/deleteuser",
 };
 
+const DEBOUNCE_DELAY = 300; // milliseconds
+
+// Fungsi debounce untuk search
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchBar = document.getElementById("search-bar");
   const detailsContainer = document.getElementById("masjid-details");
@@ -565,8 +580,12 @@ document.addEventListener("DOMContentLoaded", () => {
         displayMasjidList(masjidData);
 
         if (searchBar) {
+          const debouncedSearch = debounce((value) => {
+            displayMasjidList(masjidData, value.trim());
+          }, DEBOUNCE_DELAY);
+
           searchBar.addEventListener("input", (e) => {
-            displayMasjidList(masjidData, e.target.value.trim());
+            debouncedSearch(e.target.value);
           });
         }
       }
