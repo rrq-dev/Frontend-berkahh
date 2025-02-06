@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize Auth0
   const auth0Client = new auth0.WebAuth({
-    domain: process.env.AUTH0_DOMAIN,
-    clientID: process.env.AUTH0_CLIENT_ID,
+    domain: "AUTH0_DOMAIN", // Replace with your Auth0 domain
+    clientID: "AUTH0_CLIENT_ID", // Replace with your Auth0 client ID
     redirectUri: window.location.origin,
     responseType: "token id_token",
     scope: "openid profile email",
