@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800);
   });
 
+  // Handle login form submission
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -101,68 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle Google OAuth Callback
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const error = urlParams.get("error");
-
-  if (error) {
-    Swal.fire({
-      title: "Login Gagal",
-      text: decodeURIComponent(error),
-      icon: "error",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#007bff",
-    });
-  } else if (token) {
-    Swal.fire({
-      title: "Memproses login...",
-      html: "Mohon tunggu sebentar",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      const tokenParts = token.split(".");
-      const payload = JSON.parse(atob(tokenParts[1]));
-
-      localStorage.setItem("jwtToken", token);
-      localStorage.setItem("userId", payload.user_id);
-      localStorage.setItem("userRole", payload.role);
-
-      setTimeout(() => {
-        Swal.fire({
-          title: "Login Berhasil!",
-          text: "Selamat datang kembali!",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          timerProgressBar: true,
-        }).then(() => {
-          const redirectUrl =
-            payload.role === "admin"
-              ? "https://jumatberkah.vercel.app/admin/admin.html"
-              : "https://jumatberkah.vercel.app/";
-
-          window.location.href = redirectUrl;
-        });
-      }, 800);
-    } catch (error) {
-      console.error("Error processing token:", error);
-      Swal.fire({
-        title: "Login Gagal",
-        text: "Error memproses informasi login",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
-      });
-    }
-  }
-
-  // Registration functionality
+  // Handle registration form submission
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -234,8 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
         timerProgressBar: true,
       });
 
-      // Redirect ke halaman login
-      window.location.href = "login.html";
+      // Reset form dan redirect ke login
+      signupForm.reset();
+      document.getElementById("flip").checked = false;
     } catch (error) {
       console.error("Error during registration:", error);
       Swal.fire({
@@ -251,11 +192,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle Forgot Password
   const forgotPasswordLink = document.getElementById("forgot-password-link");
   const resetPasswordForm = document.getElementById("resetPasswordForm");
+  const resetPasswordModal = document.getElementById("resetPasswordModal");
 
   // Tampilkan modal reset password
   forgotPasswordLink.addEventListener("click", (e) => {
     e.preventDefault();
-    document.getElementById("resetPasswordModal").style.display = "block";
+    resetPasswordModal.style.display = "block";
+  });
+
+  // Tutup modal ketika mengklik di luar modal
+  window.addEventListener("click", (e) => {
+    if (e.target === resetPasswordModal) {
+      resetPasswordModal.style.display = "none";
+    }
   });
 
   // Handle reset password form submission
@@ -293,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Tutup modal
-      document.getElementById("resetPasswordModal").style.display = "none";
+      resetPasswordModal.style.display = "none";
 
       // Tampilkan pesan sukses
       await Swal.fire({
@@ -318,11 +267,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle update password (setelah user klik link di email)
+  // Handle token reset password dari URL
+  const urlParams = new URLSearchParams(window.location.search);
   const resetToken = urlParams.get("token");
 
   if (resetToken) {
-    // Tampilkan form update password
     Swal.fire({
       title: "Update Password Baru",
       html: `
