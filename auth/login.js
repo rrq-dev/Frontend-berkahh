@@ -57,11 +57,13 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      // Redirect ke endpoint Auth0 login dengan callback URL yang benar
+      // Pastikan URL callback sudah benar
       const redirectUri = encodeURIComponent(
         "https://jumatberkah.vercel.app/auth/callback"
       );
-      window.location.href = `https://backend-berkah.onrender.com/auth/google/login?redirect_uri=${redirectUri}`;
+      const authUrl = `https://backend-berkah.onrender.com/auth/google/login?redirect_uri=${redirectUri}`;
+      console.log("Redirecting to:", authUrl); // Untuk debugging
+      window.location.href = authUrl;
     } catch (error) {
       console.error("Error initiating login:", error);
       Swal.fire({
