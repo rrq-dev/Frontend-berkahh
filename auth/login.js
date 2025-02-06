@@ -78,13 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Login function
   async function login(email, password) {
     try {
-      const response = await fetch("http://localhost:8080/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -101,18 +104,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Register function
   async function register(name, email, password) {
     try {
-      const response = await fetch("http://localhost:8080/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role: "user", // default role
-        }),
-      });
+      const response = await fetch(
+        "https://backend-berkah.onrender.comregister",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            role: "user", // default role
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

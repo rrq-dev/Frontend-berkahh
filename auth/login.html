@@ -23,10 +23,10 @@
         <div class="image-box">
           <img src="../assets/login.svg" alt="Login Illustration" />
         </div>
-        <form action="#" class="sign-in-form">
+        <form id="loginForm" class="form">
           <img src="../assets/logo.png" alt="Logo" class="logo" />
-          <h2 class="title">Welcome back</h2>
-          <p class="subtitle">Sign in to Jumat Berkah</p>
+          <h2 class="title">Welcome Back</h2>
+          <p class="subtitle">Sign in to continue</p>
           <div class="input-box">
             <input type="email" required />
             <label>Email</label>
@@ -34,13 +34,8 @@
           <div class="input-box">
             <input type="password" required />
             <label>Password</label>
-            <a href="reset-password/reset-password.html" class="forgot-password"
-              >Forgot password?</a
-            >
           </div>
-          <div class="input-box">
-            <input type="submit" value="Sign in" />
-          </div>
+          <button type="submit" class="submit-btn">Sign in</button>
           <div class="divider">
             <span>or</span>
           </div>
@@ -48,16 +43,19 @@
             <img src="../assets/google-icon.png" alt="Google" />
             Sign in with Google
           </button>
-          <div class="switch-form">
+          <p class="switch-text">
             Don't have an account? <a href="#" class="switch-btn">Sign up</a>
-          </div>
+          </p>
         </form>
       </div>
 
       <!-- Register Form -->
       <div class="content sign-up">
-        <div class="register-container">
-          <button class="back-btn" id="back-to-login">
+        <div class="image-box">
+          <img src="../assets/register.svg" alt="Register Illustration" />
+        </div>
+        <form id="registerForm" class="form">
+          <button type="button" class="back-btn" id="back-to-login">
             <svg
               width="24"
               height="24"
@@ -69,46 +67,34 @@
                 d="M15 18L9 12L15 6"
                 stroke="currentColor"
                 stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
               />
             </svg>
             Back to login
           </button>
-          <div class="register-form">
-            <img src="../assets/logo.png" alt="Logo" class="logo" />
-            <h2 class="title">Create Account</h2>
-            <p class="subtitle">Sign up to get started</p>
-
-            <form id="registerForm">
-              <div class="input-box">
-                <input type="text" required />
-                <label>Full Name</label>
-              </div>
-
-              <div class="input-box">
-                <input type="email" required />
-                <label>Email</label>
-              </div>
-
-              <div class="input-box">
-                <input type="password" required />
-                <label>Password</label>
-              </div>
-
-              <button type="submit" class="submit-btn">Sign up</button>
-            </form>
-
-            <div class="divider">
-              <span>or</span>
-            </div>
-
-            <button type="button" class="google-btn">
-              <img src="../assets/google-icon.png" alt="Google" />
-              Sign up with Google
-            </button>
+          <img src="../assets/logo.png" alt="Logo" class="logo" />
+          <h2 class="title">Create Account</h2>
+          <p class="subtitle">Sign up to get started</p>
+          <div class="input-box">
+            <input type="text" required />
+            <label>Full Name</label>
           </div>
-        </div>
+          <div class="input-box">
+            <input type="email" required />
+            <label>Email</label>
+          </div>
+          <div class="input-box">
+            <input type="password" required />
+            <label>Password</label>
+          </div>
+          <button type="submit" class="submit-btn">Sign up</button>
+          <div class="divider">
+            <span>or</span>
+          </div>
+          <button type="button" class="google-btn">
+            <img src="../assets/google-icon.png" alt="Google" />
+            Sign up with Google
+          </button>
+        </form>
       </div>
     </div>
 
