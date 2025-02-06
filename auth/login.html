@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <title>Login dan Registrasi - Jumat Berkah</title>
+    <title>Login dan Register - Jumat Berkah</title>
     <link rel="stylesheet" href="login.css" />
     <!-- Font Awesome CDN -->
     <link
@@ -18,96 +18,79 @@
   </head>
   <body>
     <div class="container">
-      <div class="forms-container">
-        <div class="signin-signup">
-          <!-- Login Form -->
-          <form action="#" class="sign-in-form">
-            <img src="../assets/logo.png" alt="Logo" class="logo" />
-            <h2 class="title">Welcome back</h2>
-            <p class="subtitle">Sign in to Jumat Berkah</p>
-
-            <div class="input-field">
-              <label>Email</label>
-              <input type="email" placeholder="example@email.com" required />
-            </div>
-
-            <div class="input-field">
-              <label>Password</label>
-              <input type="password" placeholder="••••••••" required />
-              <a
-                href="reset-password/reset-password.html"
-                class="forgot-password"
-                >Forgot password?</a
-              >
-            </div>
-
-            <button type="submit" class="btn solid">Sign in</button>
-
-            <div class="divider">
-              <span>or</span>
-            </div>
-
-            <button type="button" class="btn google-btn">
+      <!-- Login Form -->
+      <div class="content sign-in">
+        <div class="image-box">
+          <img src="../assets/login.svg" alt="Login Illustration" />
+        </div>
+        <form action="#" class="sign-in-form">
+          <div class="topic">Welcome Back</div>
+          <p class="subtitle">Sign in to Jumat Berkah</p>
+          <div class="input-box">
+            <input type="email" required />
+            <label>Email address</label>
+          </div>
+          <div class="input-box">
+            <input type="password" required />
+            <label>Password</label>
+          </div>
+          <div class="forgot-pass">
+            <a href="reset-password/reset-password.html">Forgot password?</a>
+          </div>
+          <div class="input-box">
+            <input type="submit" value="Sign In" />
+          </div>
+          <div class="divider">
+            <span>or</span>
+          </div>
+          <div class="input-box">
+            <button type="button" class="google-btn">
               <img src="../assets/google-icon.png" alt="Google" />
               <span>Sign in with Google</span>
             </button>
-          </form>
+          </div>
+          <div class="switch-form">
+            Don't have an account? <a href="#" class="switch-btn">Sign up</a>
+          </div>
+        </form>
+      </div>
 
-          <!-- Register Form -->
-          <form action="#" class="sign-up-form">
-            <img src="../assets/logo.png" alt="Logo" class="logo" />
-            <h2 class="title">Create Account</h2>
-            <p class="subtitle">Sign up to get started</p>
-
-            <div class="input-field">
-              <label>Full Name</label>
-              <input type="text" placeholder="Enter your name" required />
-            </div>
-
-            <div class="input-field">
-              <label>Email</label>
-              <input type="email" placeholder="example@email.com" required />
-            </div>
-
-            <div class="input-field">
-              <label>Password</label>
-              <input type="password" placeholder="••••••••" required />
-            </div>
-
-            <button type="submit" class="btn solid">Sign up</button>
-
-            <div class="divider">
-              <span>or</span>
-            </div>
-
-            <button type="button" class="btn google-btn">
+      <!-- Register Form -->
+      <div class="content sign-up">
+        <div class="image-box">
+          <img src="../assets/register.svg" alt="Register Illustration" />
+        </div>
+        <form action="#" class="sign-up-form">
+          <div class="topic">Create Account</div>
+          <p class="subtitle">Sign up to get started</p>
+          <div class="input-box">
+            <input type="text" required />
+            <label>Full Name</label>
+          </div>
+          <div class="input-box">
+            <input type="email" required />
+            <label>Email address</label>
+          </div>
+          <div class="input-box">
+            <input type="password" required />
+            <label>Password</label>
+          </div>
+          <div class="input-box">
+            <input type="submit" value="Sign Up" />
+          </div>
+          <div class="divider">
+            <span>or</span>
+          </div>
+          <div class="input-box">
+            <button type="button" class="google-btn">
               <img src="../assets/google-icon.png" alt="Google" />
               <span>Sign up with Google</span>
             </button>
-          </form>
-        </div>
-      </div>
-
-      <div class="panels-container">
-        <div class="panel left-panel">
-          <div class="content">
-            <h3>New here?</h3>
-            <p>Sign up and discover great amount of new opportunities!</p>
-            <button class="btn transparent" id="sign-up-btn">Sign up</button>
           </div>
-          <img src="../assets/login.svg" class="image" alt="" />
-        </div>
-
-        <div class="panel right-panel">
-          <div class="content">
-            <h3>One of us?</h3>
-            <p>
-              If you already have an account, just sign in. We've missed you!
-            </p>
-            <button class="btn transparent" id="sign-in-btn">Sign in</button>
+          <div class="switch-form">
+            Already have an account? <a href="#" class="switch-btn">Sign in</a>
           </div>
-          <img src="../assets/register.svg" class="image" alt="" />
-        </div>
+        </form>
       </div>
     </div>
 
