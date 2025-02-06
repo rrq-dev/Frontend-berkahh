@@ -10,13 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorDescription = urlParams.get("error_description");
 
   if (error) {
-    let errorMessage = "Login Gagal";
+    console.error("Login error:", error, errorDescription); // Untuk debugging
+    let errorMessage = "Kode otorisasi tidak ditemukan";
+
     switch (error) {
       case "no_code":
         errorMessage = "Kode otorisasi tidak ditemukan";
         break;
       case "invalid_state":
-        errorMessage = "Sesi login tidak valid";
+        errorMessage = "Sesi login tidak valid, silakan coba lagi";
         break;
       case "unauthorized":
         errorMessage = "Akses tidak diizinkan";
@@ -25,18 +27,24 @@ document.addEventListener("DOMContentLoaded", () => {
         errorMessage = errorDescription || "Terjadi kesalahan saat login";
     }
 
+    // Tampilkan error dengan SweetAlert2
     Swal.fire({
       title: "Login Gagal",
       text: errorMessage,
       icon: "error",
       confirmButtonText: "OK",
       confirmButtonColor: "#2e7d32",
+    }).then(() => {
+      // Bersihkan URL dari parameter error
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     });
   }
 
   // Handle Google login
   googleLoginBtn.addEventListener("click", async () => {
     try {
+      // Tampilkan loading
       Swal.fire({
         title: "Menghubungkan...",
         text: "Mohon tunggu sebentar",
@@ -47,15 +55,21 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      // Redirect ke endpoint backend untuk login
+      // Redirect ke endpoint Auth0
       const loginUrl = "https://backend-berkah.onrender.com/auth/google/login";
       console.log("Redirecting to:", loginUrl); // Untuk debugging
-      window.location.href = loginUrl;
+
+      // Tambahkan state untuk keamanan
+      const state = generateRandomString(32);
+      sessionStorage.setItem("auth_state", state);
+
+      // Redirect dengan state
+      window.location.href = `${loginUrl}?state=${state}`;
     } catch (error) {
       console.error("Error initiating login:", error);
       Swal.fire({
         title: "Error",
-        text: "Gagal memulai proses login",
+        text: "Gagal memulai proses login. Silakan coba lagi.",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#2e7d32",
@@ -250,6 +264,17 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = redirectUrl;
   }
 });
+
+// Helper function untuk generate random string
+function generateRandomString(length) {
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let text = "";
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
 
 // Helper function untuk parse JWT
 function parseJwt(token) {
