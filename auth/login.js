@@ -4,35 +4,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const googleLoginBtn = document.getElementById("google-login-btn");
   const forgotPasswordLink = document.getElementById("forgot-password-link");
 
-  // Handle token dari URL (untuk Auth0 callback dan reset password)
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-  const resetToken = params.get("resetToken");
-  const error = params.get("error"); // Tambahan untuk handle error dari Auth0
+  // Handle error dari URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const error = urlParams.get("error");
+  const errorDescription = urlParams.get("error_description");
 
-  // Handle error dari Auth0
   if (error) {
-    let errorMessage = "Terjadi kesalahan saat login";
+    let errorMessage = "Login Gagal";
     switch (error) {
-      case "state_missing":
-        errorMessage = "Sesi login tidak valid";
-        break;
-      case "invalid_state":
-        errorMessage = "Sesi login tidak cocok";
-        break;
       case "no_code":
         errorMessage = "Kode otorisasi tidak ditemukan";
         break;
-      case "token_exchange":
-        errorMessage = "Gagal memproses otorisasi";
+      case "invalid_state":
+        errorMessage = "Sesi login tidak valid";
         break;
-      case "userinfo":
-        errorMessage = "Gagal mendapatkan informasi pengguna";
+      case "unauthorized":
+        errorMessage = "Akses tidak diizinkan";
         break;
-      case "db_error":
-        errorMessage = "Gagal menyimpan data pengguna";
-        break;
-      // Tambahkan case lain sesuai kebutuhan
+      default:
+        errorMessage = errorDescription || "Terjadi kesalahan saat login";
     }
 
     Swal.fire({
@@ -44,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle login dengan Google melalui Auth0
+  // Handle Google login
   googleLoginBtn.addEventListener("click", async () => {
     try {
       Swal.fire({
@@ -58,8 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Redirect ke endpoint backend untuk login
-      window.location.href =
-        "https://backend-berkah.onrender.com/auth/google/login";
+      const loginUrl = "https://backend-berkah.onrender.com/auth/google/login";
+      console.log("Redirecting to:", loginUrl); // Untuk debugging
+      window.location.href = loginUrl;
     } catch (error) {
       console.error("Error initiating login:", error);
       Swal.fire({
@@ -160,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Handle reset password token jika ada
+  const resetToken = urlParams.get("resetToken");
   if (resetToken) {
     // Handle reset password
     Swal.fire({
@@ -241,4 +233,59 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Handle successful login (callback dari Auth0)
+  const token = urlParams.get("token");
+  if (token) {
+    // Simpan token
+    localStorage.setItem("jwtToken", token);
+
+    // Redirect ke halaman yang sesuai
+    const userRole = parseJwt(token).role;
+    const redirectUrl =
+      userRole === "admin"
+        ? "https://jumatberkah.vercel.app/admin/admin.html"
+        : "https://jumatberkah.vercel.app/";
+
+    window.location.href = redirectUrl;
+  }
 });
+
+// Helper function untuk parse JWT
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error parsing JWT:", error);
+    return {};
+  }
+}
+
+// Update tampilan loading
+function showLoading() {
+  const loadingDiv = document.createElement("div");
+  loadingDiv.id = "loading-overlay";
+  loadingDiv.innerHTML = `
+    <div class="loading-spinner"></div>
+    <p>Menghubungkan ke Google...</p>
+  `;
+  document.body.appendChild(loadingDiv);
+}
+
+function hideLoading() {
+  const loadingDiv = document.getElementById("loading-overlay");
+  if (loadingDiv) {
+    loadingDiv.remove();
+  }
+}
