@@ -1,7 +1,18 @@
+const API_BASE_URL = "https://backend-berkah.onrender.com";
+const ENDPOINTS = {
+  GET_LOCATION: "/retreive/data/location",
+  UPDATE_PROFILE: "/updateprofile",
+  UPLOAD_PROFILE_PICTURE: "/upload/profile-picture",
+  GET_USERS: "/retreive/data/user",
+  UPDATE_USER: "/updateuser",
+  DELETE_USER: "/deleteuser",
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchBar = document.getElementById("search-bar");
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
+  const editProfileForm = document.getElementById("editProfileForm");
 
   // Handle Google OAuth Callback Token
   const urlParams = new URLSearchParams(window.location.search);
@@ -82,28 +93,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function handleError(error, customMessage = null) {
     console.error(error);
+    const message = customMessage || error.message || "Terjadi kesalahan";
+
     await Swal.fire({
       icon: "error",
       title: "Error!",
-      text: customMessage || error.message || "Terjadi kesalahan",
+      text: message,
       confirmButtonColor: "#4CAF50",
     });
   }
 
-  async function baseFetch(url, options = {}) {
+  async function baseFetch(endpoint, options = {}) {
     const token = localStorage.getItem("jwtToken");
+    const url = `${API_BASE_URL}${endpoint}`;
 
     try {
+      const defaultHeaders = {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
+        "X-Requested-With": "XMLHttpRequest",
+      };
+
+      // Jika options.body adalah FormData, jangan set Content-Type
+      if (options.body instanceof FormData) {
+        delete defaultHeaders["Content-Type"];
+      }
+
       const response = await fetch(url, {
         method: options.method || "GET",
         mode: "cors",
         credentials: "include",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-          "X-Requested-With": "XMLHttpRequest",
+          ...defaultHeaders,
+          ...options.headers,
         },
-        ...options,
+        body: options.body,
       });
 
       if (!response.ok) {
@@ -123,27 +147,11 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchMasjidData(searchTerm = "") {
     try {
       showLoading();
-      const baseUrl =
-        "https://backend-berkah.onrender.com/retreive/data/location";
-      const url = searchTerm
-        ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
-        : baseUrl;
+      const endpoint = searchTerm
+        ? `${ENDPOINTS.GET_LOCATION}?search=${encodeURIComponent(searchTerm)}`
+        : ENDPOINTS.GET_LOCATION;
 
-      const response = await fetch(url, {
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await baseFetch(endpoint);
       console.log("Data masjid:", data);
       return data;
     } catch (error) {
@@ -156,36 +164,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchUserData() {
-    const token = localStorage.getItem("jwtToken");
-    const userId = localStorage.getItem("userId");
-
-    if (!token || !userId) {
-      throw new Error("Token atau userId tidak ditemukan");
-    }
-
     try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
-          method: "GET",
-          mode: "cors",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "X-Requested-With": "XMLHttpRequest",
-          },
-        }
-      );
+      const data = await baseFetch(ENDPOINTS.GET_USERS);
+      const userId = localStorage.getItem("userId");
+      const currentUser = data.find((u) => u.id === parseInt(userId));
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const users = await response.json();
-      console.log("User data:", users);
-
-      const currentUser = users.find((u) => u.id === parseInt(userId));
       if (!currentUser) {
         throw new Error("User tidak ditemukan");
       }
@@ -200,25 +183,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function updateProfile(formData) {
     try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/update/profile",
-        {
-          method: "PUT",
-          mode: "cors",
-          credentials: "include",
-          headers: {
-            Origin: "https://jumatberkah.vercel.app",
-            Authorization: `Bearer ${token}`,
-            "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) throw new Error("Gagal mengupdate profil");
-      return await response.json();
+      return await baseFetch(ENDPOINTS.UPDATE_PROFILE, {
+        method: "PUT",
+        body: formData,
+      });
     } catch (error) {
       console.error("Error updating profile:", error);
       throw error;
@@ -227,30 +195,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function uploadProfilePicture(file) {
     try {
-      const token = localStorage.getItem("jwtToken");
-      const userId = localStorage.getItem("userId");
+      if (!file.type.startsWith("image/")) {
+        throw new Error("File harus berupa gambar");
+      }
+
+      if (file.size > 20 * 1024 * 1024) {
+        throw new Error("Ukuran file maksimal 20MB");
+      }
+
       const formData = new FormData();
       formData.append("profile_picture", file);
-      formData.append("user_id", userId);
+      formData.append("user_id", localStorage.getItem("userId"));
 
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/upload/profile-picture",
-        {
-          method: "POST",
-          mode: "cors",
-          credentials: "include",
-          headers: {
-            Origin: "https://jumatberkah.vercel.app",
-            Authorization: `Bearer ${token}`,
-            "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) throw new Error("Gagal mengupload foto profil");
-      return await response.json();
+      return await baseFetch(ENDPOINTS.UPLOAD_PROFILE_PICTURE, {
+        method: "POST",
+        body: formData,
+      });
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       throw error;
@@ -259,10 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchMasjidDetail(masjidId) {
     try {
-      return await baseFetch(
-        `https://backend-berkah.onrender.com/retreive/data/location/${masjidId}`,
-        { method: "GET" }
-      );
+      return await baseFetch(`${ENDPOINTS.GET_LOCATION}/${masjidId}`);
     } catch (error) {
       console.error("Error fetching masjid detail:", error);
       throw new Error("Gagal mengambil detail masjid");
@@ -291,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (elements.profilePicture && userData.profile_picture) {
         const imageUrl = userData.profile_picture.startsWith("http")
           ? userData.profile_picture
-          : `https://backend-berkah.onrender.com${userData.profile_picture}`;
+          : `${API_BASE_URL}${userData.profile_picture}`;
 
         elements.profilePicture.src = imageUrl;
         elements.profilePicture.onerror = () => {
@@ -320,57 +277,96 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const editProfileForm = document.getElementById("editProfileForm");
-    if (editProfileForm) {
-      editProfileForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-          showLoading();
+  // Setup form handlers
+  if (editProfileForm) {
+    editProfileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        showLoading();
 
-          const formData = new FormData(editProfileForm);
-          formData.append("user_id", localStorage.getItem("userId"));
+        const formData = new FormData(editProfileForm);
+        formData.append("user_id", localStorage.getItem("userId"));
 
-          await updateProfile(formData);
+        await updateProfile(formData);
 
-          await Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: "Profil berhasil diperbarui",
-            timer: 1500,
-            showConfirmButton: false,
-          });
+        await Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Profil berhasil diperbarui",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-          window.location.href = "profile.html";
-        } catch (error) {
-          await handleError(error, "Gagal mengupdate profil");
-        } finally {
-          hideLoading();
+        window.location.href = "profile.html";
+      } catch (error) {
+        await handleError(error, "Gagal mengupdate profil");
+      } finally {
+        hideLoading();
+      }
+    });
+  }
+
+  // Setup profile picture upload
+  const pictureInput = document.getElementById("pictureInput");
+  const changePictureBtn = document.querySelector(".change-picture-btn");
+
+  if (changePictureBtn && pictureInput) {
+    changePictureBtn.addEventListener("click", () => {
+      pictureInput.click();
+    });
+
+    pictureInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        showLoading();
+        const response = await uploadProfilePicture(file);
+
+        if (response.url) {
+          const profilePicture = document.getElementById("profilePicture");
+          if (profilePicture) {
+            profilePicture.src = `${API_BASE_URL}${response.url}`;
+          }
         }
-      });
-    }
-  });
+
+        await Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Foto profil berhasil diperbarui",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        await handleError(error, "Gagal mengupload foto profil");
+      } finally {
+        hideLoading();
+      }
+    });
+  }
 
   function createMasjidCard(masjid) {
     const card = document.createElement("div");
     card.className = "masjid-card";
 
     card.innerHTML = `
-      <div class="masjid-info">
-        <h3>${masjid.name || "Nama tidak tersedia"}</h3>
-        <p><i class="fas fa-map-marker-alt"></i> ${
-          masjid.address || "Alamat tidak tersedia"
-        }</p>
-        <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
-          masjid.friday_prayer_time || "Waktu tidak tersedia"
-        }</p>
-      </div>
-      <div class="masjid-actions">
-        <button onclick="showMasjidDetails('${masjid.id}')" class="detail-btn">
-          <i class="fas fa-info-circle"></i> Detail
-        </button>
-      </div>
-    `;
+            <div class="masjid-info">
+                <h3>${masjid.name || "Nama tidak tersedia"}</h3>
+                <p><i class="fas fa-map-marker-alt"></i> ${
+                  masjid.address || "Alamat tidak tersedia"
+                }</p>
+                <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+                  masjid.friday_prayer_time || "Waktu tidak tersedia"
+                }</p>
+            </div>
+            <div class="masjid-actions">
+                <button onclick="showMasjidDetails('${
+                  masjid.id
+                }')" class="detail-btn">
+                    <i class="fas fa-info-circle"></i> Detail
+                </button>
+            </div>
+        `;
 
     return card;
   }
@@ -381,12 +377,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function checkLoginStatus() {
-    const token = localStorage.getItem("jwtToken");
+    const { isAuthenticated } = checkAuth();
     const logoutBtn = document.querySelector(".logout-btn");
     const profileBtn = document.querySelector(".profile-btn");
     const loginBtn = document.querySelector(".login-btn");
 
-    if (token) {
+    if (isAuthenticated) {
       if (loginBtn) loginBtn.style.display = "none";
       if (logoutBtn) logoutBtn.style.display = "flex";
       if (profileBtn) profileBtn.style.display = "flex";
@@ -416,11 +412,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!Array.isArray(masjidData) || masjidData.length === 0) {
       masjidContainer.innerHTML = `
-        <div class="no-data">
-          <i class="fas fa-mosque"></i>
-          <p>Tidak ada masjid ditemukan</p>
-        </div>
-      `;
+                <div class="no-data">
+                    <i class="fas fa-mosque"></i>
+                    <p>Tidak ada masjid ditemukan</p>
+                </div>
+            `;
       return;
     }
 
@@ -444,127 +440,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     filteredMasjid.forEach((masjid) => {
-      const masjidItem = document.createElement("div");
-      masjidItem.className = "masjid-item";
-      masjidItem.innerHTML = `
-        <h3>${masjid.name}</h3>
-        <p>
-          <i class="fas fa-map-marker-alt"></i> 
-          ${masjid.address || "Alamat tidak tersedia"}
-        </p>
-        <p>
-          <i class="fas fa-clock"></i> 
-          Waktu Sholat Jumat: ${masjid.friday_prayer_time || "Tidak tersedia"}
-        </p>
-        <p>
-          <i class="fas fa-users"></i> 
-          Kapasitas: ${masjid.capacity || "Tidak tersedia"}
-        </p>
-        <button onclick="showMasjidDetails(${masjid.id})" class="detail-btn">
-          Detail
-        </button>
-      `;
-      masjidContainer.appendChild(masjidItem);
+      const card = createMasjidCard(masjid);
+      masjidContainer.appendChild(card);
     });
   }
 
-  function showMasjidDetails(masjidId) {
-    const detailsContainer = document.getElementById("masjid-details");
+  async function showMasjidDetails(masjidId) {
     if (!detailsContainer) return;
 
     try {
       showLoading();
+      const masjid = await fetchMasjidDetail(masjidId);
 
-      fetch(
-        `https://backend-berkah.onrender.com/retreive/data/location/${masjidId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-            "Content-Type": "application/json",
-          },
+      detailsContainer.style.display = "flex";
+      const detailsContent = detailsContainer.querySelector(".details-content");
+
+      if (detailsContent) {
+        detailsContent.innerHTML = `
+                    <button class="close-details">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <h2>${masjid.name}</h2>
+                    <p><i class="fas fa-map-marker-alt"></i> ${
+                      masjid.address
+                    }</p>
+                    <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+                      masjid.friday_prayer_time
+                    }</p>
+                    <p><i class="fas fa-info-circle"></i> ${
+                      masjid.description || "Tidak ada deskripsi"
+                    }</p>
+                `;
+
+        const closeButton = detailsContent.querySelector(".close-details");
+        if (closeButton) {
+          closeButton.onclick = () => {
+            detailsContainer.style.display = "none";
+          };
         }
-      )
-        .then((response) => response.json())
-        .then((masjid) => {
-          detailsContainer.style.display = "flex";
-          const detailsContent =
-            detailsContainer.querySelector(".details-content");
-          if (detailsContent) {
-            detailsContent.innerHTML = `
-            <button class="close-details">
-              <i class="fas fa-times"></i>
-            </button>
-            <h2>${masjid.name}</h2>
-            <p><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
-            <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
-              masjid.friday_prayer_time
-            }</p>
-            <p><i class="fas fa-info-circle"></i> ${
-              masjid.description || "Tidak ada deskripsi"
-            }</p>
-          `;
-
-            const closeButton = detailsContent.querySelector(".close-details");
-            if (closeButton) {
-              closeButton.onclick = () => {
-                detailsContainer.style.display = "none";
-              };
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching masjid details:", error);
-          handleError(error, "Gagal memuat detail masjid");
-        })
-        .finally(() => {
-          hideLoading();
-        });
+      }
     } catch (error) {
       console.error("Error in showMasjidDetails:", error);
+      await handleError(error, "Gagal memuat detail masjid");
+    } finally {
       hideLoading();
-      handleError(error, "Terjadi kesalahan saat menampilkan detail");
-    }
-  }
-
-  function updateAuthLinks() {
-    const { isAuthenticated, role } = checkAuth();
-    const logoutBtn = document.getElementById("logout-btn");
-    const profileBtn = document.getElementById("profile-btn");
-    const profilePicture = document.getElementById("profilePicture");
-
-    if (isAuthenticated) {
-      if (logoutBtn) {
-        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-        logoutBtn.onclick = logout;
-        logoutBtn.href = "#";
-      }
-
-      if (profileBtn) {
-        profileBtn.style.display = "block";
-        const profileLink = profileBtn.querySelector("a");
-        if (profileLink) {
-          profileLink.href = "/profile/profile.html";
-          profileLink.innerHTML = '<i class="fas fa-user"></i> Profile';
-        }
-      }
-
-      if (profilePicture) {
-        fetchAndUpdateProfilePicture();
-      }
-    } else {
-      if (logoutBtn) {
-        logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
-        logoutBtn.href = "/auth/login.html";
-        logoutBtn.onclick = null;
-      }
-
-      if (profileBtn) {
-        profileBtn.style.display = "none";
-      }
-
-      if (profilePicture) {
-        profilePicture.src = "/assets/default-avatar.png";
-      }
     }
   }
 
@@ -594,7 +513,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setupAutoLogout() {
     let timeout;
-
     const resetTimer = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
@@ -606,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.clear();
           window.location.href = "../auth/login.html";
         });
-      }, 15 * 60 * 1000);
+      }, 15 * 60 * 1000); // 15 menit
     };
 
     window.onload = resetTimer;
@@ -616,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showWelcomeMessage() {
     const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
-    const isAuthenticated = localStorage.getItem("jwtToken") !== null;
+    const isAuthenticated = checkAuth().isAuthenticated;
 
     if (!hasShownWelcome) {
       Swal.fire({
@@ -632,213 +550,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function fetchAndUpdateProfilePicture() {
-    const { token, userId } = checkAuth();
-    const profilePicture = document.getElementById("profilePicture");
-
-    if (!profilePicture) return;
-
-    try {
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch user data");
-
-      const users = await response.json();
-      const currentUser = users.find((u) => u.id === parseInt(userId));
-
-      if (currentUser && currentUser.profile_picture) {
-        profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        localStorage.setItem("profilePicture", currentUser.profile_picture);
-      } else {
-        profilePicture.src = "/assets/default-avatar.png";
-      }
-    } catch (error) {
-      console.error("Error fetching profile picture:", error);
-      profilePicture.src = "/assets/default-avatar.png";
-    }
-  }
-
-  function updateEditProfilePage(currentUser, masjidData) {
-    const elements = {
-      username: document.getElementById("username"),
-      email: document.getElementById("email"),
-      bio: document.getElementById("bio"),
-      preferredMasjid: document.getElementById("preferredMasjid"),
-      profilePicture: document.getElementById("profilePicture"),
-      pictureInput: document.getElementById("pictureInput"),
-    };
-
-    if (elements.username) elements.username.value = currentUser.username || "";
-    if (elements.email) elements.email.value = currentUser.email || "";
-    if (elements.bio) elements.bio.value = currentUser.bio || "";
-
-    handleProfilePicture();
-
-    const changePictureBtn = document.querySelector(".change-picture-btn");
-    if (changePictureBtn && elements.pictureInput) {
-      changePictureBtn.addEventListener("click", () => {
-        elements.pictureInput.click();
-      });
-
-      elements.pictureInput.addEventListener("change", async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-          if (!file.type.startsWith("image/")) {
-            throw new Error("File harus berupa gambar");
-          }
-
-          if (file.size > 20 * 1024 * 1024) {
-            throw new Error("Ukuran file maksimal 20MB");
-          }
-
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (elements.profilePicture) {
-              elements.profilePicture.src = e.target.result;
-            }
-          };
-          reader.readAsDataURL(file);
-
-          const formData = new FormData();
-          formData.append("profile_picture", file);
-          formData.append("user_id", localStorage.getItem("userId"));
-
-          const token = localStorage.getItem("jwtToken");
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/upload/profile-picture",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData,
-            }
-          );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Gagal mengunggah gambar");
-          }
-
-          const result = await response.json();
-
-          if (result.url) {
-            localStorage.setItem("profilePicture", result.url);
-            handleProfilePicture();
-          }
-
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: "Foto profil berhasil diperbarui",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error!",
-            text: error.message || "Gagal mengunggah gambar",
-            confirmButtonColor: "#4CAF50",
-          });
-        }
-      });
-    }
-
-    if (elements.preferredMasjid) {
-      elements.preferredMasjid.innerHTML =
-        '<option value="">Pilih Masjid</option>';
-      masjidData.forEach((masjid) => {
-        const option = document.createElement("option");
-        option.value = masjid.id;
-        option.textContent = masjid.name;
-        if (currentUser.preferred_masjid === masjid.id.toString()) {
-          option.selected = true;
-        }
-        elements.preferredMasjid.appendChild(option);
-      });
-    }
-  }
-
-  function setupSearch() {
-    const searchInput = document.querySelector(
-      'input[placeholder="Cari masjid..."]'
-    );
-    const searchButton = document.querySelector(".search-button");
-    let masjidDataCache = null;
-
-    if (!searchInput || !searchButton) {
-      console.error("Search elements not found");
-      return;
-    }
-
-    fetchMasjidData().then((data) => {
-      masjidDataCache = data;
-      displayMasjidList(data);
-    });
-
-    searchInput.addEventListener("input", (e) => {
-      const searchTerm = e.target.value.trim();
-      if (masjidDataCache) {
-        displayMasjidList(masjidDataCache, searchTerm);
-      }
-    });
-
-    searchButton.addEventListener("click", () => {
-      const searchTerm = searchInput.value.trim();
-      if (masjidDataCache) {
-        displayMasjidList(masjidDataCache, searchTerm);
-      }
-    });
-  }
-
+  // Initialize
   async function initialize() {
     try {
       const isLoggedIn = checkLoginStatus();
-
-      const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
-      if (!hasShownWelcome) {
-        await Swal.fire({
-          title: isLoggedIn
-            ? "Selamat datang kembali!"
-            : "Selamat Datang di Jumat Berkah",
-          text: "Temukan masjid terdekat untuk ibadah Jumat",
-          icon: "success",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
-        sessionStorage.setItem("hasShownWelcome", "true");
-      }
+      showWelcomeMessage();
 
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
 
       if (isHomePage) {
-        setupSearch();
+        const masjidData = await fetchMasjidData();
+        displayMasjidList(masjidData);
+
+        if (searchBar) {
+          searchBar.addEventListener("input", (e) => {
+            displayMasjidList(masjidData, e.target.value.trim());
+          });
+        }
       }
 
-      const logoutBtn = document.querySelector(".logout-btn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
+      if (window.location.pathname.includes("profile.html")) {
+        await fetchAndDisplayProfileData();
       }
+
+      setupAutoLogout();
     } catch (error) {
       console.error("Initialization error:", error);
       await handleError(error, "Terjadi kesalahan saat memuat halaman");
     }
   }
 
+  // Event listeners for navbar buttons
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
@@ -851,27 +595,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Start initialization
   initialize().catch((error) => {
     console.error("Fatal initialization error:", error);
     handleError(error, "Terjadi kesalahan yang tidak diharapkan");
   });
-
-  const style = document.createElement("style");
-  style.textContent = `
-    .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 20px auto;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
 });
