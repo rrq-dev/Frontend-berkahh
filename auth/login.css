@@ -512,3 +512,20 @@ body::before {
     max-width: 100%;
   }
 }
+
+.switch-btn {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--background);
+  border: none;
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.switch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(162, 214, 181, 0.3);
+}
