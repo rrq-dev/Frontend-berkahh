@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
   const forgotPasswordLink = document.getElementById("forgot-password-link");
+  const signUpBtn = document.getElementById("sign-up-btn");
+  const signInBtn = document.getElementById("sign-in-btn");
+  const loginBox = document.querySelector(".login-box");
 
   // Handle error dari URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -263,6 +266,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.location.href = redirectUrl;
   }
+
+  signUpBtn.addEventListener("click", () => {
+    loginBox.classList.add("sign-up-mode");
+  });
+
+  signInBtn.addEventListener("click", () => {
+    loginBox.classList.remove("sign-up-mode");
+  });
 });
 
 // Helper function untuk generate random string

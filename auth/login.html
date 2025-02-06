@@ -47,94 +47,112 @@
           </div>
         </div>
       </div>
-      <div class="forms">
-        <div class="form-content">
-          <div class="login-form">
-            <div class="title">Login</div>
-            <form id="loginForm" autocomplete="off">
-              <div class="input-boxes">
-                <div class="input-box">
-                  <i class="fas fa-envelope"></i>
+      <div class="login-container">
+        <div class="login-box">
+          <div class="forms-container">
+            <!-- Sign In Form -->
+            <div class="signin-signup">
+              <form id="loginForm" class="sign-in-form">
+                <div class="login-header">
+                  <img src="../assets/logo.png" alt="Logo" class="logo" />
+                  <h2>Welcome back</h2>
+                  <p>Sign in to Jumat Berkah</p>
+                </div>
+                <div class="input-group">
+                  <label for="email">Email</label>
                   <input
                     type="email"
-                    id="email-input"
-                    placeholder="Masukkan email Anda"
+                    id="email"
+                    placeholder="example@email.com"
                     required
                   />
                 </div>
-                <div class="input-box">
-                  <i class="fas fa-lock"></i>
+                <div class="input-group">
+                  <label for="password">Password</label>
                   <input
                     type="password"
-                    id="password-input"
-                    placeholder="Masukkan password Anda"
+                    id="password"
+                    placeholder="••••••••"
                     required
                   />
-                </div>
-                <div class="text">
-                  <a href="../auth/reset-password/reset-password.html"
-                    >Lupa password?</a
+                  <a
+                    href="../auth/reset-password/reset-password.html"
+                    class="forgot-password"
+                    >Forgot password?</a
                   >
                 </div>
-                <div class="button input-box">
-                  <input type="submit" value="Login" />
-                </div>
-                <div class="text sign-up-text">
-                  Belum punya akun? <label for="flip">Daftar sekarang</label>
-                </div>
+                <button type="submit" class="login-btn">Sign in</button>
                 <div class="divider">
-                  <span>atau</span>
+                  <span>or</span>
                 </div>
-                <div class="login-container">
-                  <div class="login-content">
-                    <button id="google-login-btn" class="button input-box">
-                      <img src="../assets/google-icon.png" alt="Google Icon" />
-                      <span>Sign in with Google</span>
-                    </button>
-                  </div>
+                <button type="button" id="google-login-btn" class="google-btn">
+                  <img src="../assets/google-icon.png" alt="Google" />
+                  <span>Sign in with Google</span>
+                </button>
+              </form>
+
+              <!-- Sign Up Form -->
+              <form id="signupForm" class="sign-up-form">
+                <div class="login-header">
+                  <img src="../assets/logo.png" alt="Logo" class="logo" />
+                  <h2>Create Account</h2>
+                  <p>Sign up to get started</p>
                 </div>
-              </div>
-            </form>
-          </div>
-          <div class="signup-form">
-            <div class="title">Registrasi</div>
-            <form id="signupForm" autocomplete="off">
-              <div class="input-boxes">
-                <div class="input-box">
-                  <i class="fas fa-user"></i>
+                <div class="input-group">
+                  <label for="signup-name">Full Name</label>
                   <input
                     type="text"
-                    id="name-input"
-                    placeholder="Masukkan nama Anda"
+                    id="signup-name"
+                    placeholder="Enter your name"
                     required
                   />
                 </div>
-                <div class="input-box">
-                  <i class="fas fa-envelope"></i>
+                <div class="input-group">
+                  <label for="signup-email">Email</label>
                   <input
                     type="email"
-                    id="signup-email-input"
-                    placeholder="Masukkan email Anda"
+                    id="signup-email"
+                    placeholder="example@email.com"
                     required
                   />
                 </div>
-                <div class="input-box">
-                  <i class="fas fa-lock"></i>
+                <div class="input-group">
+                  <label for="signup-password">Password</label>
                   <input
                     type="password"
-                    id="signup-password-input"
-                    placeholder="Masukkan password Anda"
+                    id="signup-password"
+                    placeholder="••••••••"
                     required
                   />
                 </div>
-                <div class="button input-box">
-                  <input type="submit" value="Daftar" />
-                </div>
-                <div class="text sign-up-text">
-                  Sudah punya akun? <label for="flip">Login sekarang</label>
+                <button type="submit" class="login-btn">Sign up</button>
+              </form>
+            </div>
+
+            <!-- Panels -->
+            <div class="panels-container">
+              <div class="panel left-panel">
+                <div class="panel-content">
+                  <h3>New here?</h3>
+                  <p>Sign up and discover great amount of new opportunities!</p>
+                  <button class="btn transparent" id="sign-up-btn">
+                    Sign up
+                  </button>
                 </div>
               </div>
-            </form>
+              <div class="panel right-panel">
+                <div class="panel-content">
+                  <h3>One of us?</h3>
+                  <p>
+                    If you already have an account, just sign in. We've missed
+                    you!
+                  </p>
+                  <button class="btn transparent" id="sign-in-btn">
+                    Sign in
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
