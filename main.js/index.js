@@ -83,6 +83,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Fungsi untuk menghasilkan warna acak
+  function getRandomColor() {
+    const colors = [
+      "#4CAF50", // Green
+      "#2196F3", // Blue
+      "#FF9800", // Orange
+      "#E91E63", // Pink
+      "#9C27B0", // Purple
+      "#00BCD4", // Cyan
+      "#009688", // Teal
+      "#FF5722", // Deep Orange
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  // Tambahkan event listener untuk hover effect dengan warna acak
+  function addHoverEffects(masjidItem) {
+    masjidItem.addEventListener("mouseover", () => {
+      const randomColor = getRandomColor();
+      masjidItem.style.setProperty("--random-color", randomColor);
+      masjidItem.style.transform = "translateY(-5px)";
+      masjidItem.style.boxShadow = `0 8px 15px rgba(0,0,0,0.2)`;
+    });
+
+    masjidItem.addEventListener("mouseout", () => {
+      masjidItem.style.transform = "translateY(0)";
+      masjidItem.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+    });
+  }
+
   // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
   function displayMasjidList(masjidData, searchTerm = "") {
     const masjidList = document.getElementById("masjid-list");
@@ -139,17 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      // Tambahkan efek hover dengan animasi yang lebih smooth
-      masjidItem.addEventListener("mouseover", () => {
-        masjidItem.style.transform = "translateY(-5px)";
-        masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
-        masjidItem.style.transition = "all 0.3s ease";
-      });
-
-      masjidItem.addEventListener("mouseout", () => {
-        masjidItem.style.transform = "translateY(0)";
-        masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
-      });
+      // Add hover effects
+      addHoverEffects(masjidItem);
 
       masjidList.appendChild(masjidItem);
     });

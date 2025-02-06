@@ -116,16 +116,20 @@ body {
   font-size: 1.1rem;
 }
 
-/* Search Styles - Optimized */
+/* Search Styles - Updated */
 .search-container {
-  max-width: 600px;
+  max-width: 800px; /* Increased max-width */
   margin: 0 auto 2.5rem;
+  display: flex;
+  gap: 10px;
+  padding: 0 20px;
 }
 
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .search-icon {
@@ -151,67 +155,90 @@ body {
   border-color: var(--secondary-color);
 }
 
-/* Masjid Grid Styles - Optimized */
+#search-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0 2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+#search-button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+/* Masjid Grid Styles - Updated */
 .masjid-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
   margin: 0 auto;
   max-width: 1400px;
 }
 
-.masjid-card {
+.masjid-item {
   background-color: var(--card-background);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px var(--shadow-color);
-  transition: all var(--transition-speed) ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 15px;
+  padding: 1.8rem;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: all 0.3s ease;
+  border: 2px solid #ffffff;
+  position: relative;
+  overflow: hidden;
 }
 
-.masjid-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px var(--hover-shadow);
+.masjid-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--primary-color);
+  transition: background-color 0.3s ease;
 }
 
-.masjid-info h3 {
+.masjid-item:hover::before {
+  background-color: var(--random-color, var(--primary-color));
+}
+
+.masjid-content {
+  position: relative;
+  z-index: 1;
+}
+
+.masjid-content h3 {
   color: var(--primary-color);
   margin-bottom: 1rem;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
-.masjid-info p {
+.masjid-content p {
   margin-bottom: 0.8rem;
   display: flex;
   align-items: center;
   gap: 0.8rem;
   color: #555;
+  font-size: 1rem;
 }
 
-.masjid-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: flex-end;
+.masjid-content i {
+  color: var(--primary-color);
+  font-size: 1.1rem;
 }
 
-.detail-btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all var(--transition-speed) ease;
-  font-weight: 500;
-}
-
-.detail-btn:hover {
-  background-color: var(--secondary-color);
-  transform: translateY(-2px);
+/* Highlight style for search results */
+.highlight {
+  background-color: #ffd700;
+  padding: 0 4px;
+  border-radius: 4px;
+  color: #000;
 }
 
 /* Masjid Details Modal */
