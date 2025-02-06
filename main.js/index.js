@@ -3,6 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
+  // Initialize Auth0
+  const auth0Client = new auth0.WebAuth({
+    domain: process.env.AUTH0_DOMAIN,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    redirectUri: window.location.origin,
+    responseType: "token id_token",
+    scope: "openid profile email",
+  });
+
   // Handle Google OAuth Callback Token
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
@@ -337,9 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Logout dari Auth0
         await auth0Client.logout({
-          logoutParams: {
-            returnTo: "https://jumatberkah.vercel.app",
-          },
+          returnTo: "https://jumatberkah.vercel.app",
         });
 
         // Hapus data dari localStorage
