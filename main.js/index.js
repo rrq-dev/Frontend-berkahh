@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk menampilkan loading
   function showLoading() {
-    if (loadingInstance) return loadingInstance;
+    if (loadingInstance) return;
 
     loadingInstance = Swal.fire({
       title: "Mohon Tunggu...",
@@ -59,13 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.showLoading();
       },
     });
-    return loadingInstance;
   }
 
   // Fungsi untuk menyembunyikan loading
   function hideLoading() {
     if (loadingInstance) {
-      Swal.close();
+      loadingInstance.close();
       loadingInstance = null;
     }
   }
@@ -98,53 +97,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Perbaikan fungsi fetchMasjidData dengan error handling yang lebih baik
+  // Perbaikan fungsi fetchMasjidData
   async function fetchMasjidData(searchTerm = "") {
-    let retries = 3;
+    try {
+      const { token } = checkAuth();
 
-    while (retries > 0) {
-      try {
-        const { token } = checkAuth();
-        if (!token) throw new Error("Token tidak ditemukan");
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(
-          `https://backend-berkah.onrender.com/retreive/data/location${
-            searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""
-          }`,
-          {
-            signal: controller.signal,
-            cache: "no-store",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message || "Gagal mengambil data lokasi masjid"
-          );
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/retreive/data/location${
+          searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""
+        }`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        retries--;
-        if (retries === 0) {
-          if (error.name === "AbortError") {
-            throw new Error("Koneksi timeout, silakan coba lagi");
-          }
-          throw error;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error("Gagal mengambil data lokasi masjid");
       }
+
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Error fetching masjid data:", error);
+      return [];
     }
   }
 
@@ -153,22 +131,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const masjidContainer = document.querySelector(".masjid-list");
     if (!masjidContainer) return;
 
-    masjidContainer.innerHTML = "";
+    try {
+      if (!Array.isArray(masjidData) || masjidData.length === 0) {
+        masjidContainer.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-mosque"></i>
+            <p>Tidak ada masjid yang ditemukan</p>
+          </div>
+        `;
+        return;
+      }
 
-    if (masjidData.length === 0) {
+      masjidContainer.innerHTML = "";
+      masjidData.forEach((masjid) => {
+        const masjidCard = createMasjidCard(masjid);
+        masjidContainer.appendChild(masjidCard);
+      });
+    } catch (error) {
+      console.error("Error displaying masjid list:", error);
       masjidContainer.innerHTML = `
-        <div class="no-results">
-          <i class="fas fa-mosque"></i>
-          <p>Tidak ada masjid yang ditemukan</p>
+        <div class="error-message">
+          <i class="fas fa-exclamation-circle"></i>
+          <p>Terjadi kesalahan saat menampilkan data</p>
         </div>
       `;
-      return;
     }
-
-    masjidData.forEach((masjid) => {
-      const masjidCard = createMasjidCard(masjid);
-      masjidContainer.appendChild(masjidCard);
-    });
   }
 
   // Fungsi untuk update auth links dan profile picture
@@ -270,21 +257,25 @@ document.addEventListener("DOMContentLoaded", () => {
     window.onkeypress = resetTimer;
   }
 
-  // Fungsi untuk menampilkan welcome message
+  // Perbaikan fungsi showWelcomeMessage
   function showWelcomeMessage() {
-    const hasShownWelcome = localStorage.getItem("hasShownWelcome");
-    const token = localStorage.getItem("jwtToken");
+    const { isAuthenticated } = checkAuth();
+    const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
 
-    if (!token && !hasShownWelcome) {
+    if (!hasShownWelcome) {
+      const message = isAuthenticated
+        ? "Selamat datang kembali!"
+        : "Selamat datang di Aplikasi Jumat Berkah";
+
       Swal.fire({
-        title: "Selamat Datang!",
-        text: "di Aplikasi Jumat Berkah",
+        title: message,
         icon: "success",
-        confirmButtonColor: "#4CAF50",
         timer: 2000,
         timerProgressBar: true,
+        showConfirmButton: false,
       });
-      localStorage.setItem("hasShownWelcome", "true");
+
+      sessionStorage.setItem("hasShownWelcome", "true");
     }
   }
 
@@ -538,10 +529,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi initialize dengan better error recovery
+  // Perbaikan fungsi initialize
   async function initialize() {
     try {
-      showLoading();
+      // Tampilkan welcome message terlebih dahulu
+      showWelcomeMessage();
+
+      // Update auth links
+      updateAuthLinks();
 
       // Setup auto logout
       setupAutoLogout();
@@ -549,69 +544,62 @@ document.addEventListener("DOMContentLoaded", () => {
       // Setup search functionality
       setupSearch();
 
-      // Update auth links
-      updateAuthLinks();
-
-      // Show welcome message
-      showWelcomeMessage();
-
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
 
       if (isHomePage) {
+        showLoading();
         try {
           const masjidData = await fetchMasjidData();
-          sessionStorage.setItem(
-            "cachedMasjidData",
-            JSON.stringify(masjidData)
-          );
-          displayMasjidList(masjidData);
-        } catch (error) {
-          const cachedData = sessionStorage.getItem("cachedMasjidData");
-          if (cachedData) {
-            displayMasjidList(JSON.parse(cachedData));
+          if (masjidData.length > 0) {
+            displayMasjidList(masjidData);
           } else {
-            throw error;
+            document.querySelector(".masjid-list").innerHTML = `
+              <div class="no-results">
+                <i class="fas fa-mosque"></i>
+                <p>Tidak ada data masjid yang tersedia</p>
+              </div>
+            `;
           }
+        } catch (error) {
+          console.error("Error loading masjid data:", error);
+          await handleError(error, "Gagal memuat data masjid");
+        } finally {
+          hideLoading();
         }
       }
     } catch (error) {
-      await handleError(error, "Terjadi kesalahan saat memuat halaman");
-      setTimeout(() => window.location.reload(), 2000);
-    } finally {
+      console.error("Initialization error:", error);
       hideLoading();
+      await handleError(error, "Terjadi kesalahan saat memuat halaman");
     }
   }
 
-  // Perbaikan event listener untuk search dengan debounce yang lebih baik
+  // Perbaikan fungsi setupSearch
   function setupSearch() {
     const searchInput = document.querySelector(".search-input");
     if (!searchInput) return;
 
     let debounceTimer;
-    let previousSearchTerm = "";
 
-    const performSearch = async (searchTerm) => {
-      try {
-        showLoading();
-        const masjidData = await fetchMasjidData(searchTerm);
-        displayMasjidList(masjidData);
-      } catch (error) {
-        await handleError(error, "Gagal mencari masjid");
-      } finally {
-        hideLoading();
-      }
-    };
-
-    searchInput.addEventListener("input", (e) => {
+    searchInput.addEventListener("input", async (e) => {
       const searchTerm = e.target.value.trim();
-      if (searchTerm === previousSearchTerm) return;
 
-      previousSearchTerm = searchTerm;
       clearTimeout(debounceTimer);
 
-      debounceTimer = setTimeout(() => performSearch(searchTerm), 300);
+      debounceTimer = setTimeout(async () => {
+        try {
+          showLoading();
+          const masjidData = await fetchMasjidData(searchTerm);
+          displayMasjidList(masjidData);
+        } catch (error) {
+          console.error("Search error:", error);
+          await handleError(error, "Gagal melakukan pencarian");
+        } finally {
+          hideLoading();
+        }
+      }, 300);
     });
   }
 
