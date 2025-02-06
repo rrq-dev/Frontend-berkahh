@@ -293,6 +293,16 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preferredMasjid").textContent = preferredMasjid
           ? preferredMasjid.name
           : "Belum diisi";
+
+        // Update profile picture
+        const profilePicture = document.getElementById("profilePicture");
+        if (profilePicture) {
+          profilePicture.src =
+            currentUser.profile_picture || "default-avatar.png";
+          profilePicture.onerror = () => {
+            profilePicture.src = "default-avatar.png";
+          };
+        }
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
