@@ -18,142 +18,107 @@
   </head>
   <body>
     <div class="container">
-      <input type="checkbox" id="flip" />
-      <div class="cover">
-        <div class="front">
-          <img
-            src="https://img.freepik.com/premium-vector/secure-login-form-page-with-password-computer-padlock-3d-vector-icon-cartoon-minimal-style_365941-1119.jpg?semt=ais_hybrid"
-            alt="Login Image"
-          />
-          <div class="text">
-            <span class="text-1"
-              >Setiap masjid baru adalah<br />
-              petualangan baru</span
-            >
-            <span class="text-2">Mari terhubung bersama</span>
-          </div>
-        </div>
-        <div class="back">
-          <img
-            src="https://www.codr.gov.hk/codr/javax.faces.resource/images/codr_register.jpg;jsessionid=KwiZxUSM4XUpEeAmH281sWjCvWiin9pbquCa7T6K.node2"
-            alt="Register Image"
-          />
-          <div class="text">
-            <span class="text-1"
-              >Bergabunglah dengan kami<br />
-              dalam perjalanan kebaikan</span
-            >
-            <span class="text-2">Mari mulai sekarang</span>
-          </div>
+      <div class="forms-container">
+        <div class="signin-signup">
+          <!-- Sign In Form -->
+          <form id="loginForm" class="sign-in-form">
+            <div class="login-header">
+              <img src="../assets/logo.png" alt="Logo" class="logo" />
+              <h2>Welcome back</h2>
+              <p>Sign in to Jumat Berkah</p>
+            </div>
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="example@email.com"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required
+              />
+              <a
+                href="../auth/reset-password/reset-password.html"
+                class="forgot-password"
+                >Forgot password?</a
+              >
+            </div>
+            <button type="submit" class="login-btn">Sign in</button>
+            <div class="divider">
+              <span>or</span>
+            </div>
+            <button type="button" id="google-login-btn" class="google-btn">
+              <img src="../assets/google-icon.png" alt="Google" />
+              <span>Sign in with Google</span>
+            </button>
+          </form>
+
+          <!-- Sign Up Form -->
+          <form id="signupForm" class="sign-up-form">
+            <div class="login-header">
+              <img src="../assets/logo.png" alt="Logo" class="logo" />
+              <h2>Create Account</h2>
+              <p>Sign up to get started</p>
+            </div>
+            <div class="input-group">
+              <label for="signup-name">Full Name</label>
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label for="signup-email">Email</label>
+              <input
+                type="email"
+                id="signup-email"
+                placeholder="example@email.com"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label for="signup-password">Password</label>
+              <input
+                type="password"
+                id="signup-password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <button type="submit" class="login-btn">Sign up</button>
+          </form>
         </div>
       </div>
-      <div class="login-container">
-        <div class="login-box">
-          <div class="forms-container">
-            <!-- Sign In Form -->
-            <div class="signin-signup">
-              <form id="loginForm" class="sign-in-form">
-                <div class="login-header">
-                  <img src="../assets/logo.png" alt="Logo" class="logo" />
-                  <h2>Welcome back</h2>
-                  <p>Sign in to Jumat Berkah</p>
-                </div>
-                <div class="input-group">
-                  <label for="email">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder="example@email.com"
-                    required
-                  />
-                </div>
-                <div class="input-group">
-                  <label for="password">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <a
-                    href="../auth/reset-password/reset-password.html"
-                    class="forgot-password"
-                    >Forgot password?</a
-                  >
-                </div>
-                <button type="submit" class="login-btn">Sign in</button>
-                <div class="divider">
-                  <span>or</span>
-                </div>
-                <button type="button" id="google-login-btn" class="google-btn">
-                  <img src="../assets/google-icon.png" alt="Google" />
-                  <span>Sign in with Google</span>
-                </button>
-              </form>
 
-              <!-- Sign Up Form -->
-              <form id="signupForm" class="sign-up-form">
-                <div class="login-header">
-                  <img src="../assets/logo.png" alt="Logo" class="logo" />
-                  <h2>Create Account</h2>
-                  <p>Sign up to get started</p>
-                </div>
-                <div class="input-group">
-                  <label for="signup-name">Full Name</label>
-                  <input
-                    type="text"
-                    id="signup-name"
-                    placeholder="Enter your name"
-                    required
-                  />
-                </div>
-                <div class="input-group">
-                  <label for="signup-email">Email</label>
-                  <input
-                    type="email"
-                    id="signup-email"
-                    placeholder="example@email.com"
-                    required
-                  />
-                </div>
-                <div class="input-group">
-                  <label for="signup-password">Password</label>
-                  <input
-                    type="password"
-                    id="signup-password"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <button type="submit" class="login-btn">Sign up</button>
-              </form>
-            </div>
-
-            <!-- Panels -->
-            <div class="panels-container">
-              <div class="panel left-panel">
-                <div class="panel-content">
-                  <h3>New here?</h3>
-                  <p>Sign up and discover great amount of new opportunities!</p>
-                  <button class="btn transparent" id="sign-up-btn">
-                    Sign up
-                  </button>
-                </div>
-              </div>
-              <div class="panel right-panel">
-                <div class="panel-content">
-                  <h3>One of us?</h3>
-                  <p>
-                    If you already have an account, just sign in. We've missed
-                    you!
-                  </p>
-                  <button class="btn transparent" id="sign-in-btn">
-                    Sign in
-                  </button>
-                </div>
-              </div>
-            </div>
+      <!-- Panels -->
+      <div class="panels-container">
+        <div class="panel left-panel">
+          <div class="content">
+            <h3>New here?</h3>
+            <p>Sign up and discover great amount of new opportunities!</p>
+            <button class="btn transparent" id="sign-up-btn">Sign up</button>
           </div>
+          <img src="../assets/login.svg" class="image" alt="" />
+        </div>
+
+        <div class="panel right-panel">
+          <div class="content">
+            <h3>One of us?</h3>
+            <p>
+              If you already have an account, just sign in. We've missed you!
+            </p>
+            <button class="btn transparent" id="sign-in-btn">Sign in</button>
+          </div>
+          <img src="../assets/register.svg" class="image" alt="" />
         </div>
       </div>
     </div>

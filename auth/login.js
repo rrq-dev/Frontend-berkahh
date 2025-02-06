@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const signUpBtn = document.getElementById("sign-up-btn");
   const signInBtn = document.getElementById("sign-in-btn");
   const loginBox = document.querySelector(".login-box");
+  const container = document.querySelector(".container");
 
   // Handle error dari URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,35 +48,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle Google login
   googleLoginBtn.addEventListener("click", async () => {
     try {
-      // Tampilkan loading
-      Swal.fire({
-        title: "Menghubungkan...",
-        text: "Mohon tunggu sebentar",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      // Redirect ke endpoint Auth0
-      const loginUrl = "https://backend-berkah.onrender.com/auth/google/login";
-      console.log("Redirecting to:", loginUrl); // Untuk debugging
-
-      // Tambahkan state untuk keamanan
-      const state = generateRandomString(32);
-      sessionStorage.setItem("auth_state", state);
-
-      // Redirect dengan state
-      window.location.href = `${loginUrl}?state=${state}`;
+      showLoading();
+      window.location.href = "https://backend-berkah.onrender.com/auth/google/login";
     } catch (error) {
-      console.error("Error initiating login:", error);
+      console.error("Error during Google login:", error);
+      hideLoading();
       Swal.fire({
         title: "Error",
-        text: "Gagal memulai proses login. Silakan coba lagi.",
+        text: "Gagal melakukan login dengan Google. Silakan coba lagi.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#2e7d32",
+        confirmButtonColor: "#519fc3"
       });
     }
   });
@@ -267,12 +250,14 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = redirectUrl;
   }
 
+  // Toggle Sign Up mode
   signUpBtn.addEventListener("click", () => {
-    loginBox.classList.add("sign-up-mode");
+    container.classList.add("sign-up-mode");
   });
 
+  // Toggle Sign In mode
   signInBtn.addEventListener("click", () => {
-    loginBox.classList.remove("sign-up-mode");
+    container.classList.remove("sign-up-mode");
   });
 });
 
@@ -308,20 +293,19 @@ function parseJwt(token) {
   }
 }
 
-// Update tampilan loading
+// Loading functions
 function showLoading() {
-  const loadingDiv = document.createElement("div");
-  loadingDiv.id = "loading-overlay";
-  loadingDiv.innerHTML = `
-    <div class="loading-spinner"></div>
-    <p>Menghubungkan ke Google...</p>
-  `;
-  document.body.appendChild(loadingDiv);
+  Swal.fire({
+    title: "Menghubungkan...",
+    text: "Mohon tunggu sebentar",
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    willOpen: () => {
+      Swal.showLoading();
+    }
+  });
 }
 
 function hideLoading() {
-  const loadingDiv = document.getElementById("loading-overlay");
-  if (loadingDiv) {
-    loadingDiv.remove();
-  }
+  Swal.close();
 }
