@@ -61,32 +61,37 @@
           <img src="../assets/register.svg" alt="Register Illustration" />
         </div>
         <form action="#" class="sign-up-form">
-          <div class="topic">Create Account</div>
+          <h2 class="title">Create Account</h2>
           <p class="subtitle">Sign up to get started</p>
-          <div class="input-box">
-            <input type="text" required />
+
+          <div class="input-field">
+            <input type="text" id="fullname" required />
             <label>Full Name</label>
           </div>
-          <div class="input-box">
-            <input type="email" required />
+
+          <div class="input-field">
+            <input type="email" id="email" required />
             <label>Email address</label>
           </div>
-          <div class="input-box">
-            <input type="password" required />
+
+          <div class="input-field">
+            <input type="password" id="password" required />
             <label>Password</label>
           </div>
+
           <div class="input-box">
             <input type="submit" value="Sign Up" />
           </div>
+
           <div class="divider">
             <span>or</span>
           </div>
-          <div class="input-box">
-            <button type="button" class="google-btn">
-              <img src="../assets/google-icon.png" alt="Google" />
-              <span>Sign up with Google</span>
-            </button>
-          </div>
+
+          <button type="button" class="google-btn">
+            <img src="../assets/google-icon.png" alt="Google" />
+            Sign up with Google
+          </button>
+
           <div class="switch-form">
             Already have an account? <a href="#" class="switch-btn">Sign in</a>
           </div>

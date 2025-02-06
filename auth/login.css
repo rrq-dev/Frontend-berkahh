@@ -71,71 +71,117 @@ body::before {
 .content form {
   width: 40%;
   margin-right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.content .input-box {
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text);
+  opacity: 0.7;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.input-field {
+  position: relative;
   height: 50px;
   width: 100%;
-  margin: 16px 0;
-  position: relative;
 }
 
-.content .input-box input {
-  position: absolute;
-  height: 100%;
+.input-field input {
   width: 100%;
+  height: 100%;
+  padding: 0 15px;
+  border: 1px solid var(--secondary);
+  background: rgba(162, 214, 181, 0.1);
   border-radius: 6px;
   font-size: 16px;
-  outline: none;
-  padding-left: 16px;
-  background: rgba(162, 214, 181, 0.1);
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
   color: var(--text);
+  transition: all 0.3s ease;
 }
 
-.content .input-box input:focus,
-.content .input-box input:valid {
-  border-color: var(--primary);
-  background-color: rgba(162, 214, 181, 0.05);
-}
-
-.content .input-box label {
+.input-field label {
   position: absolute;
-  left: 18px;
   top: 50%;
-  color: var(--text);
-  font-size: 15px;
-  pointer-events: none;
+  left: 15px;
   transform: translateY(-50%);
+  color: var(--text);
+  opacity: 0.7;
+  font-size: 14px;
+  pointer-events: none;
   transition: all 0.3s ease;
 }
 
-.content .input-box input:focus ~ label,
-.content .input-box input:valid ~ label {
+.input-field input:focus,
+.input-field input:valid {
+  border-color: var(--primary);
+}
+
+.input-field input:focus ~ label,
+.input-field input:valid ~ label {
   top: 0;
-  left: 12px;
-  font-size: 14px;
-  color: var(--primary);
+  left: 10px;
   background: var(--background);
   padding: 0 5px;
-}
-
-.forgot-pass {
-  text-align: right;
-  margin: -10px 0 20px;
-}
-
-.forgot-pass a {
+  font-size: 12px;
   color: var(--primary);
-  font-size: 13px;
-  text-decoration: none;
+}
+
+.input-box input[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background: var(--primary);
+  color: var(--background);
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.input-box input[type="submit"]:hover {
+  background: var(--accent);
+}
+
+.google-btn {
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid var(--secondary);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.google-btn:hover {
+  background: rgba(162, 214, 181, 0.1);
+  border-color: var(--primary);
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
 }
 
 .divider {
   position: relative;
   text-align: center;
-  margin: 24px 0;
+  margin: 20px 0;
 }
 
 .divider::before,
@@ -160,53 +206,12 @@ body::before {
   background: var(--background);
   padding: 0 10px;
   color: var(--text);
-  font-size: 13px;
-}
-
-.content .input-box input[type="submit"] {
-  color: var(--background);
-  background: var(--primary);
-  padding-left: 0;
-  font-size: 18px;
-  font-weight: 500;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-}
-
-.content .input-box input[type="submit"]:hover {
-  background: var(--accent);
-}
-
-.google-btn {
-  width: 100%;
-  height: 50px;
-  background: transparent;
-  border: 2px solid var(--secondary);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 16px;
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.google-btn:hover {
-  background: rgba(90, 147, 182, 0.1);
-  border-color: var(--accent);
-}
-
-.google-btn img {
-  width: 20px;
-  height: 20px;
+  opacity: 0.7;
+  font-size: 14px;
 }
 
 .switch-form {
   text-align: center;
-  margin-top: 24px;
   color: var(--text);
   font-size: 14px;
 }
