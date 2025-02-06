@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const signInForm = document.querySelector(".sign-in-form");
   const signUpForm = document.querySelector(".sign-up-form");
   const switchButtons = document.querySelectorAll(".switch-btn");
+  const backBtn = document.getElementById("back-to-login");
   const googleButtons = document.querySelectorAll(".google-btn");
 
   // Handle error dari URL parameter
@@ -42,90 +43,100 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Reset forms function
+  const resetForms = () => {
+    if (signInForm) signInForm.reset();
+    if (signUpForm) signUpForm.reset();
+  };
+
   // Switch between sign in and sign up forms
   switchButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       e.preventDefault();
-      container.classList.toggle("active");
-
-      // Reset forms when switching
-      signInForm.reset();
-      signUpForm.reset();
-
-      // Add animation classes
-      if (container.classList.contains("active")) {
-        signInForm.style.animation = "slideOut 0.8s forwards";
-        signUpForm.style.animation = "slideIn 0.8s forwards";
-      } else {
-        signInForm.style.animation = "slideIn 0.8s forwards";
-        signUpForm.style.animation = "slideOut 0.8s forwards";
-      }
+      container.classList.add("active");
+      resetForms();
     });
   });
 
+  // Back button handler
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      container.classList.remove("active");
+      resetForms();
+    });
+  }
+
   // Handle form submissions
-  signInForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = signInForm.querySelector("input[type='email']").value;
-    const password = signInForm.querySelector("input[type='password']").value;
+  if (signInForm) {
+    signInForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        showLoading();
+        const email = signInForm.querySelector("input[type='email']").value;
+        const password = signInForm.querySelector(
+          "input[type='password']"
+        ).value;
 
-    try {
-      showLoading();
-      // Add your sign in logic here
-      console.log("Sign in:", { email, password });
+        // Add your sign in logic here
+        console.log("Sign in:", { email, password });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
-      // Success message
-      Swal.fire({
-        title: "Success!",
-        text: "Sign in successful",
-        icon: "success",
-        confirmButtonColor: "#a2d6b5",
-      });
-    } catch (error) {
-      console.error("Sign in error:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Failed to sign in. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#a2d6b5",
-      });
-    }
-  });
+        hideLoading();
+        Swal.fire({
+          title: "Success!",
+          text: "Sign in successful",
+          icon: "success",
+          confirmButtonColor: "#a2d6b5",
+        });
+      } catch (error) {
+        hideLoading();
+        console.error("Sign in error:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to sign in. Please try again.",
+          icon: "error",
+          confirmButtonColor: "#a2d6b5",
+        });
+      }
+    });
+  }
 
-  signUpForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const name = signUpForm.querySelector("input[type='text']").value;
-    const email = signUpForm.querySelector("input[type='email']").value;
-    const password = signUpForm.querySelector("input[type='password']").value;
+  if (signUpForm) {
+    signUpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        showLoading();
+        const name = signUpForm.querySelector("input[type='text']").value;
+        const email = signUpForm.querySelector("input[type='email']").value;
+        const password = signUpForm.querySelector(
+          "input[type='password']"
+        ).value;
 
-    try {
-      showLoading();
-      // Add your sign up logic here
-      console.log("Sign up:", { name, email, password });
+        // Add your sign up logic here
+        console.log("Sign up:", { name, email, password });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
-      // Success message
-      Swal.fire({
-        title: "Success!",
-        text: "Account created successfully",
-        icon: "success",
-        confirmButtonColor: "#a2d6b5",
-      });
-    } catch (error) {
-      console.error("Sign up error:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Failed to create account. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#a2d6b5",
-      });
-    }
-  });
+        hideLoading();
+        Swal.fire({
+          title: "Success!",
+          text: "Account created successfully",
+          icon: "success",
+          confirmButtonColor: "#a2d6b5",
+        });
+      } catch (error) {
+        hideLoading();
+        console.error("Sign up error:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to create account. Please try again.",
+          icon: "error",
+          confirmButtonColor: "#a2d6b5",
+        });
+      }
+    });
+  }
 
   // Handle Google authentication
   googleButtons.forEach((button) => {
@@ -136,8 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href =
           "https://backend-berkah.onrender.com/auth/google/login";
       } catch (error) {
-        console.error("Google auth error:", error);
         hideLoading();
+        console.error("Google auth error:", error);
         Swal.fire({
           title: "Error",
           text: "Failed to authenticate with Google. Please try again.",
@@ -254,13 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.location.href = redirectUrl;
   }
-
-  // Add back button functionality
-  const backBtn = document.getElementById("back-to-login");
-
-  backBtn.addEventListener("click", () => {
-    container.classList.remove("active");
-  });
 });
 
 // Helper function untuk generate random string
