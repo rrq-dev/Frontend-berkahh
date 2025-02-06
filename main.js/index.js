@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (token) {
     try {
-      // Decode token untuk mendapatkan informasi user
       const tokenParts = token.split(".");
       if (tokenParts.length !== 3) {
         throw new Error("Invalid token format");
@@ -17,15 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const payload = JSON.parse(atob(tokenParts[1]));
 
-      // Simpan token dan user info
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("userId", payload.user_id);
       localStorage.setItem("userRole", payload.role);
 
-      // Hapus token dari URL tanpa reload halaman
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      // Tampilkan pesan selamat datang untuk login Google
       Swal.fire({
         title: "Login Berhasil!",
         text: "Selamat datang kembali!",
@@ -47,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let loadingInstance = null;
 
-  // Fungsi untuk menampilkan loading
   function showLoading() {
     if (loadingInstance) return loadingInstance;
 
@@ -62,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return loadingInstance;
   }
 
-  // Fungsi untuk menyembunyikan loading
   function hideLoading() {
     if (loadingInstance) {
       Swal.close();
@@ -70,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi checkAuth untuk menangani role dengan lebih baik
   function checkAuth() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
@@ -87,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Fungsi untuk handle error dengan lebih baik
   async function handleError(error, customMessage = null) {
     console.error(error);
     await Swal.fire({
@@ -98,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi base fetch dengan error handling yang lebih baik
   async function baseFetch(url, options = {}) {
     const token = localStorage.getItem("jwtToken");
 
@@ -129,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil data masjid
   async function fetchMasjidData(searchTerm = "") {
     try {
       showLoading();
@@ -154,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      console.log("Data masjid:", data); // Untuk debugging
+      console.log("Data masjid:", data);
       return data;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
@@ -165,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil data user
   async function fetchUserData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
@@ -194,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const users = await response.json();
-      console.log("User data:", users); // Debugging
+      console.log("User data:", users);
 
       const currentUser = users.find((u) => u.id === parseInt(userId));
       if (!currentUser) {
@@ -209,11 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk update profile
   async function updateProfile(formData) {
     try {
       const token = localStorage.getItem("jwtToken");
-      // Untuk FormData, jangan set Content-Type
       const response = await fetch(
         "https://backend-berkah.onrender.com/update/profile",
         {
@@ -223,10 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             Origin: "https://jumatberkah.vercel.app",
             Authorization: `Bearer ${token}`,
-            Token: token,
-            Login: "true",
             "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
-            Bearer: token,
             "X-Requested-With": "XMLHttpRequest",
           },
           body: formData,
@@ -241,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi fetch untuk upload gambar profile
   async function uploadProfilePicture(file) {
     try {
       const token = localStorage.getItem("jwtToken");
@@ -259,10 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             Origin: "https://jumatberkah.vercel.app",
             Authorization: `Bearer ${token}`,
-            Token: token,
-            Login: "true",
             "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
-            Bearer: token,
             "X-Requested-With": "XMLHttpRequest",
           },
           body: formData,
@@ -277,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi fetch untuk detail masjid
   async function fetchMasjidDetail(masjidId) {
     try {
       return await baseFetch(
@@ -290,13 +269,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi fetchAndDisplayProfileData
   async function fetchAndDisplayProfileData() {
     try {
       showLoading();
       const userData = await fetchUserData();
 
-      // Update profile elements
       const elements = {
         username: document.getElementById("username"),
         email: document.getElementById("email"),
@@ -305,14 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
         profilePicture: document.getElementById("profilePicture"),
       };
 
-      // Update text content
       if (elements.username)
         elements.username.textContent = userData.username || "-";
       if (elements.email) elements.email.textContent = userData.email || "-";
       if (elements.bio)
         elements.bio.textContent = userData.bio || "Belum ada bio";
 
-      // Update profile picture
       if (elements.profilePicture && userData.profile_picture) {
         const imageUrl = userData.profile_picture.startsWith("http")
           ? userData.profile_picture
@@ -324,7 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
 
-      // Jika ada preferred_masjid, ambil data masjid
       if (userData.preferred_masjid) {
         try {
           const masjidData = await fetchMasjidDetail(userData.preferred_masjid);
@@ -346,7 +320,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Event listener untuk form edit profile
   document.addEventListener("DOMContentLoaded", () => {
     const editProfileForm = document.getElementById("editProfileForm");
     if (editProfileForm) {
@@ -378,7 +351,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Tambahkan fungsi createMasjidCard
   function createMasjidCard(masjid) {
     const card = document.createElement("div");
     card.className = "masjid-card";
@@ -403,19 +375,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // Tambahkan fungsi getRandomColor
   function getRandomColor() {
-    const colors = [
-      "#4CAF50", // Primary Green
-      "#45a049", // Darker Green
-      "#57c75e", // Lighter Green
-      "#39843d", // Deep Green
-      "#66bb6a", // Soft Green
-    ];
+    const colors = ["#4CAF50", "#45a049", "#57c75e", "#39843d", "#66bb6a"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  // Fungsi untuk mengecek status login
   function checkLoginStatus() {
     const token = localStorage.getItem("jwtToken");
     const logoutBtn = document.querySelector(".logout-btn");
@@ -423,13 +387,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.querySelector(".login-btn");
 
     if (token) {
-      // User sudah login
       if (loginBtn) loginBtn.style.display = "none";
       if (logoutBtn) logoutBtn.style.display = "flex";
       if (profileBtn) profileBtn.style.display = "flex";
       return true;
     } else {
-      // User belum login
       if (loginBtn) loginBtn.style.display = "flex";
       if (logoutBtn) logoutBtn.style.display = "none";
       if (profileBtn) profileBtn.style.display = "none";
@@ -437,7 +399,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk menampilkan daftar masjid dengan filter
   function displayMasjidList(masjidData, searchTerm = "") {
     const searchContainer = document.querySelector(".search-container");
     let masjidContainer = document.querySelector(".masjid-container");
@@ -463,7 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Filter dan sort masjid berdasarkan search term
     let filteredMasjid = masjidData;
     if (searchTerm) {
       filteredMasjid = masjidData.filter(
@@ -472,7 +432,6 @@ document.addEventListener("DOMContentLoaded", () => {
           masjid.address.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-      // Sort: yang match dengan nama di awal
       filteredMasjid.sort((a, b) => {
         const aMatch = a.name
           .toLowerCase()
@@ -509,16 +468,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Tambahkan fungsi showMasjidDetails jika belum ada
   function showMasjidDetails(masjidId) {
     const detailsContainer = document.getElementById("masjid-details");
     if (!detailsContainer) return;
 
     try {
-      // Tampilkan loading
       showLoading();
 
-      // Fetch detail masjid
       fetch(
         `https://backend-berkah.onrender.com/retreive/data/location/${masjidId}`,
         {
@@ -548,7 +504,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }</p>
           `;
 
-            // Add event listener untuk tombol close
             const closeButton = detailsContent.querySelector(".close-details");
             if (closeButton) {
               closeButton.onclick = () => {
@@ -571,7 +526,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
     const { isAuthenticated, role } = checkAuth();
     const logoutBtn = document.getElementById("logout-btn");
@@ -579,14 +533,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const profilePicture = document.getElementById("profilePicture");
 
     if (isAuthenticated) {
-      // User atau admin sudah login
       if (logoutBtn) {
         logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
         logoutBtn.onclick = logout;
         logoutBtn.href = "#";
       }
 
-      // Tampilkan tombol Profile untuk semua user yang sudah login
       if (profileBtn) {
         profileBtn.style.display = "block";
         const profileLink = profileBtn.querySelector("a");
@@ -596,12 +548,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Update profile picture
       if (profilePicture) {
         fetchAndUpdateProfilePicture();
       }
     } else {
-      // Belum login
       if (logoutBtn) {
         logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
         logoutBtn.href = "/auth/login.html";
@@ -618,7 +568,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk logout dengan animasi
   function logout() {
     Swal.fire({
       title: "Apakah Anda yakin ingin keluar?",
@@ -642,7 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  // Setup auto logout setelah periode tidak aktif
+
   function setupAutoLogout() {
     let timeout;
 
@@ -654,19 +603,17 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "warning",
           confirmButtonColor: "#4CAF50",
         }).then(() => {
-          localStorage.clear(); // Menghapus semua data termasuk token
-          window.location.href = "../auth/login.html"; // Redirect ke halaman login
+          localStorage.clear();
+          window.location.href = "../auth/login.html";
         });
-      }, 15 * 60 * 1000); // 15 menit
+      }, 15 * 60 * 1000);
     };
 
-    // Reset timer saat ada interaksi
     window.onload = resetTimer;
     window.onmousemove = resetTimer;
     window.onkeypress = resetTimer;
   }
 
-  // Fungsi untuk menampilkan welcome message
   function showWelcomeMessage() {
     const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
     const isAuthenticated = localStorage.getItem("jwtToken") !== null;
@@ -685,7 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndUpdateProfilePicture() {
     const { token, userId } = checkAuth();
     const profilePicture = document.getElementById("profilePicture");
@@ -709,7 +655,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentUser && currentUser.profile_picture) {
         profilePicture.src = `https://backend-berkah.onrender.com${currentUser.profile_picture}`;
-        // Update URL di localStorage jika diperlukan
         localStorage.setItem("profilePicture", currentUser.profile_picture);
       } else {
         profilePicture.src = "/assets/default-avatar.png";
@@ -720,7 +665,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Update fungsi untuk halaman edit profile
   function updateEditProfilePage(currentUser, masjidData) {
     const elements = {
       username: document.getElementById("username"),
@@ -731,15 +675,12 @@ document.addEventListener("DOMContentLoaded", () => {
       pictureInput: document.getElementById("pictureInput"),
     };
 
-    // Update form fields
     if (elements.username) elements.username.value = currentUser.username || "";
     if (elements.email) elements.email.value = currentUser.email || "";
     if (elements.bio) elements.bio.value = currentUser.bio || "";
 
-    // Update profile picture
     handleProfilePicture();
 
-    // Handle profile picture change
     const changePictureBtn = document.querySelector(".change-picture-btn");
     if (changePictureBtn && elements.pictureInput) {
       changePictureBtn.addEventListener("click", () => {
@@ -751,7 +692,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file) return;
 
         try {
-          // Validasi file
           if (!file.type.startsWith("image/")) {
             throw new Error("File harus berupa gambar");
           }
@@ -760,7 +700,6 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error("Ukuran file maksimal 20MB");
           }
 
-          // Preview image sebelum upload
           const reader = new FileReader();
           reader.onload = (e) => {
             if (elements.profilePicture) {
@@ -769,7 +708,6 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           reader.readAsDataURL(file);
 
-          // Prepare form data
           const formData = new FormData();
           formData.append("profile_picture", file);
           formData.append("user_id", localStorage.getItem("userId"));
@@ -793,10 +731,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const result = await response.json();
 
-          // Simpan URL gambar ke localStorage
           if (result.url) {
             localStorage.setItem("profilePicture", result.url);
-            // Update tampilan gambar
             handleProfilePicture();
           }
 
@@ -834,7 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk setup pencarian real-time
   function setupSearch() {
     const searchInput = document.querySelector(
       'input[placeholder="Cari masjid..."]'
@@ -847,13 +782,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Fetch initial data
     fetchMasjidData().then((data) => {
       masjidDataCache = data;
       displayMasjidList(data);
     });
 
-    // Real-time search
     searchInput.addEventListener("input", (e) => {
       const searchTerm = e.target.value.trim();
       if (masjidDataCache) {
@@ -861,7 +794,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Button click search
     searchButton.addEventListener("click", () => {
       const searchTerm = searchInput.value.trim();
       if (masjidDataCache) {
@@ -870,13 +802,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Initialize app
   async function initialize() {
     try {
-      // Check login status
       const isLoggedIn = checkLoginStatus();
 
-      // Show welcome message
       const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
       if (!hasShownWelcome) {
         await Swal.fire({
@@ -892,7 +821,6 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.setItem("hasShownWelcome", "true");
       }
 
-      // Setup page
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
@@ -901,7 +829,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setupSearch();
       }
 
-      // Setup logout button
       const logoutBtn = document.querySelector(".logout-btn");
       if (logoutBtn) {
         logoutBtn.addEventListener("click", logout);
@@ -912,7 +839,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan event listener untuk navbar buttons
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
@@ -925,13 +851,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Event listener untuk DOM Content Loaded
   initialize().catch((error) => {
     console.error("Fatal initialization error:", error);
     handleError(error, "Terjadi kesalahan yang tidak diharapkan");
   });
 
-  // Tambahkan CSS untuk loading spinner
   const style = document.createElement("style");
   style.textContent = `
     .loading-spinner {
