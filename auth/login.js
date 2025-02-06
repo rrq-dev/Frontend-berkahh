@@ -66,8 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   switchButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       e.preventDefault();
-      container.classList.add("active");
-      resetForms();
+      container.classList.toggle("active");
     });
   });
 
