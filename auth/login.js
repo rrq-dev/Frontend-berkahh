@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const signUpForm = document.querySelector("#registerForm");
   const googleButtons = document.querySelectorAll(".google-btn");
   const submitButtons = document.querySelectorAll('button[type="submit"]');
+  const backToLoginBtn = document.getElementById("backToLogin");
 
   // Handle error dari URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -317,6 +318,25 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       }
+    });
+  }
+
+  // Toggle password visibility
+  document.querySelectorAll(".toggle-password").forEach((toggle) => {
+    toggle.addEventListener("click", function () {
+      const passwordInput = this.previousElementSibling;
+      const type =
+        passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      this.classList.toggle("fa-eye");
+      this.classList.toggle("fa-eye-slash");
+    });
+  });
+
+  // Back to login button click event
+  if (backToLoginBtn) {
+    backToLoginBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
     });
   }
 
