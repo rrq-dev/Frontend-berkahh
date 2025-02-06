@@ -154,12 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      console.log("Data masjid:", data); // Debugging
-
-      if (!Array.isArray(data)) {
-        throw new Error("Format data masjid tidak valid");
-      }
-
+      console.log("Data masjid:", data); // Untuk debugging
       return data;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
@@ -420,51 +415,66 @@ document.addEventListener("DOMContentLoaded", () => {
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  // Perbaikan fungsi displayMasjidList
-  function displayMasjidList(masjidData, searchTerm = "") {
-    const masjidContainer = document.querySelector(".masjid-list");
-    if (!masjidContainer) return;
+  // Fungsi untuk menampilkan daftar masjid
+  function displayMasjidList(masjidData) {
+    // Cari container untuk daftar masjid
+    const container = document.querySelector(".container");
+    if (!container) {
+      console.error("Container untuk daftar masjid tidak ditemukan");
+      return;
+    }
 
-    try {
-      if (!Array.isArray(masjidData) || masjidData.length === 0) {
-        masjidContainer.innerHTML = `
-          <div class="no-results">
-            <i class="fas fa-mosque"></i>
-            <p>Tidak ada masjid yang ditemukan</p>
-          </div>
-        `;
-        return;
-      }
+    // Buat atau dapatkan section untuk daftar masjid
+    let masjidList = container.querySelector(".masjid-list");
+    if (!masjidList) {
+      masjidList = document.createElement("div");
+      masjidList.className = "masjid-list";
+      container.appendChild(masjidList);
+    }
 
-      // Sort masjid berdasarkan kesesuaian dengan searchTerm
-      const sortedMasjidData = [...masjidData].sort((a, b) => {
-        if (searchTerm) {
-          const aMatch = a.name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase());
-          const bMatch = b.name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase());
-          if (aMatch && !bMatch) return -1;
-          if (!aMatch && bMatch) return 1;
-        }
-        return 0;
-      });
+    // Clear existing content
+    masjidList.innerHTML = "";
 
-      masjidContainer.innerHTML = "";
-      sortedMasjidData.forEach((masjid) => {
-        const masjidCard = createMasjidCard(masjid);
-        masjidContainer.appendChild(masjidCard);
-      });
-    } catch (error) {
-      console.error("Error in displayMasjidList:", error);
-      masjidContainer.innerHTML = `
-        <div class="error-message">
-          <i class="fas fa-exclamation-circle"></i>
-          <p>Terjadi kesalahan saat menampilkan data</p>
+    // Tampilkan pesan jika tidak ada data
+    if (!Array.isArray(masjidData) || masjidData.length === 0) {
+      masjidList.innerHTML = `
+        <div class="no-data">
+          <i class="fas fa-mosque"></i>
+          <p>Tidak ada masjid ditemukan</p>
         </div>
       `;
+      return;
     }
+
+    // Tampilkan setiap masjid
+    masjidData.forEach((masjid) => {
+      const card = document.createElement("div");
+      card.className = "masjid-card";
+      card.innerHTML = `
+        <div class="masjid-image">
+          <img src="${masjid.image_url || "/assets/default-mosque.png"}" 
+               alt="${masjid.name}" 
+               onerror="this.src='/assets/default-mosque.png'"
+               loading="lazy">
+        </div>
+        <div class="masjid-info">
+          <h3>${masjid.name || "Nama tidak tersedia"}</h3>
+          <p><i class="fas fa-map-marker-alt"></i> ${
+            masjid.address || "Alamat tidak tersedia"
+          }</p>
+          <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+            masjid.friday_prayer_time || "Tidak tersedia"
+          }</p>
+          <p><i class="fas fa-users"></i> Kapasitas: ${
+            masjid.capacity || "Tidak tersedia"
+          }</p>
+          <button onclick="showMasjidDetails(${masjid.id})" class="detail-btn">
+            <i class="fas fa-info-circle"></i> Detail
+          </button>
+        </div>
+      `;
+      masjidList.appendChild(card);
+    });
   }
 
   // Tambahkan fungsi showMasjidDetails jika belum ada
@@ -820,7 +830,7 @@ document.addEventListener("DOMContentLoaded", () => {
             )
           : currentMasjidData;
 
-        displayMasjidList(filteredMasjidData, searchTerm);
+        displayMasjidList(filteredMasjidData);
       } catch (error) {
         console.error("Search error:", error);
         await handleError(error, "Gagal mencari masjid");
@@ -840,23 +850,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // Perbaikan initialize untuk halaman profile
   async function initialize() {
     try {
-      showWelcomeMessage(); // Show welcome message first
-
-      const isAuthenticated = localStorage.getItem("jwtToken") !== null;
-      updateAuthLinks();
+      showWelcomeMessage();
 
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
-      const isProfilePage = window.location.pathname.includes("/profile/");
 
       if (isHomePage) {
         setupSearch();
         const masjidData = await fetchMasjidData();
-        displayMasjidList(masjidData);
-      } else if (isProfilePage && isAuthenticated) {
-        const userData = await fetchUserData();
-        await displayProfileData(userData);
+        if (Array.isArray(masjidData)) {
+          displayMasjidList(masjidData);
+        } else {
+          console.error("Data masjid bukan array:", masjidData);
+        }
       }
     } catch (error) {
       console.error("Initialization error:", error);
