@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <title>Login - Jumat Berkah</title>
+    <title>Register - Jumat Berkah</title>
     <link rel="stylesheet" href="login.css" />
     <link
       rel="stylesheet"
@@ -13,47 +13,43 @@
   </head>
   <body>
     <div class="container">
-      <div class="content sign-in">
+      <div class="content sign-up">
         <div class="image-box">
           <img
-            src="../assets/login.svg"
-            alt="Login Illustration"
+            src="../assets/register.svg"
+            alt="Register Illustration"
             loading="lazy"
           />
         </div>
-        <form id="loginForm" class="form">
-          <h2 class="title">Selamat Datang Kembali</h2>
-          <p class="subtitle">Masuk untuk melanjutkan</p>
+        <form id="registerForm" class="form">
+          <h2 class="title">Buat Akun</h2>
+          <p class="subtitle">Daftar untuk memulai</p>
 
           <div class="input-box">
-            <input type="email" id="login-email" name="email" required />
-            <label for="login-email">Email</label>
+            <input type="text" id="register-name" name="name" required />
+            <label for="register-name">Nama Lengkap</label>
+          </div>
+
+          <div class="input-box">
+            <input type="email" id="register-email" name="email" required />
+            <label for="register-email">Email</label>
           </div>
 
           <div class="input-box password-input">
             <input
               type="password"
-              id="login-password"
+              id="register-password"
               name="password"
               required
             />
-            <label for="login-password">Password</label>
+            <label for="register-password">Password</label>
             <i class="fas fa-eye-slash toggle-password"></i>
           </div>
 
-          <div class="forgot-password">
-            <a
-              href="reset-password/reset-password.html"
-              id="forgot-password-link"
-              >Lupa Password?</a
-            >
-          </div>
-
-          <button type="submit" class="submit-btn">Masuk</button>
+          <button type="submit" class="submit-btn">Daftar</button>
 
           <p class="switch-text">
-            Belum punya akun?
-            <a href="register.html" class="switch-btn">Daftar</a>
+            Sudah punya akun? <a href="login.html" class="switch-btn">Masuk</a>
           </p>
         </form>
       </div>

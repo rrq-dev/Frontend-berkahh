@@ -1,9 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.querySelector(".container");
-  const signInForm = document.querySelector(".sign-in-form");
-  const signUpForm = document.querySelector(".sign-up-form");
-  const switchButtons = document.querySelectorAll(".switch-btn");
-  const backBtn = document.getElementById("back-to-login");
+  const signInForm = document.querySelector("#loginForm");
+  const signUpForm = document.querySelector("#registerForm");
   const googleButtons = document.querySelectorAll(".google-btn");
   const submitButtons = document.querySelectorAll('button[type="submit"]');
 
@@ -50,32 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     redirectBasedOnRole(token);
   }
 
-  // Reset forms function
-  const resetForms = () => {
-    if (signInForm) signInForm.reset();
-    if (signUpForm) signUpForm.reset();
-  };
-
-  // Switch to login form with animation
-  const switchToLogin = () => {
-    container.classList.remove("active");
-    resetForms();
-  };
-
-  // Switch form handlers
-  switchButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      e.preventDefault();
-      container.classList.toggle("active");
-    });
-  });
-
-  // Back button handler
-  if (backBtn) {
-    backBtn.addEventListener("click", switchToLogin);
-  }
-
-  // Login function
   async function login(email, password) {
     try {
       const response = await fetch(
@@ -94,23 +65,67 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(errorData.message || "Login failed");
       }
 
-      const data = await response.json();
-
-      // Simpan data user ke localStorage
-      localStorage.setItem("jwtToken", data.token);
-      localStorage.setItem(
-        "userData",
-        JSON.stringify({
-          name: data.name,
-          email: data.email,
-          role: data.role,
-        })
-      );
-
-      return data;
+      return await response.json();
     } catch (error) {
       throw error;
     }
+  }
+
+  function redirectBasedOnRole(data) {
+    localStorage.setItem("jwtToken", data.token);
+    localStorage.setItem(
+      "userData",
+      JSON.stringify({
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      })
+    );
+
+    if (data.role === "admin") {
+      window.location.href = "https://jumatberkah.vercel.app/admin/admin.html";
+    } else {
+      window.location.href = "https://jumatberkah.vercel.app/";
+    }
+  }
+
+  if (signInForm) {
+    signInForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const submitBtn = signInForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      try {
+        showLoading();
+        const email = signInForm.querySelector('input[type="email"]').value;
+        const password = signInForm.querySelector(
+          'input[type="password"]'
+        ).value;
+
+        const data = await login(email, password);
+
+        hideLoading();
+        await Swal.fire({
+          title: "Login Berhasil!",
+          text: "Selamat datang kembali!",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        redirectBasedOnRole(data);
+      } catch (error) {
+        hideLoading();
+        console.error("Login error:", error);
+        Swal.fire({
+          title: "Gagal Login",
+          text: error.message || "Gagal masuk. Silakan coba lagi.",
+          icon: "error",
+        });
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
   }
 
   // Register function
@@ -144,53 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Update form submission handlers
-  if (signInForm) {
-    signInForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const submitBtn = signInForm.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-
-      try {
-        showLoading();
-        const email = signInForm.querySelector('input[type="email"]').value;
-        const password = signInForm.querySelector(
-          'input[type="password"]'
-        ).value;
-
-        const data = await login(email, password);
-
-        hideLoading();
-        await Swal.fire({
-          title: "Login Berhasil!",
-          text: "Selamat datang kembali!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500,
-          background: "#0a170f",
-          color: "#e0f1e5",
-          iconColor: "#a2d6b5",
-        });
-
-        // Redirect based on user role
-        redirectBasedOnRole(data.token);
-      } catch (error) {
-        hideLoading();
-        console.error("Login error:", error);
-        Swal.fire({
-          title: "Gagal Login",
-          text: error.message || "Gagal masuk. Silakan coba lagi.",
-          icon: "error",
-          confirmButtonColor: "#a2d6b5",
-          background: "#0a170f",
-          color: "#e0f1e5",
-        });
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-  }
-
+  // Register form submission
   if (signUpForm) {
     signUpForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -205,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
           'input[type="password"]'
         ).value;
 
-        await register(name, email, password);
+        const data = await register(name, email, password);
 
         hideLoading();
         await Swal.fire({
@@ -219,9 +188,10 @@ document.addEventListener("DOMContentLoaded", () => {
           confirmButtonColor: "#a2d6b5",
         });
 
-        switchToLogin();
+        window.location.href = "login.html";
       } catch (error) {
         hideLoading();
+        console.error("Registration error:", error);
         Swal.fire({
           title: "Gagal Registrasi",
           text: error.message || "Gagal membuat akun. Silakan coba lagi.",
@@ -259,10 +229,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle forgot password
   const forgotPasswordLink = document.getElementById("forgot-password-link");
-  forgotPasswordLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.location.href = "reset-password/reset-password.html";
-  });
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = "reset-password/reset-password.html";
+    });
+  }
 
   // Handle reset password token jika ada
   const resetToken = urlParams.get("resetToken");
@@ -346,22 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
-  }
-
-  // Helper function to redirect based on user role
-  function redirectBasedOnRole(token) {
-    try {
-      const decoded = parseJwt(token);
-      const redirectUrl =
-        decoded.role === "admin"
-          ? "https://jumatberkah.vercel.app/admin/admin.html"
-          : "https://jumatberkah.vercel.app/";
-
-      window.location.href = redirectUrl;
-    } catch (error) {
-      console.error("Error redirecting:", error);
-      localStorage.removeItem("jwtToken");
-    }
   }
 
   // Helper function to parse JWT
