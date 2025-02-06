@@ -23,13 +23,27 @@
           <i class="fas fa-mosque"></i> Jumat Berkah
         </a>
         <ul class="nav-links">
-          <li id="profile-btn" style="display: none">
-            <a href="profile/profile.html" class="navbar-button">
-              <i class="fas fa-user-edit"></i> Edit Profile
+          <li>
+            <a
+              href="profile/profile.html"
+              class="navbar-button profile-btn"
+              style="display: none"
+            >
+              <i class="fas fa-user"></i> Profile
             </a>
           </li>
           <li>
-            <a href="auth/login.html" id="logout-btn" class="navbar-button">
+            <a
+              href="#"
+              class="navbar-button logout-btn"
+              style="display: none"
+              onclick="logout()"
+            >
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+          <li>
+            <a href="auth/login.html" class="navbar-button login-btn">
               <i class="fas fa-sign-in-alt"></i> Sign in
             </a>
           </li>
@@ -37,7 +51,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container main-content">
       <div class="welcome-section">
         <h1><i class="fas fa-mosque"></i> Daftar Masjid</h1>
         <p>Temukan masjid terdekat untuk ibadah Jumat</p>
