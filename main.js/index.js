@@ -102,14 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function baseFetch(url, options = {}) {
     const token = localStorage.getItem("jwtToken");
     const defaultHeaders = {
-      Origin: "https://jumatberkah.vercel.app",
       "Content-Type": "application/json",
-      Accept: "application/json",
       Authorization: token ? `Bearer ${token}` : "",
-      Token: token || "",
-      Login: "true",
-      "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
-      Bearer: token || "",
       "X-Requested-With": "XMLHttpRequest",
     };
 
@@ -123,31 +117,48 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     };
 
-    try {
-      const response = await fetch(url, fetchOptions);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch(url, fetchOptions);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Handle unauthorized
+        localStorage.clear();
+        window.location.href = "/auth/login.html";
+        throw new Error("Sesi anda telah berakhir");
       }
-      return await response.json();
-    } catch (error) {
-      console.error("Fetch error:", error);
-      throw error;
+      throw new Error(`Request failed with status ${response.status}`);
     }
+
+    return await response.json();
   }
 
-  // Fungsi fetch untuk data masjid
+  // Fungsi fetch untuk data masjid dengan error handling yang lebih baik
   async function fetchMasjidData(searchTerm = "") {
     try {
+      showLoading();
       const baseUrl =
         "https://backend-berkah.onrender.com/retreive/data/location";
       const url = searchTerm
         ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
         : baseUrl;
 
-      return await baseFetch(url, { method: "GET" });
+      const data = await baseFetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!Array.isArray(data)) {
+        throw new Error("Format data tidak valid");
+      }
+
+      return data;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
       throw new Error("Gagal mengambil data masjid");
+    } finally {
+      hideLoading();
     }
   }
 
@@ -901,20 +912,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const { isAuthenticated } = checkAuth();
 
       updateAuthLinks();
-      showWelcomeMessage();
-      setupAutoLogout();
 
-      const isProfilePage = window.location.pathname.includes("/profile/");
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
 
-      if (isProfilePage && isAuthenticated) {
-        await fetchAndDisplayProfileData();
-      } else if (isHomePage) {
+      if (isHomePage) {
         setupSearch();
-        const masjidData = await fetchMasjidData();
-        displayMasjidList(masjidData);
+        try {
+          const masjidData = await fetchMasjidData();
+          if (masjidData && Array.isArray(masjidData)) {
+            displayMasjidList(masjidData);
+          } else {
+            throw new Error("Data masjid tidak valid");
+          }
+        } catch (error) {
+          await handleError(error, "Gagal memuat data masjid");
+        }
+      }
+
+      // Show welcome message after successful data load
+      if (isAuthenticated) {
+        showWelcomeMessage();
+        setupAutoLogout();
       }
     } catch (error) {
       console.error("Initialization error:", error);
@@ -938,7 +958,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event listener untuk DOM Content Loaded
   initialize().catch((error) => {
     console.error("Fatal initialization error:", error);
-    hideLoading();
     handleError(error, "Terjadi kesalahan yang tidak diharapkan");
   });
 
