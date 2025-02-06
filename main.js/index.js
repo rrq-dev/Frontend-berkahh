@@ -212,39 +212,63 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fungsi untuk logout
-  function logout() {
-    Swal.fire({
-      title: "Apakah Anda yakin?",
-      text: "Anda akan keluar dari aplikasi",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, Logout!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
+  async function logout() {
+    try {
+      const result = await Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: "Anda akan keluar dari aplikasi",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#4CAF50",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Logout!",
+        cancelButtonText: "Batal",
+      });
+
       if (result.isConfirmed) {
-        // Hapus semua data user dari localStorage
+        // Panggil endpoint logout
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/logout",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Gagal melakukan logout");
+        }
+
+        // Hapus semua data dari localStorage
         localStorage.clear();
 
         // Update tampilan navbar
         updateAuthLinks();
 
         // Tampilkan pesan sukses
-        Swal.fire({
+        await Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
           icon: "success",
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
-          didClose: () => {
-            // Redirect ke halaman utama
-            window.location.href = "https://jumatberkah.vercel.app/";
-          },
         });
+
+        // Redirect ke halaman utama
+        window.location.href = "https://jumatberkah.vercel.app/";
       }
-    });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Terjadi kesalahan saat logout",
+        icon: "error",
+        confirmButtonColor: "#4CAF50",
+      });
+    }
   }
 
   // Fungsi untuk mengambil dan menampilkan data profil
