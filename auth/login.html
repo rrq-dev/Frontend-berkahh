@@ -15,36 +15,65 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/favicon.png" />
   </head>
   <body>
     <div class="container">
       <!-- Login Form -->
       <div class="content sign-in">
         <div class="image-box">
-          <img src="../assets/login.svg" alt="Login Illustration" />
+          <img
+            src="../assets/login.svg"
+            alt="Login Illustration"
+            loading="lazy"
+          />
         </div>
         <form id="loginForm" class="form">
           <img src="../assets/logo.png" alt="Logo" class="logo" />
-          <h2 class="title">Welcome Back</h2>
-          <p class="subtitle">Sign in to continue</p>
+          <h2 class="title">Selamat Datang Kembali</h2>
+          <p class="subtitle">Masuk untuk melanjutkan</p>
+
           <div class="input-box">
-            <input type="email" required />
-            <label>Email</label>
+            <input type="email" id="login-email" name="email" required />
+            <label for="login-email">Email</label>
           </div>
-          <div class="input-box">
-            <input type="password" required />
-            <label>Password</label>
+
+          <div class="input-box password-input">
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              required
+            />
+            <label for="login-password">Password</label>
+            <i class="fas fa-eye-slash toggle-password"></i>
           </div>
-          <button type="submit" class="submit-btn">Sign in</button>
+
+          <div class="forgot-password">
+            <a
+              href="reset-password/reset-password.html"
+              id="forgot-password-link"
+              >Lupa Password?</a
+            >
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <span>Masuk</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+
           <div class="divider">
-            <span>or</span>
+            <span>atau</span>
           </div>
+
           <button type="button" class="google-btn">
             <img src="../assets/google-icon.png" alt="Google" />
-            Sign in with Google
+            Masuk dengan Google
           </button>
+
           <p class="switch-text">
-            Don't have an account? <a href="#" class="switch-btn">Sign up</a>
+            Belum punya akun? <a href="#" class="switch-btn">Daftar</a>
           </p>
         </form>
       </div>
@@ -52,47 +81,55 @@
       <!-- Register Form -->
       <div class="content sign-up">
         <div class="image-box">
-          <img src="../assets/register.svg" alt="Register Illustration" />
+          <img
+            src="../assets/register.svg"
+            alt="Register Illustration"
+            loading="lazy"
+          />
         </div>
         <form id="registerForm" class="form">
           <button type="button" class="back-btn" id="back-to-login">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15 18L9 12L15 6"
-                stroke="currentColor"
-                stroke-width="2"
-              />
-            </svg>
-            Back to login
+            <i class="fas fa-arrow-left"></i>
+            Kembali ke login
           </button>
+
           <img src="../assets/logo.png" alt="Logo" class="logo" />
-          <h2 class="title">Create Account</h2>
-          <p class="subtitle">Sign up to get started</p>
+          <h2 class="title">Buat Akun</h2>
+          <p class="subtitle">Daftar untuk memulai</p>
+
           <div class="input-box">
-            <input type="text" required />
-            <label>Full Name</label>
+            <input type="text" id="register-name" name="name" required />
+            <label for="register-name">Nama Lengkap</label>
           </div>
+
           <div class="input-box">
-            <input type="email" required />
-            <label>Email</label>
+            <input type="email" id="register-email" name="email" required />
+            <label for="register-email">Email</label>
           </div>
-          <div class="input-box">
-            <input type="password" required />
-            <label>Password</label>
+
+          <div class="input-box password-input">
+            <input
+              type="password"
+              id="register-password"
+              name="password"
+              required
+            />
+            <label for="register-password">Password</label>
+            <i class="fas fa-eye-slash toggle-password"></i>
           </div>
-          <button type="submit" class="submit-btn">Sign up</button>
+
+          <button type="submit" class="submit-btn">
+            <span>Daftar</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+
           <div class="divider">
-            <span>or</span>
+            <span>atau</span>
           </div>
+
           <button type="button" class="google-btn">
             <img src="../assets/google-icon.png" alt="Google" />
-            Sign up with Google
+            Daftar dengan Google
           </button>
         </form>
       </div>

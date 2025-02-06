@@ -95,6 +95,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
+
+      // Simpan data user ke localStorage
+      localStorage.setItem("jwtToken", data.token);
+      localStorage.setItem(
+        "userData",
+        JSON.stringify({
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        })
+      );
+
       return data;
     } catch (error) {
       throw error;
@@ -148,15 +160,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const data = await login(email, password);
 
-        // Save token
-        localStorage.setItem("jwtToken", data.token);
-
         hideLoading();
         await Swal.fire({
-          title: "Success!",
-          text: "Login successful",
+          title: "Login Berhasil!",
+          text: "Selamat datang kembali!",
           icon: "success",
-          confirmButtonColor: "#a2d6b5",
+          showConfirmButton: false,
+          timer: 1500,
+          background: "#0a170f",
+          color: "#e0f1e5",
+          iconColor: "#a2d6b5",
         });
 
         // Redirect based on user role
@@ -165,10 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
         hideLoading();
         console.error("Login error:", error);
         Swal.fire({
-          title: "Error",
-          text: error.message || "Failed to login. Please try again.",
+          title: "Gagal Login",
+          text: error.message || "Gagal masuk. Silakan coba lagi.",
           icon: "error",
           confirmButtonColor: "#a2d6b5",
+          background: "#0a170f",
+          color: "#e0f1e5",
         });
       } finally {
         submitBtn.disabled = false;
@@ -194,21 +209,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         hideLoading();
         await Swal.fire({
-          title: "Success!",
-          text: "Account created successfully! Please login.",
+          title: "Registrasi Berhasil!",
+          text: "Akun Anda telah dibuat. Silakan login.",
           icon: "success",
+          background: "#0a170f",
+          color: "#e0f1e5",
+          iconColor: "#a2d6b5",
+          showConfirmButton: true,
           confirmButtonColor: "#a2d6b5",
         });
 
-        // Switch to login form after successful registration
         switchToLogin();
       } catch (error) {
         hideLoading();
-        console.error("Registration error:", error);
         Swal.fire({
-          title: "Error",
-          text: error.message || "Failed to create account. Please try again.",
+          title: "Gagal Registrasi",
+          text: error.message || "Gagal membuat akun. Silakan coba lagi.",
           icon: "error",
+          background: "#0a170f",
+          color: "#e0f1e5",
           confirmButtonColor: "#a2d6b5",
         });
       } finally {
@@ -408,8 +427,8 @@ document.head.appendChild(style);
 // Loading state functions
 function showLoading() {
   Swal.fire({
-    title: "Please wait...",
-    text: "Processing your request",
+    title: "Mohon tunggu...",
+    html: "Sedang memproses permintaan Anda",
     allowOutsideClick: false,
     showConfirmButton: false,
     willOpen: () => {
