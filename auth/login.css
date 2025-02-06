@@ -434,7 +434,7 @@ body::before {
   pointer-events: none;
 }
 
-/* Tambahkan CSS berikut untuk register form */
+/*Tambahkan CSS berikut untuk register form */
 .register-container {
   display: flex;
   width: 100%;
@@ -468,9 +468,10 @@ body::before {
   max-width: 400px;
 }
 
-.submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+/* Gaya tombol submit untuk form registrasi */
+.submit-btn {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--background);
 }
 
 .content.sign-up .input-box {

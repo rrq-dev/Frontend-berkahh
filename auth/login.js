@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function register(name, email, password) {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.comregister",
+        "https://backend-berkah.onrender.com/register",
         {
           method: "POST",
           headers: {
