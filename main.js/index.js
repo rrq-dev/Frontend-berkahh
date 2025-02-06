@@ -128,6 +128,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Tambahkan fungsi createMasjidCard
+  function createMasjidCard(masjid) {
+    const card = document.createElement("div");
+    card.className = "masjid-card";
+
+    card.innerHTML = `
+      <div class="masjid-info">
+        <h3>${masjid.name || "Nama tidak tersedia"}</h3>
+        <p><i class="fas fa-map-marker-alt"></i> ${
+          masjid.address || "Alamat tidak tersedia"
+        }</p>
+        <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+          masjid.friday_prayer_time || "Waktu tidak tersedia"
+        }</p>
+      </div>
+      <div class="masjid-actions">
+        <button onclick="showMasjidDetails('${masjid.id}')" class="detail-btn">
+          <i class="fas fa-info-circle"></i> Detail
+        </button>
+      </div>
+    `;
+
+    return card;
+  }
+
+  // Tambahkan fungsi getRandomColor
+  function getRandomColor() {
+    const colors = [
+      "#4CAF50", // Primary Green
+      "#45a049", // Darker Green
+      "#57c75e", // Lighter Green
+      "#39843d", // Deep Green
+      "#66bb6a", // Soft Green
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
   // Perbaikan fungsi displayMasjidList
   function displayMasjidList(masjidData) {
     const masjidContainer = document.getElementById("masjid-list");
@@ -157,6 +194,68 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>Terjadi kesalahan saat menampilkan data</p>
         </div>
       `;
+    }
+  }
+
+  // Tambahkan fungsi showMasjidDetails jika belum ada
+  function showMasjidDetails(masjidId) {
+    const detailsContainer = document.getElementById("masjid-details");
+    if (!detailsContainer) return;
+
+    try {
+      // Tampilkan loading
+      showLoading();
+
+      // Fetch detail masjid
+      fetch(
+        `https://backend-berkah.onrender.com/retreive/data/location/${masjidId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((masjid) => {
+          detailsContainer.style.display = "flex";
+          const detailsContent =
+            detailsContainer.querySelector(".details-content");
+          if (detailsContent) {
+            detailsContent.innerHTML = `
+            <button class="close-details">
+              <i class="fas fa-times"></i>
+            </button>
+            <h2>${masjid.name}</h2>
+            <p><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
+            <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+              masjid.friday_prayer_time
+            }</p>
+            <p><i class="fas fa-info-circle"></i> ${
+              masjid.description || "Tidak ada deskripsi"
+            }</p>
+          `;
+
+            // Add event listener untuk tombol close
+            const closeButton = detailsContent.querySelector(".close-details");
+            if (closeButton) {
+              closeButton.onclick = () => {
+                detailsContainer.style.display = "none";
+              };
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching masjid details:", error);
+          handleError(error, "Gagal memuat detail masjid");
+        })
+        .finally(() => {
+          hideLoading();
+        });
+    } catch (error) {
+      console.error("Error in showMasjidDetails:", error);
+      hideLoading();
+      handleError(error, "Terjadi kesalahan saat menampilkan detail");
     }
   }
 
@@ -612,12 +711,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Navbar button effects untuk semua halaman
+  // Perbaikan event listener untuk navbar buttons
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
-        const randomColor = getRandomColor(); // Memanggil fungsi getRandomColor
-        button.style.backgroundColor = randomColor;
+        button.style.backgroundColor = getRandomColor();
       });
 
       button.addEventListener("mouseout", () => {
