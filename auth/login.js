@@ -70,15 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Tambahkan event listener untuk tombol "Daftar"
-  const switchBtn = document.querySelector(".switch-btn");
-  if (switchBtn) {
-    switchBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      container.classList.toggle("active");
-    });
-  }
-
   // Back button handler
   if (backBtn) {
     backBtn.addEventListener("click", switchToLogin);
