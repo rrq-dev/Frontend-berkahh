@@ -76,7 +76,9 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 /* Styling scrollbar */
@@ -96,30 +98,34 @@ body::before {
 .logo {
   width: 48px;
   height: 48px;
+  margin-bottom: 1rem;
 }
 
 .title {
   font-size: 2rem;
   color: var(--text);
   font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .subtitle {
   color: var(--text);
   opacity: 0.7;
   text-align: center;
+  margin-bottom: 2rem;
 }
 
-/* Input Styling */
 .input-box {
   position: relative;
   width: 100%;
   max-width: 400px;
+  margin-bottom: 1.5rem;
 }
 
 .input-box input {
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 1.2rem;
   background: rgba(162, 214, 181, 0.05);
   border: 1px solid rgba(162, 214, 181, 0.2);
   border-radius: 12px;
@@ -130,7 +136,7 @@ body::before {
 
 .input-box input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 10px rgba(162, 214, 181, 0.1);
+  box-shadow: 0 0 15px rgba(162, 214, 181, 0.1);
   outline: none;
 }
 
@@ -155,43 +161,29 @@ body::before {
   border-radius: 4px;
 }
 
-/* Button Styling */
-.submit-btn,
+/* Google Button Styling */
 .google-btn {
   width: 100%;
   max-width: 400px;
   padding: 1rem;
+  background: transparent;
+  border: 1px solid rgba(162, 214, 181, 0.2);
   border-radius: 12px;
+  color: var(--text);
   font-size: 1rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.8rem;
-}
-
-.submit-btn {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  border: none;
-  color: var(--background);
-}
-
-.submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(162, 214, 181, 0.3);
-}
-
-.google-btn {
-  background: transparent;
-  border: 1px solid rgba(162, 214, 181, 0.2);
-  color: var(--text);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .google-btn:hover {
   background: rgba(162, 214, 181, 0.05);
   border-color: var(--primary);
+  transform: translateY(-2px);
 }
 
 .google-btn img {
@@ -199,7 +191,6 @@ body::before {
   height: 24px;
 }
 
-/* Divider */
 .divider {
   width: 100%;
   max-width: 400px;
@@ -208,15 +199,151 @@ body::before {
   gap: 1rem;
   color: var(--text);
   opacity: 0.7;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
 }
 
 .divider::before,
 .divider::after {
-  content: "";
+  content: '';
   flex: 1;
   height: 1px;
   background: rgba(162, 214, 181, 0.2);
+}
+
+/* Switch text styling */
+.switch-text {
+  text-align: center;
+  color: var(--text);
+  margin-top: 1rem;
+}
+
+.switch-text a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.switch-text a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem;
+    height: auto;
+    min-height: 550px;
+  }
+
+  .content {
+    flex-direction: column;
+  }
+
+  .image-box {
+    display: none;
+  }
+
+  .form {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .input-box,
+  .submit-btn,
+  .google-btn {
+    max-width: 100%;
+  }
+}
+
+/* Password input styling */
+.password-input {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
+/* Forgot password link */
+.forgot-password {
+  align-self: flex-end;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+}
+
+.forgot-password a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Back button styling */
+.back-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  color: var(--primary);
+}
+
+.back-btn i {
+  font-size: 1.2rem;
+}
+
+/* Button Styling */
+.submit-btn {
+  width: 100%;
+  max-width: 400px;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--background);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(162, 214, 181, 0.3);
 }
 
 /* Links */
@@ -278,31 +405,6 @@ body::before {
 
 .toggle-password:hover {
   color: var(--primary);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .container {
-    margin: 1rem;
-    height: auto;
-    min-height: 550px;
-  }
-
-  .content {
-    flex-direction: column;
-  }
-
-  .image-box {
-    display: none;
-  }
-
-  .form {
-    padding: 2rem 1.5rem;
-  }
-
-  .title {
-    font-size: 1.75rem;
-  }
 }
 
 /* Animation classes */
