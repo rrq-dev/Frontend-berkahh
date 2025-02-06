@@ -301,7 +301,6 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 20px;
-  background: #2e7d32;
 }
 
 .login-box {
@@ -320,39 +319,37 @@ body {
   gap: 20px;
 }
 
-.google-btn {
+.button.input-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 300px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 4px;
+  gap: 10px;
+  width: auto;
+  height: 45px;
+  margin: 35px 0;
   background: #2e7d32;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Roboto", sans-serif;
-  font-size: 14px;
-  color: white;
-  font-weight: 500;
-  letter-spacing: 0.25px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  padding: 0 25px;
 }
 
-.google-btn:hover {
+.button.input-box:hover {
   background: #1b5e20;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.google-btn img {
-  width: 18px;
-  height: 18px;
+.button.input-box img {
+  width: 20px;
+  height: 20px;
   object-fit: contain;
 }
 
-.google-btn span {
+.button.input-box span {
   font-weight: 500;
 }
 
@@ -406,13 +403,14 @@ body {
     padding: 20px;
   }
 
-  .google-btn {
-    max-width: 100%;
+  .button.input-box {
+    height: 40px;
     font-size: 14px;
+    padding: 0 20px;
   }
 
-  .google-btn img {
-    width: 16px;
-    height: 16px;
+  .button.input-box img {
+    width: 18px;
+    height: 18px;
   }
 }
