@@ -134,77 +134,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
-    const logoutBtn = document.getElementById("logout-btn");
-    const profileBtn = document.getElementById("profile-btn");
-    const profilePicture = document.getElementById("profilePicture");
+    const logoutBtn = document.querySelector(".logout-btn");
+    const loginBtn = document.querySelector(".login-btn");
+    const profileBtn = document.querySelector(".profile-btn");
     const token = localStorage.getItem("jwtToken");
-
-    if (!logoutBtn) return;
 
     if (token) {
       // User sudah login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-      logoutBtn.onclick = logout;
-      logoutBtn.href = "#";
-
-      // Tampilkan tombol Profile
+      if (logoutBtn) {
+        logoutBtn.style.display = "block";
+        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        logoutBtn.onclick = logout;
+      }
+      if (loginBtn) {
+        loginBtn.style.display = "none";
+      }
       if (profileBtn) {
         profileBtn.style.display = "block";
-        const profileLink = profileBtn.querySelector("a");
-        if (profileLink) {
-          profileLink.href = "profile/profile.html";
-          profileLink.innerHTML = '<i class="fas fa-user"></i> Profile';
-        }
-      }
-
-      // Update profile picture jika ada
-      if (profilePicture) {
-        const userId = localStorage.getItem("userId");
-        fetch("https://backend-berkah.onrender.com/retreive/data/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((users) => {
-            const user = users.find((u) => u.id === parseInt(userId));
-            if (user && user.profile_picture) {
-              profilePicture.src = `https://backend-berkah.onrender.com${user.profile_picture}`;
-            } else {
-              // Set default avatar jika tidak ada profile picture
-              profilePicture.src = "../assets/default-avatar.png";
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            // Set default avatar jika terjadi error
-            profilePicture.src = "../assets/default-avatar.png";
-          });
       }
     } else {
       // User belum login
-      logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
-      logoutBtn.href = "auth/login.html";
-      logoutBtn.onclick = null;
-
-      // Sembunyikan tombol Profile
+      if (logoutBtn) {
+        logoutBtn.style.display = "none";
+      }
+      if (loginBtn) {
+        loginBtn.style.display = "block";
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
+      }
       if (profileBtn) {
         profileBtn.style.display = "none";
-      }
-
-      // Reset profile picture ke default
-      if (profilePicture) {
-        profilePicture.src = "../assets/default-avatar.png";
       }
     }
   }
 
-  // Fungsi untuk logout dengan animasi
+  // Fungsi untuk logout
   function logout() {
     Swal.fire({
       title: "Apakah Anda yakin?",
@@ -220,16 +183,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // Hapus semua data user dari localStorage
         localStorage.clear();
 
-        // Tampilkan pesan sukses tanpa delay
+        // Update tampilan navbar
+        updateAuthLinks();
+
+        // Tampilkan pesan sukses
         Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
           icon: "success",
           showConfirmButton: false,
-          timer: 1000,
+          timer: 1500,
           timerProgressBar: true,
           didClose: () => {
-            // Redirect langsung setelah pesan ditutup
+            // Redirect ke halaman utama
             window.location.href = "https://jumatberkah.vercel.app/";
           },
         });
