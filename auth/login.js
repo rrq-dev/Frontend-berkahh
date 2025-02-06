@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
+  const forgotPasswordLink = document.getElementById("forgot-password-link");
 
   // Menangani login dengan Google
   googleLoginBtn.addEventListener("click", () => {
@@ -25,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const email = document.getElementById("email-input").value;
+    const email = document.getElementById("email-input").value.trim();
     const password = document.getElementById("password-input").value;
 
     if (!email || !password) {
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Email dan password harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
       return;
     }
@@ -97,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         text: error.message,
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
     }
   });
@@ -106,8 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const username = document.getElementById("name-input").value;
-    const email = document.getElementById("signup-email-input").value;
+    const username = document.getElementById("name-input").value.trim();
+    const email = document.getElementById("signup-email-input").value.trim();
     const password = document.getElementById("signup-password-input").value;
 
     if (!username || !email || !password) {
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Semua field harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
       return;
     }
@@ -128,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Password minimal 6 karakter",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
       return;
     }
@@ -184,87 +185,15 @@ document.addEventListener("DOMContentLoaded", () => {
         text: error.message || "Terjadi kesalahan saat registrasi",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
     }
   });
 
-  // Handle Forgot Password
-  const forgotPasswordLink = document.getElementById("forgot-password-link");
-  const resetPasswordForm = document.getElementById("resetPasswordForm");
-  const resetPasswordModal = document.getElementById("resetPasswordModal");
-
-  // Tampilkan modal reset password
+  // Handle Forgot Password link
   forgotPasswordLink.addEventListener("click", (e) => {
     e.preventDefault();
-    resetPasswordModal.style.display = "block";
-  });
-
-  // Tutup modal ketika mengklik di luar modal
-  window.addEventListener("click", (e) => {
-    if (e.target === resetPasswordModal) {
-      resetPasswordModal.style.display = "none";
-    }
-  });
-
-  // Handle reset password form submission
-  resetPasswordForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = document.getElementById("reset-email-input").value;
-
-    try {
-      Swal.fire({
-        title: "Memproses...",
-        text: "Mengirim link reset password",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/reset-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Gagal mengirim reset password");
-      }
-
-      // Tutup modal
-      resetPasswordModal.style.display = "none";
-
-      // Tampilkan pesan sukses
-      await Swal.fire({
-        title: "Berhasil!",
-        text: "Link reset password telah dikirim ke email Anda",
-        icon: "success",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
-      });
-
-      // Reset form
-      resetPasswordForm.reset();
-    } catch (error) {
-      console.error("Error during password reset:", error);
-      Swal.fire({
-        title: "Gagal",
-        text: error.message || "Terjadi kesalahan saat reset password",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
-      });
-    }
+    window.location.href = "reset-password/reset-password.html";
   });
 
   // Handle token reset password dari URL
@@ -282,10 +211,17 @@ document.addEventListener("DOMContentLoaded", () => {
       showCancelButton: true,
       confirmButtonText: "Update Password",
       cancelButtonText: "Batal",
+      confirmButtonColor: "#2e7d32",
+      cancelButtonColor: "#dc3545",
       preConfirm: () => {
         const newPassword = document.getElementById("new-password").value;
         const confirmPassword =
           document.getElementById("confirm-password").value;
+
+        if (!newPassword || !confirmPassword) {
+          Swal.showValidationMessage("Semua field harus diisi");
+          return false;
+        }
 
         if (newPassword.length < 6) {
           Swal.showValidationMessage("Password minimal 6 karakter");
@@ -327,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
             text: "Password berhasil diperbarui",
             icon: "success",
             confirmButtonText: "OK",
-            confirmButtonColor: "#007bff",
+            confirmButtonColor: "#2e7d32",
           });
 
           // Redirect ke halaman login
@@ -339,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
             text: error.message || "Gagal memperbarui password",
             icon: "error",
             confirmButtonText: "OK",
-            confirmButtonColor: "#007bff",
+            confirmButtonColor: "#2e7d32",
           });
         }
       }
