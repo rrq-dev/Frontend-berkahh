@@ -19,7 +19,7 @@ body {
 .sidebar {
   width: 260px;
   height: 100vh;
-  background-color: #007bff;
+  background-color: #2e7d32;
   position: fixed;
   left: 0;
   top: 0;
@@ -306,15 +306,15 @@ body {
 }
 
 .save-button {
-  background: #007bff;
+  background: #2e7d32;
   color: white;
   border: none;
 }
 
 .save-button:hover {
-  background: #0056b3;
+  background: #1b5e20;
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
 }
 
 .cancel-button {

@@ -19,7 +19,7 @@ body {
 .sidebar {
   width: 260px;
   height: 100vh;
-  background-color: #007bff;
+  background-color: #2e7d32;
   position: fixed;
   left: 0;
   top: 0;
@@ -107,7 +107,7 @@ body {
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: #007bff;
+  color: #2e7d32;
 }
 
 .input-group input {
@@ -120,13 +120,13 @@ body {
 }
 
 .input-group input:focus {
-  border-color: #007bff;
+  border-color: #2e7d32;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
 }
 
 button {
-  background: #007bff;
+  background: #2e7d32;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -140,9 +140,9 @@ button {
 }
 
 button:hover {
-  background: #0056b3;
+  background: #1b5e20;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
 }
 
 /* Table Styles */
@@ -177,7 +177,7 @@ button:hover {
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: #007bff;
+  color: #2e7d32;
 }
 
 #search-bar {
@@ -190,9 +190,9 @@ button:hover {
 }
 
 #search-bar:focus {
-  border-color: #007bff;
+  border-color: #2e7d32;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
 }
 
 .table-responsive {
