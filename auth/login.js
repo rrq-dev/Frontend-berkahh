@@ -247,4 +247,153 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
+  // Handle Forgot Password
+  const forgotPasswordLink = document.getElementById("forgot-password-link");
+  const resetPasswordForm = document.getElementById("resetPasswordForm");
+
+  // Tampilkan modal reset password
+  forgotPasswordLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("resetPasswordModal").style.display = "block";
+  });
+
+  // Handle reset password form submission
+  resetPasswordForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("reset-email-input").value;
+
+    try {
+      Swal.fire({
+        title: "Memproses...",
+        text: "Mengirim link reset password",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(
+        "https://backend-berkah.onrender.com/reset-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Gagal mengirim reset password");
+      }
+
+      // Tutup modal
+      document.getElementById("resetPasswordModal").style.display = "none";
+
+      // Tampilkan pesan sukses
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Link reset password telah dikirim ke email Anda",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+      });
+
+      // Reset form
+      resetPasswordForm.reset();
+    } catch (error) {
+      console.error("Error during password reset:", error);
+      Swal.fire({
+        title: "Gagal",
+        text: error.message || "Terjadi kesalahan saat reset password",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+      });
+    }
+  });
+
+  // Handle update password (setelah user klik link di email)
+  const resetToken = urlParams.get("token");
+
+  if (resetToken) {
+    // Tampilkan form update password
+    Swal.fire({
+      title: "Update Password Baru",
+      html: `
+        <input type="password" id="new-password" class="swal2-input" placeholder="Password baru">
+        <input type="password" id="confirm-password" class="swal2-input" placeholder="Konfirmasi password">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Update Password",
+      cancelButtonText: "Batal",
+      preConfirm: () => {
+        const newPassword = document.getElementById("new-password").value;
+        const confirmPassword =
+          document.getElementById("confirm-password").value;
+
+        if (newPassword.length < 6) {
+          Swal.showValidationMessage("Password minimal 6 karakter");
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage("Password tidak cocok");
+          return false;
+        }
+
+        return { newPassword };
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/update-password",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                token: resetToken,
+                new_password: result.value.newPassword,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Gagal update password");
+          }
+
+          await Swal.fire({
+            title: "Berhasil!",
+            text: "Password berhasil diperbarui",
+            icon: "success",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#007bff",
+          });
+
+          // Redirect ke halaman login
+          window.location.href = "login.html";
+        } catch (error) {
+          console.error("Error updating password:", error);
+          Swal.fire({
+            title: "Gagal",
+            text: error.message || "Gagal memperbarui password",
+            icon: "error",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#007bff",
+          });
+        }
+      }
+    });
+  }
 });
