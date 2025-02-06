@@ -417,27 +417,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi untuk menampilkan daftar masjid
   function displayMasjidList(masjidData) {
-    // Cari container untuk daftar masjid
     const container = document.querySelector(".container");
     if (!container) {
-      console.error("Container untuk daftar masjid tidak ditemukan");
+      console.error("Container tidak ditemukan");
       return;
     }
 
-    // Buat atau dapatkan section untuk daftar masjid
-    let masjidList = container.querySelector(".masjid-list");
-    if (!masjidList) {
-      masjidList = document.createElement("div");
-      masjidList.className = "masjid-list";
-      container.appendChild(masjidList);
-    }
+    // Clear container
+    container.innerHTML = "";
 
-    // Clear existing content
-    masjidList.innerHTML = "";
-
-    // Tampilkan pesan jika tidak ada data
     if (!Array.isArray(masjidData) || masjidData.length === 0) {
-      masjidList.innerHTML = `
+      container.innerHTML = `
         <div class="no-data">
           <i class="fas fa-mosque"></i>
           <p>Tidak ada masjid ditemukan</p>
@@ -448,32 +438,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Tampilkan setiap masjid
     masjidData.forEach((masjid) => {
-      const card = document.createElement("div");
-      card.className = "masjid-card";
-      card.innerHTML = `
-        <div class="masjid-image">
-          <img src="${masjid.image_url || "/assets/default-mosque.png"}" 
-               alt="${masjid.name}" 
-               onerror="this.src='/assets/default-mosque.png'"
-               loading="lazy">
-        </div>
-        <div class="masjid-info">
-          <h3>${masjid.name || "Nama tidak tersedia"}</h3>
-          <p><i class="fas fa-map-marker-alt"></i> ${
-            masjid.address || "Alamat tidak tersedia"
-          }</p>
-          <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
-            masjid.friday_prayer_time || "Tidak tersedia"
-          }</p>
-          <p><i class="fas fa-users"></i> Kapasitas: ${
-            masjid.capacity || "Tidak tersedia"
-          }</p>
-          <button onclick="showMasjidDetails(${masjid.id})" class="detail-btn">
-            <i class="fas fa-info-circle"></i> Detail
-          </button>
-        </div>
+      const masjidElement = document.createElement("div");
+      masjidElement.className = "masjid-item";
+      masjidElement.innerHTML = `
+        <h2>${masjid.name}</h2>
+        <p><i class="fas fa-map-marker-alt"></i> ${
+          masjid.address || "Alamat tidak tersedia"
+        }</p>
+        <p><i class="fas fa-clock"></i> Waktu Sholat Jumat: ${
+          masjid.friday_prayer_time || "Tidak tersedia"
+        }</p>
+        <p><i class="fas fa-users"></i> Kapasitas: ${
+          masjid.capacity || "Tidak tersedia"
+        }</p>
+        <button onclick="showMasjidDetails(${
+          masjid.id
+        })" class="detail-btn">Detail</button>
       `;
-      masjidList.appendChild(card);
+      container.appendChild(masjidElement);
     });
   }
 
