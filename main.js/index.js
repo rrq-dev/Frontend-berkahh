@@ -98,41 +98,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi base fetch dengan CORS yang diperbarui
+  // Fungsi base fetch dengan error handling yang lebih baik
   async function baseFetch(url, options = {}) {
     const token = localStorage.getItem("jwtToken");
-    const defaultHeaders = {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-      "X-Requested-With": "XMLHttpRequest",
-    };
 
-    const fetchOptions = {
-      mode: "cors",
-      credentials: "include",
-      ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    };
+    try {
+      const response = await fetch(url, {
+        method: options.method || "GET",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        ...options,
+      });
 
-    const response = await fetch(url, fetchOptions);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Handle unauthorized
-        localStorage.clear();
-        window.location.href = "/auth/login.html";
-        throw new Error("Sesi anda telah berakhir");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
-      throw new Error(`Request failed with status ${response.status}`);
-    }
 
-    return await response.json();
+      return await response.json();
+    } catch (error) {
+      console.error("Fetch error:", error);
+      throw error;
+    }
   }
 
-  // Fungsi fetch untuk data masjid dengan error handling yang lebih baik
+  // Fungsi untuk mengambil data masjid
   async function fetchMasjidData(searchTerm = "") {
     try {
       showLoading();
@@ -142,45 +139,72 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
         : baseUrl;
 
-      const data = await baseFetch(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
+      const data = await baseFetch(url);
 
+      // Validasi struktur data dari backend
       if (!Array.isArray(data)) {
-        throw new Error("Format data tidak valid");
+        throw new Error("Format data masjid tidak valid");
       }
 
-      return data;
+      // Mapping data sesuai dengan struktur backend
+      return data.map((masjid) => ({
+        id: masjid.id,
+        name: masjid.name,
+        address: masjid.address,
+        latitude: masjid.latitude,
+        longitude: masjid.longitude,
+        capacity: masjid.capacity,
+        friday_prayer_time: masjid.friday_prayer_time,
+        image_url: masjid.image_url,
+      }));
     } catch (error) {
-      console.error("Error fetching masjid data:", error);
-      throw new Error("Gagal mengambil data masjid");
+      throw new Error(`Gagal mengambil data masjid: ${error.message}`);
     } finally {
       hideLoading();
     }
   }
 
-  // Fungsi fetch untuk data user
+  // Fungsi untuk mengambil data user
   async function fetchUserData() {
     try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) throw new Error("User ID tidak ditemukan");
+      const { token, userId } = checkAuth();
+      if (!token || !userId) {
+        throw new Error("Tidak ada token atau userId");
+      }
 
       const data = await baseFetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
-        { method: "GET" }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      return data;
+      // Validasi data user dari backend
+      if (!Array.isArray(data)) {
+        throw new Error("Format data user tidak valid");
+      }
+
+      const currentUser = data.find((user) => user.id === parseInt(userId));
+      if (!currentUser) {
+        throw new Error("User tidak ditemukan");
+      }
+
+      return {
+        id: currentUser.id,
+        username: currentUser.username,
+        email: currentUser.email,
+        bio: currentUser.bio,
+        profile_picture: currentUser.profile_picture,
+        preferred_masjid: currentUser.preferred_masjid,
+      };
     } catch (error) {
-      console.error("Error fetching user data:", error);
-      throw error;
+      throw new Error(`Gagal mengambil data user: ${error.message}`);
     }
   }
 
-  // Fungsi fetch untuk update profile
+  // Fungsi untuk update profile
   async function updateProfile(formData) {
     try {
       const token = localStorage.getItem("jwtToken");
@@ -610,109 +634,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showConfirmButton: false,
       });
       sessionStorage.setItem("hasShownWelcome", "true");
-    }
-  }
-
-  // Perbaikan fungsi fetchAndDisplayProfileData
-  async function fetchAndDisplayProfileData() {
-    try {
-      const { token, userId } = checkAuth();
-      if (!token || !userId) {
-        window.location.href = "/auth/login.html";
-        return;
-      }
-
-      showLoading();
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Gagal mengambil data pengguna");
-
-      const users = await response.json();
-      const currentUser = users.find((u) => u.id === parseInt(userId));
-
-      if (currentUser) {
-        // Update profile picture
-        if (currentUser.profile_picture) {
-          localStorage.setItem("profilePicture", currentUser.profile_picture);
-        }
-        await handleProfilePicture();
-
-        // Update informasi profil menggunakan ID
-        document.getElementById("username").textContent =
-          currentUser.username || "-";
-        document.getElementById("email").textContent = currentUser.email || "-";
-        document.getElementById("bio").textContent =
-          currentUser.bio || "Belum ada bio";
-
-        // Update masjid favorit
-        if (currentUser.preferred_masjid) {
-          try {
-            const masjidResponse = await fetch(
-              `https://backend-berkah.onrender.com/retreive/data/location/${currentUser.preferred_masjid}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-
-            if (masjidResponse.ok) {
-              const masjid = await masjidResponse.json();
-              document.getElementById("preferredMasjid").textContent =
-                masjid.name;
-            }
-          } catch (error) {
-            console.error("Error fetching preferred masjid:", error);
-            document.getElementById("preferredMasjid").textContent =
-              "Belum dipilih";
-          }
-        } else {
-          document.getElementById("preferredMasjid").textContent =
-            "Belum dipilih";
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching profile data:", error);
-      await handleError(error, "Gagal memuat data profil");
-    } finally {
-      hideLoading();
-    }
-  }
-
-  // Perbaikan fungsi handleProfilePicture
-  async function handleProfilePicture() {
-    const profilePicture = document.getElementById("profilePicture");
-    if (!profilePicture) return;
-
-    try {
-      const savedProfilePic = localStorage.getItem("profilePicture");
-      const defaultAvatar = "/assets/default-avatar.png";
-
-      if (savedProfilePic) {
-        const imageUrl = savedProfilePic.startsWith("http")
-          ? savedProfilePic
-          : `https://backend-berkah.onrender.com${savedProfilePic}`;
-
-        profilePicture.src = imageUrl;
-        profilePicture.onerror = () => {
-          profilePicture.src = defaultAvatar;
-        };
-      } else {
-        profilePicture.src = defaultAvatar;
-      }
-    } catch (error) {
-      console.error("Error loading profile picture:", error);
-      profilePicture.src = defaultAvatar;
     }
   }
 
