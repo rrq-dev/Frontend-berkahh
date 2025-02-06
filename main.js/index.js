@@ -166,8 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Perbaikan fungsi displayMasjidList
-  function displayMasjidList(masjidData) {
-    const masjidContainer = document.getElementById("masjid-list");
+  function displayMasjidList(masjidData, searchTerm = "") {
+    const masjidContainer = document.querySelector(".masjid-list");
     if (!masjidContainer) return;
 
     try {
@@ -181,8 +181,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Sort masjid berdasarkan kesesuaian dengan searchTerm
+      const sortedMasjidData = [...masjidData].sort((a, b) => {
+        if (searchTerm) {
+          const aMatch = a.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          const bMatch = b.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          if (aMatch && !bMatch) return -1;
+          if (!aMatch && bMatch) return 1;
+        }
+        return 0;
+      });
+
       masjidContainer.innerHTML = "";
-      masjidData.forEach((masjid) => {
+      sortedMasjidData.forEach((masjid) => {
         const masjidCard = createMasjidCard(masjid);
         masjidContainer.appendChild(masjidCard);
       });
@@ -404,18 +419,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentUser = users.find((u) => u.id === parseInt(userId));
 
       if (currentUser) {
-        // Update profile picture jika ada
+        // Update profile picture
         if (currentUser.profile_picture) {
           localStorage.setItem("profilePicture", currentUser.profile_picture);
-          await handleProfilePicture();
         }
+        await handleProfilePicture();
 
-        // Update informasi profil
-        document.querySelector('[data-field="username"]').textContent =
+        // Update informasi profil menggunakan ID
+        document.getElementById("username").textContent =
           currentUser.username || "-";
-        document.querySelector('[data-field="email"]').textContent =
-          currentUser.email || "-";
-        document.querySelector('[data-field="bio"]').textContent =
+        document.getElementById("email").textContent = currentUser.email || "-";
+        document.getElementById("bio").textContent =
           currentUser.bio || "Belum ada bio";
 
         // Update masjid favorit
@@ -433,18 +447,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (masjidResponse.ok) {
               const masjid = await masjidResponse.json();
-              document.querySelector(
-                '[data-field="masjid-favorit"]'
-              ).textContent = masjid.name;
+              document.getElementById("preferredMasjid").textContent =
+                masjid.name;
             }
           } catch (error) {
             console.error("Error fetching preferred masjid:", error);
-            document.querySelector(
-              '[data-field="masjid-favorit"]'
-            ).textContent = "Belum dipilih";
+            document.getElementById("preferredMasjid").textContent =
+              "Belum dipilih";
           }
         } else {
-          document.querySelector('[data-field="masjid-favorit"]').textContent =
+          document.getElementById("preferredMasjid").textContent =
             "Belum dipilih";
         }
       }
@@ -456,33 +468,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi handleProfilePicture dengan validasi URL
+  // Perbaikan fungsi handleProfilePicture
   async function handleProfilePicture() {
     const profilePicture = document.getElementById("profilePicture");
     if (!profilePicture) return;
 
     try {
       const savedProfilePic = localStorage.getItem("profilePicture");
-      const defaultAvatar =
-        "https://jumatberkah.vercel.app/assets/default-avatar.png";
+      const defaultAvatar = "/assets/default-avatar.png";
 
       if (savedProfilePic) {
         const imageUrl = savedProfilePic.startsWith("http")
           ? savedProfilePic
           : `https://backend-berkah.onrender.com${savedProfilePic}`;
 
-        await new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            profilePicture.src = imageUrl;
-            resolve();
-          };
-          img.onerror = () => {
-            profilePicture.src = defaultAvatar;
-            resolve();
-          };
-          img.src = imageUrl;
-        });
+        profilePicture.src = imageUrl;
+        profilePicture.onerror = () => {
+          profilePicture.src = defaultAvatar;
+        };
       } else {
         profilePicture.src = defaultAvatar;
       }
@@ -643,18 +646,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Perbaikan fungsi setupSearch
   function setupSearch() {
-    const searchInput = document.getElementById("search-bar");
-    const searchButton = document.getElementById("search-button");
-
-    if (!searchInput || !searchButton) return;
+    const searchInput = document.querySelector(".search-input");
+    if (!searchInput) return;
 
     let debounceTimer;
+    let currentMasjidData = [];
 
     const performSearch = async (searchTerm) => {
       try {
-        showLoading();
-        const masjidData = await fetchMasjidData(searchTerm);
-        displayMasjidList(masjidData);
+        if (!currentMasjidData.length) {
+          showLoading();
+          currentMasjidData = await fetchMasjidData();
+        }
+
+        // Filter dan sort masjid berdasarkan searchTerm
+        const filteredMasjidData = searchTerm
+          ? currentMasjidData.filter(
+              (masjid) =>
+                masjid.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                masjid.address.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          : currentMasjidData;
+
+        displayMasjidList(filteredMasjidData, searchTerm);
       } catch (error) {
         console.error("Search error:", error);
         await handleError(error, "Gagal mencari masjid");
@@ -663,25 +677,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    // Event listener untuk input
+    // Event listener untuk input dengan debounce
     searchInput.addEventListener("input", (e) => {
       clearTimeout(debounceTimer);
       const searchTerm = e.target.value.trim();
-      debounceTimer = setTimeout(() => performSearch(searchTerm), 500);
-    });
-
-    // Event listener untuk button search
-    searchButton.addEventListener("click", () => {
-      const searchTerm = searchInput.value.trim();
-      performSearch(searchTerm);
-    });
-
-    // Event listener untuk enter key
-    searchInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        const searchTerm = searchInput.value.trim();
-        performSearch(searchTerm);
-      }
+      debounceTimer = setTimeout(() => performSearch(searchTerm), 300);
     });
   }
 
