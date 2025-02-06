@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk mengambil data user dengan proper error handling
+  // Perbaikan fungsi fetchUserData untuk mendapatkan data user
   async function fetchUserData() {
     try {
       const { token, userId } = checkAuth();
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Tidak ada token atau userId");
       }
 
-      const data = await fetchWithRetry(
+      const response = await fetchWithRetry(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
           headers: {
@@ -193,11 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      if (!Array.isArray(data)) {
-        throw new Error("Format data tidak valid");
-      }
-
-      const currentUser = data.find((u) => u.id === parseInt(userId));
+      // Cari user berdasarkan ID
+      const currentUser = response.find((user) => user.id === parseInt(userId));
       if (!currentUser) {
         throw new Error("User tidak ditemukan");
       }
@@ -205,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return currentUser;
     } catch (error) {
       console.error("Error fetching user data:", error);
-      throw new Error("Gagal mengambil data user");
+      throw error;
     }
   }
 
@@ -213,37 +210,48 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAndDisplayProfileData() {
     try {
       showLoading();
+      const userData = await fetchUserData();
 
-      const currentUser = await fetchUserData();
-
-      // Update profile picture
-      if (currentUser.profile_picture) {
-        localStorage.setItem("profilePicture", currentUser.profile_picture);
-        await handleProfilePicture();
-      }
-
-      // Update profile info
+      // Update profile elements
       const elements = {
         username: document.getElementById("username"),
         email: document.getElementById("email"),
         bio: document.getElementById("bio"),
         preferredMasjid: document.getElementById("preferredMasjid"),
+        profilePicture: document.getElementById("profilePicture"),
       };
 
+      // Update text content
       if (elements.username)
-        elements.username.textContent = currentUser.username || "-";
-      if (elements.email) elements.email.textContent = currentUser.email || "-";
+        elements.username.textContent = userData.username || "-";
+      if (elements.email) elements.email.textContent = userData.email || "-";
       if (elements.bio)
-        elements.bio.textContent = currentUser.bio || "Belum ada bio";
+        elements.bio.textContent = userData.bio || "Belum ada bio";
 
-      // Update preferred masjid
-      if (elements.preferredMasjid && currentUser.preferred_masjid) {
+      // Update profile picture
+      if (elements.profilePicture && userData.profile_picture) {
+        const imageUrl = userData.profile_picture.startsWith("http")
+          ? userData.profile_picture
+          : `https://backend-berkah.onrender.com${userData.profile_picture}`;
+
+        elements.profilePicture.src = imageUrl;
+        elements.profilePicture.onerror = () => {
+          elements.profilePicture.src = "/assets/default-avatar.png";
+        };
+      }
+
+      // Jika ada preferred_masjid, ambil data masjid
+      if (userData.preferred_masjid) {
         try {
-          const masjid = await fetchMasjidDetail(currentUser.preferred_masjid);
-          elements.preferredMasjid.textContent = masjid.name;
+          const masjidData = await fetchMasjidDetail(userData.preferred_masjid);
+          if (elements.preferredMasjid) {
+            elements.preferredMasjid.textContent = masjidData.name;
+          }
         } catch (error) {
           console.error("Error fetching preferred masjid:", error);
-          elements.preferredMasjid.textContent = "Belum dipilih";
+          if (elements.preferredMasjid) {
+            elements.preferredMasjid.textContent = "Belum dipilih";
+          }
         }
       }
     } catch (error) {
@@ -254,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk update profile
+  // Perbaikan fungsi updateProfile
   async function updateProfile(formData) {
     try {
       const { token } = checkAuth();
@@ -266,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: formData, // Gunakan FormData langsung
         }
       );
 
@@ -286,12 +294,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           showLoading();
 
-          const formData = {
-            username: document.getElementById("username").value,
-            email: document.getElementById("email").value,
-            bio: document.getElementById("bio").value,
-            preferred_masjid: document.getElementById("preferredMasjid").value,
-          };
+          const formData = new FormData(editProfileForm);
+          formData.append("user_id", localStorage.getItem("userId"));
 
           await updateProfile(formData);
 
@@ -875,13 +879,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const { isAuthenticated } = checkAuth();
 
-      // Update auth links
       updateAuthLinks();
-
-      // Show welcome message using sessionStorage
       showWelcomeMessage();
-
-      // Setup auto logout
       setupAutoLogout();
 
       const isProfilePage = window.location.pathname.includes("/profile/");
