@@ -542,13 +542,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Welcome message untuk user baru
     if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
       localStorage.setItem("welcomeShown", "true");
-      Swal.fire({
+      await Swal.fire({
         title: "Selamat Datang!",
         text: "di Aplikasi Jumat Berkah",
         icon: "success",
         confirmButtonColor: "#4CAF50",
+        showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
       });
     }
 
