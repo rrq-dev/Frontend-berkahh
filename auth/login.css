@@ -54,6 +54,7 @@ body::before {
 .content {
   display: flex;
   height: 100%;
+  overflow: hidden;
 }
 
 .image-box {
@@ -79,6 +80,8 @@ body::before {
   gap: 1rem;
   max-width: 480px;
   margin: 0 auto;
+  overflow-y: auto;
+  height: 100%;
 }
 
 /* Styling scrollbar */
@@ -88,6 +91,7 @@ body::before {
 
 .form::-webkit-scrollbar-track {
   background: rgba(162, 214, 181, 0.1);
+  border-radius: 10px;
 }
 
 .form::-webkit-scrollbar-thumb {
@@ -95,16 +99,19 @@ body::before {
   border-radius: 10px;
 }
 
+.form::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
 .logo {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 1rem;
+  display: none;
 }
 
 .title {
   font-size: 2rem;
   color: var(--text);
   font-weight: 600;
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
   text-align: center;
 }
@@ -204,7 +211,7 @@ body::before {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: rgba(162, 214, 181, 0.2);
@@ -231,7 +238,7 @@ body::before {
 @media (max-width: 768px) {
   .container {
     margin: 1rem;
-    height: auto;
+    height: 90vh;
     min-height: 550px;
   }
 
@@ -244,11 +251,12 @@ body::before {
   }
 
   .form {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
   }
 
   .title {
     font-size: 1.75rem;
+    margin-top: 0.5rem;
   }
 
   .input-box,
