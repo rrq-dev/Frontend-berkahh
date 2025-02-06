@@ -45,20 +45,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Handle login dengan Google melalui Auth0
-  googleLoginBtn.addEventListener("click", () => {
-    Swal.fire({
-      title: "Menghubungkan...",
-      text: "Mohon tunggu sebentar",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+  googleLoginBtn.addEventListener("click", async () => {
+    try {
+      Swal.fire({
+        title: "Menghubungkan...",
+        text: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-    // Redirect ke endpoint Auth0 login
-    window.location.href =
-      "https://backend-berkah.onrender.com/auth/google/login";
+      // Redirect ke endpoint Auth0 login
+      window.location.href =
+        "https://backend-berkah.onrender.com/auth/google/login";
+    } catch (error) {
+      console.error("Error initiating login:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal memulai proses login",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2e7d32",
+      });
+    }
   });
 
   // Handle login form biasa
