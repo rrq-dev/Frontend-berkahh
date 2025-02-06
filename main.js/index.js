@@ -226,22 +226,25 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (result.isConfirmed) {
-        // Panggil endpoint logout
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/logout",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-            },
-          }
-        );
+        // Tampilkan loading
+        Swal.fire({
+          title: "Memproses...",
+          text: "Mohon tunggu sebentar",
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-        if (!response.ok) {
-          throw new Error("Gagal melakukan logout");
-        }
+        // Logout dari Auth0
+        await auth0Client.logout({
+          logoutParams: {
+            returnTo: "https://jumatberkah.vercel.app",
+          },
+        });
 
-        // Hapus semua data dari localStorage
+        // Hapus data dari localStorage
         localStorage.clear();
 
         // Update tampilan navbar
@@ -256,15 +259,12 @@ document.addEventListener("DOMContentLoaded", () => {
           timer: 1500,
           timerProgressBar: true,
         });
-
-        // Redirect ke halaman utama
-        window.location.href = "https://jumatberkah.vercel.app/";
       }
     } catch (error) {
       console.error("Error during logout:", error);
       Swal.fire({
         title: "Error",
-        text: error.message || "Terjadi kesalahan saat logout",
+        text: "Terjadi kesalahan saat logout",
         icon: "error",
         confirmButtonColor: "#4CAF50",
       });

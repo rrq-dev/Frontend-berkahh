@@ -282,49 +282,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Tambahkan fungsi logout
-  function logout() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Cek auth provider yang digunakan
-        const authProvider = localStorage.getItem("authProvider");
+  // Fungsi untuk logout menggunakan Auth0
+  async function logout() {
+    try {
+      await auth0Client.logout({
+        logoutParams: {
+          returnTo: "https://jumatberkah.vercel.app",
+        },
+      });
 
-        // Kirim request logout ke backend
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/logout",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Logout failed");
-        }
-
-        // Hapus semua data dari localStorage
-        localStorage.removeItem("jwtToken");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("userRole");
-        localStorage.removeItem("authProvider");
-
-        // Jika menggunakan Google Auth, logout dari Google juga
-        if (authProvider === "google") {
-          const auth2 = gapi.auth2.getAuthInstance();
-          if (auth2) {
-            await auth2.signOut();
-          }
-        }
-
-        resolve();
-      } catch (error) {
-        console.error("Error during logout:", error);
-        reject(error);
-      }
-    });
+      // Hapus data lokal
+      localStorage.clear();
+    } catch (error) {
+      console.error("Error during logout:", error);
+      Swal.fire({
+        title: "Gagal Logout",
+        text: "Terjadi kesalahan saat logout",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2e7d32",
+      });
+    }
   }
 
   // Fungsi untuk menangani klik tombol logout
@@ -340,39 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonColor: "#dc3545",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Memproses...",
-          html: "Mohon tunggu sebentar",
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
-        logout()
-          .then(() => {
-            Swal.fire({
-              title: "Berhasil Logout",
-              text: "Anda telah berhasil keluar",
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-              timerProgressBar: true,
-            }).then(() => {
-              // Redirect ke halaman login
-              window.location.href = "/auth/login.html";
-            });
-          })
-          .catch((error) => {
-            Swal.fire({
-              title: "Gagal Logout",
-              text: error.message || "Terjadi kesalahan saat logout",
-              icon: "error",
-              confirmButtonText: "OK",
-              confirmButtonColor: "#2e7d32",
-            });
-          });
+        logout();
       }
     });
   }
