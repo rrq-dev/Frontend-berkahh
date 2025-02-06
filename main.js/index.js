@@ -98,28 +98,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk handle fetch requests dengan retry dan timeout
+  // Fungsi untuk handle fetch requests dengan CORS dan retry
   async function fetchWithRetry(url, options = {}, retries = 3) {
+    const defaultOptions = {
+      mode: "cors",
+      credentials: "include", // Untuk mengirim cookies
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, Login, X-Requested-With",
+      },
+    };
+
     let lastError;
 
     for (let i = 0; i < retries; i++) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        const response = await fetch(url, {
+        const mergedOptions = {
+          ...defaultOptions,
           ...options,
-          signal: controller.signal,
           headers: {
-            "Content-Type": "application/json",
+            ...defaultOptions.headers,
             ...options.headers,
           },
-        });
+          signal: controller.signal,
+        };
 
+        const response = await fetch(url, mergedOptions);
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `HTTP error! status: ${response.status}`
+          );
         }
 
         return await response.json();
@@ -136,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     throw lastError;
   }
 
-  // Fungsi untuk mengambil data masjid dengan proper error handling
+  // Perbaikan fungsi fetchMasjidData dengan CORS
   async function fetchMasjidData(searchTerm = "") {
     try {
       const { token } = checkAuth();
@@ -146,13 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${baseUrl}?search=${encodeURIComponent(searchTerm)}`
         : baseUrl;
 
-      const data = await fetchWithRetry(url, {
+      return await fetchWithRetry(url, {
+        method: "GET",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-
-      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error("Error fetching masjid data:", error);
       throw new Error("Gagal mengambil data masjid");
@@ -176,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi fetchUserData untuk mendapatkan data user
+  // Perbaikan fungsi fetchUserData dengan CORS
   async function fetchUserData() {
     try {
       const { token, userId } = checkAuth();
@@ -184,17 +201,17 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Tidak ada token atau userId");
       }
 
-      const response = await fetchWithRetry(
+      const data = await fetchWithRetry(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      // Cari user berdasarkan ID
-      const currentUser = response.find((user) => user.id === parseInt(userId));
+      const currentUser = data.find((user) => user.id === parseInt(userId));
       if (!currentUser) {
         throw new Error("User tidak ditemukan");
       }
@@ -262,26 +279,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Perbaikan fungsi updateProfile
+  // Perbaikan fungsi updateProfile dengan CORS untuk multipart/form-data
   async function updateProfile(formData) {
     try {
       const { token } = checkAuth();
 
-      const response = await fetchWithRetry(
+      const response = await fetch(
         "https://backend-berkah.onrender.com/update/profile",
         {
           method: "PUT",
+          mode: "cors",
+          credentials: "include",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Access-Control-Allow-Origin": "https://jumatberkah.vercel.app",
+            "Access-Control-Allow-Credentials": "true",
+            // Tidak perlu set Content-Type untuk FormData
           },
-          body: formData, // Gunakan FormData langsung
+          body: formData,
         }
       );
 
-      return response;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal mengupdate profil");
+      }
+
+      return await response.json();
     } catch (error) {
       console.error("Error updating profile:", error);
-      throw new Error("Gagal mengupdate profil");
+      throw error;
     }
   }
 
