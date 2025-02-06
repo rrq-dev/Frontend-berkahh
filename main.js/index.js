@@ -415,24 +415,42 @@ document.addEventListener("DOMContentLoaded", () => {
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  // Fungsi untuk menampilkan daftar masjid
-  function displayMasjidList(masjidData) {
-    // Cari container yang berada di bawah searchbar
+  // Fungsi untuk mengecek status login
+  function checkLoginStatus() {
+    const token = localStorage.getItem("jwtToken");
+    const logoutBtn = document.querySelector(".logout-btn");
+    const profileBtn = document.querySelector(".profile-btn");
+    const loginBtn = document.querySelector(".login-btn");
+
+    if (token) {
+      // User sudah login
+      if (loginBtn) loginBtn.style.display = "none";
+      if (logoutBtn) logoutBtn.style.display = "flex";
+      if (profileBtn) profileBtn.style.display = "flex";
+      return true;
+    } else {
+      // User belum login
+      if (loginBtn) loginBtn.style.display = "flex";
+      if (logoutBtn) logoutBtn.style.display = "none";
+      if (profileBtn) profileBtn.style.display = "none";
+      return false;
+    }
+  }
+
+  // Fungsi untuk menampilkan daftar masjid dengan filter
+  function displayMasjidList(masjidData, searchTerm = "") {
     const searchContainer = document.querySelector(".search-container");
     let masjidContainer = document.querySelector(".masjid-container");
 
-    // Jika container belum ada, buat baru
     if (!masjidContainer) {
       masjidContainer = document.createElement("div");
       masjidContainer.className = "masjid-container";
-      // Masukkan setelah search container
       searchContainer.parentNode.insertBefore(
         masjidContainer,
         searchContainer.nextSibling
       );
     }
 
-    // Clear container
     masjidContainer.innerHTML = "";
 
     if (!Array.isArray(masjidData) || masjidData.length === 0) {
@@ -445,8 +463,28 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Tampilkan setiap masjid
-    masjidData.forEach((masjid) => {
+    // Filter dan sort masjid berdasarkan search term
+    let filteredMasjid = masjidData;
+    if (searchTerm) {
+      filteredMasjid = masjidData.filter(
+        (masjid) =>
+          masjid.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          masjid.address.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      // Sort: yang match dengan nama di awal
+      filteredMasjid.sort((a, b) => {
+        const aMatch = a.name
+          .toLowerCase()
+          .startsWith(searchTerm.toLowerCase());
+        const bMatch = b.name
+          .toLowerCase()
+          .startsWith(searchTerm.toLowerCase());
+        return bMatch - aMatch;
+      });
+    }
+
+    filteredMasjid.forEach((masjid) => {
       const masjidItem = document.createElement("div");
       masjidItem.className = "masjid-item";
       masjidItem.innerHTML = `
@@ -583,27 +621,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fungsi untuk logout dengan animasi
   function logout() {
     Swal.fire({
-      title: "Apakah Anda yakin?",
-      text: "Anda akan keluar dari aplikasi",
-      icon: "warning",
+      title: "Apakah Anda yakin ingin keluar?",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, Logout!",
+      confirmButtonText: "Ya, Keluar",
       cancelButtonText: "Batal",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.clear(); // Menghapus semua data termasuk token
+        localStorage.clear();
         Swal.fire({
-          title: "Berhasil Logout",
-          text: "Anda telah berhasil keluar",
+          title: "Berhasil Keluar",
           icon: "success",
+          timer: 1500,
           showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          didClose: () => {
-            window.location.href = "https://jumatberkah.vercel.app/";
-          },
+        }).then(() => {
+          window.location.href = "/auth/login.html";
         });
       }
     });
@@ -800,45 +834,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk setup pencarian
+  // Fungsi untuk setup pencarian real-time
   function setupSearch() {
     const searchInput = document.querySelector(
       'input[placeholder="Cari masjid..."]'
     );
     const searchButton = document.querySelector(".search-button");
+    let masjidDataCache = null;
 
     if (!searchInput || !searchButton) {
       console.error("Search elements not found");
       return;
     }
 
-    let debounceTimer;
-
-    // Event listener untuk input pencarian
-    searchInput.addEventListener("input", (e) => {
-      clearTimeout(debounceTimer);
-      const searchTerm = e.target.value.trim();
-
-      debounceTimer = setTimeout(async () => {
-        try {
-          const masjidData = await fetchMasjidData(searchTerm);
-          displayMasjidList(masjidData);
-        } catch (error) {
-          console.error("Search error:", error);
-          await handleError(error, "Gagal mencari masjid");
-        }
-      }, 300);
+    // Fetch initial data
+    fetchMasjidData().then((data) => {
+      masjidDataCache = data;
+      displayMasjidList(data);
     });
 
-    // Event listener untuk tombol cari
-    searchButton.addEventListener("click", async () => {
+    // Real-time search
+    searchInput.addEventListener("input", (e) => {
+      const searchTerm = e.target.value.trim();
+      if (masjidDataCache) {
+        displayMasjidList(masjidDataCache, searchTerm);
+      }
+    });
+
+    // Button click search
+    searchButton.addEventListener("click", () => {
       const searchTerm = searchInput.value.trim();
-      try {
-        const masjidData = await fetchMasjidData(searchTerm);
-        displayMasjidList(masjidData);
-      } catch (error) {
-        console.error("Search error:", error);
-        await handleError(error, "Gagal mencari masjid");
+      if (masjidDataCache) {
+        displayMasjidList(masjidDataCache, searchTerm);
       }
     });
   }
@@ -846,20 +873,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   async function initialize() {
     try {
-      showWelcomeMessage();
+      // Check login status
+      const isLoggedIn = checkLoginStatus();
 
+      // Show welcome message
+      const hasShownWelcome = sessionStorage.getItem("hasShownWelcome");
+      if (!hasShownWelcome) {
+        await Swal.fire({
+          title: isLoggedIn
+            ? "Selamat datang kembali!"
+            : "Selamat Datang di Jumat Berkah",
+          text: "Temukan masjid terdekat untuk ibadah Jumat",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+        sessionStorage.setItem("hasShownWelcome", "true");
+      }
+
+      // Setup page
       const isHomePage =
         window.location.pathname === "/" ||
         window.location.pathname.endsWith("index.html");
 
       if (isHomePage) {
         setupSearch();
-        const masjidData = await fetchMasjidData();
-        if (Array.isArray(masjidData)) {
-          displayMasjidList(masjidData);
-        } else {
-          console.error("Data masjid bukan array:", masjidData);
-        }
+      }
+
+      // Setup logout button
+      const logoutBtn = document.querySelector(".logout-btn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
       }
     } catch (error) {
       console.error("Initialization error:", error);
