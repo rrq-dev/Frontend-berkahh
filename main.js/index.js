@@ -3,15 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsContainer = document.getElementById("masjid-details");
   const navbarButtons = document.querySelectorAll(".navbar-button");
 
-  // Initialize Auth0
-  const auth0Client = new auth0.WebAuth({
-    domain: "AUTH0_DOMAIN", // Replace with your Auth0 domain
-    clientID: "AUTH0_CLIENT_ID", // Replace with your Auth0 client ID
-    redirectUri: window.location.origin,
-    responseType: "token id_token",
-    scope: "openid profile email",
-  });
-
   // Handle Google OAuth Callback Token
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
@@ -54,139 +45,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk fetch data masjid
-  async function fetchMasjidData() {
+  // Fungsi untuk mengambil data masjid tanpa perlu token
+  async function fetchMasjidData(searchTerm = "") {
     try {
-      showLoading();
       const response = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location",
         {
           method: "GET",
-          credentials: "include",
           headers: {
-            Accept: "application/json",
             "Content-Type": "application/json",
-            Origin: "https://jumatberkah.vercel.app",
           },
-          mode: "cors",
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error("Gagal mengambil data masjid");
       }
 
-      const data = await response.json();
-      hideLoading();
-      return displayMasjidList(data);
+      const masjidData = await response.json();
+
+      // Hanya panggil displayMasjidList jika berada di halaman utama
+      if (!window.location.pathname.includes("/profile/")) {
+        displayMasjidList(masjidData, searchTerm);
+      }
+
+      return masjidData;
     } catch (error) {
       console.error("Error fetching masjid data:", error);
-      hideLoading();
-      Swal.fire({
-        title: "Error",
-        text: "Gagal memuat data masjid. Silakan coba lagi nanti.",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#2e7d32",
-      });
-    }
-  }
-
-  // Update fungsi untuk semua request API lainnya
-  async function makeAPIRequest(url, method = "GET", body = null) {
-    try {
-      const options = {
-        method: method,
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Origin: "https://jumatberkah.vercel.app",
-        },
-        mode: "cors",
-      };
-
-      if (body) {
-        options.body = JSON.stringify(body);
+      if (!window.location.pathname.includes("/profile/")) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Gagal memuat data masjid!",
+          confirmButtonColor: "#4CAF50",
+        });
       }
-
-      const token = localStorage.getItem("jwtToken");
-      if (token) {
-        options.headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("API request error:", error);
-      throw error;
-    }
-  }
-
-  // Gunakan fungsi makeAPIRequest untuk semua request
-  async function searchMasjid(query) {
-    try {
-      showLoading();
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/search?q=${encodeURIComponent(
-          query
-        )}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Origin: "https://jumatberkah.vercel.app",
-          },
-          mode: "cors",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      hideLoading();
-      displayMasjidList(data);
-    } catch (error) {
-      console.error("Search error:", error);
-      hideLoading();
-      Swal.fire({
-        title: "Error",
-        text: "Gagal melakukan pencarian. Silakan coba lagi.",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#2e7d32",
-      });
-    }
-  }
-
-  // Update fungsi login juga
-  async function handleLogin(credentials) {
-    try {
-      const response = await makeAPIRequest(
-        "https://backend-berkah.onrender.com/login",
-        "POST",
-        credentials
-      );
-
-      // Proses response login
-      if (response.token) {
-        localStorage.setItem("jwtToken", response.token);
-        // Redirect atau update UI sesuai kebutuhan
-      }
-
-      return response;
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
     }
   }
 
@@ -319,61 +212,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fungsi untuk logout
-  async function logout() {
-    try {
-      const result = await Swal.fire({
-        title: "Apakah Anda yakin?",
-        text: "Anda akan keluar dari aplikasi",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#4CAF50",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, Logout!",
-        cancelButtonText: "Batal",
-      });
-
+  function logout() {
+    Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Anda akan keluar dari aplikasi",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, Logout!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
       if (result.isConfirmed) {
-        // Tampilkan loading
-        Swal.fire({
-          title: "Memproses...",
-          text: "Mohon tunggu sebentar",
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
-        // Logout dari Auth0
-        await auth0Client.logout({
-          returnTo: "https://jumatberkah.vercel.app",
-        });
-
-        // Hapus data dari localStorage
+        // Hapus semua data user dari localStorage
         localStorage.clear();
 
         // Update tampilan navbar
         updateAuthLinks();
 
         // Tampilkan pesan sukses
-        await Swal.fire({
+        Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
           icon: "success",
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
+          didClose: () => {
+            // Redirect ke halaman utama
+            window.location.href = "https://jumatberkah.vercel.app/";
+          },
         });
       }
-    } catch (error) {
-      console.error("Error during logout:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Terjadi kesalahan saat logout",
-        icon: "error",
-        confirmButtonColor: "#4CAF50",
-      });
-    }
+    });
   }
 
   // Fungsi untuk mengambil dan menampilkan data profil
@@ -647,17 +518,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Welcome message untuk user baru
     if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
       localStorage.setItem("welcomeShown", "true");
-      await Swal.fire({
+      Swal.fire({
         title: "Selamat Datang!",
         text: "di Aplikasi Jumat Berkah",
         icon: "success",
         confirmButtonColor: "#4CAF50",
-        showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading();
-        },
       });
     }
 
@@ -683,7 +550,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
         const searchTerm = e.target.value;
-        await searchMasjid(searchTerm);
+        await fetchMasjidData(searchTerm);
 
         // Sembunyikan loading indicator
         if (loadingSpinner) loadingSpinner.style.display = "none";
@@ -695,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchButton) {
       searchButton.addEventListener("click", async () => {
         const searchTerm = searchBar.value;
-        await searchMasjid(searchTerm);
+        await fetchMasjidData(searchTerm);
       });
     }
   }
@@ -729,23 +596,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // Panggil fungsi saat halaman dimuat
   if (window.location.pathname.includes("/profile/")) {
     fetchAndDisplayProfileData();
-  }
-
-  // Fungsi untuk menampilkan loading
-  function showLoading() {
-    const loadingDiv = document.createElement("div");
-    loadingDiv.id = "loading-overlay";
-    loadingDiv.innerHTML = `
-      <div class="loading-spinner"></div>
-      <p>Memuat data...</p>
-    `;
-    document.body.appendChild(loadingDiv);
-  }
-
-  function hideLoading() {
-    const loadingDiv = document.getElementById("loading-overlay");
-    if (loadingDiv) {
-      loadingDiv.remove();
-    }
   }
 });

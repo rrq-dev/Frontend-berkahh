@@ -535,62 +535,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Logout functionality
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        const result = await Swal.fire({
-          title: "Konfirmasi Logout",
-          text: "Apakah Anda yakin ingin keluar?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#dc3545",
-          cancelButtonColor: "#6c757d",
-          confirmButtonText: "Ya, Logout!",
-          cancelButtonText: "Batal",
-        });
-
+    logoutBtn.addEventListener("click", () => {
+      Swal.fire({
+        title: "Konfirmasi Logout",
+        text: "Apakah Anda yakin ingin keluar?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Logout!",
+        cancelButtonText: "Batal",
+      }).then((result) => {
         if (result.isConfirmed) {
-          // Panggil endpoint logout
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/logout",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-              },
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Gagal melakukan logout");
-          }
-
-          // Hapus data dari localStorage
           localStorage.removeItem("jwtToken");
           localStorage.removeItem("userId");
           localStorage.removeItem("userRole");
-          localStorage.removeItem("authProvider");
 
-          await Swal.fire({
+          Swal.fire({
             title: "Berhasil Logout!",
             text: "Anda akan dialihkan ke halaman login",
             icon: "success",
             timer: 1500,
             showConfirmButton: false,
-            timerProgressBar: true,
+          }).then(() => {
+            window.location.href =
+              "https://jumatberkah.vercel.app/auth/login.html";
           });
-
-          window.location.href =
-            "https://jumatberkah.vercel.app/auth/login.html";
         }
-      } catch (error) {
-        console.error("Error during logout:", error);
-        Swal.fire({
-          title: "Error",
-          text: error.message || "Terjadi kesalahan saat logout",
-          icon: "error",
-          confirmButtonColor: "#dc3545",
-        });
-      }
+      });
     });
   }
 

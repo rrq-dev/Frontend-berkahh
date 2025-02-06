@@ -2,67 +2,141 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <title>Login - Jumat Berkah</title>
+    <title>Login dan Registrasi - Jumat Berkah</title>
     <link rel="stylesheet" href="login.css" />
+    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    />//
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- SweetAlert2 CSS -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
   </head>
   <body>
     <div class="container">
-      <div class="content sign-in">
-        <div class="image-box">
+      <input type="checkbox" id="flip" />
+      <div class="cover">
+        <div class="front">
           <img
-            src="../assets/login.svg"
-            alt="Login Illustration"
-            loading="lazy"
+            src="https://img.freepik.com/premium-vector/secure-login-form-page-with-password-computer-padlock-3d-vector-icon-cartoon-minimal-style_365941-1119.jpg?semt=ais_hybrid"
+            alt="Login Image"
           />
-        </div>
-        <form id="loginForm" class="form">
-          <h2 class="title">Selamat Datang Kembali</h2>
-          <p class="subtitle">Masuk untuk melanjutkan</p>
-
-          <div class="input-box">
-            <input type="email" id="login-email" name="email" required />
-            <label for="login-email">Email</label>
-          </div>
-
-          <div class="input-box password-input">
-            <input
-              type="password"
-              id="login-password"
-              name="password"
-              required
-            />
-            <label for="login-password">Password</label>
-            <i class="fas fa-eye-slash toggle-password"></i>
-          </div>
-
-          <div class="forgot-password">
-            <a
-              href="reset-password/reset-password.html"
-              id="forgot-password-link"
-              >Lupa Password?</a
+          <div class="text">
+            <span class="text-1"
+              >Setiap masjid baru adalah<br />
+              petualangan baru</span
             >
+            <span class="text-2">Mari terhubung bersama</span>
           </div>
-
-          <button type="submit" class="submit-btn">Masuk</button>
-
-          <p class="switch-text">
-            Belum punya akun?
-            <a href="register.html" class="switch-btn">Daftar</a>
-          </p>
-        </form>
+        </div>
+        <div class="back">
+          <img
+            src="https://www.codr.gov.hk/codr/javax.faces.resource/images/codr_register.jpg;jsessionid=KwiZxUSM4XUpEeAmH281sWjCvWiin9pbquCa7T6K.node2"
+            alt="Register Image"
+          />
+          <div class="text">
+            <span class="text-1"
+              >Bergabunglah dengan kami<br />
+              dalam perjalanan kebaikan</span
+            >
+            <span class="text-2">Mari mulai sekarang</span>
+          </div>
+        </div>
+      </div>
+      <div class="forms">
+        <div class="form-content">
+          <div class="login-form">
+            <div class="title">Login</div>
+            <form id="loginForm" autocomplete="off">
+              <div class="input-boxes">
+                <div class="input-box">
+                  <i class="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    id="email-input"
+                    placeholder="Masukkan email Anda"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-lock"></i>
+                  <input
+                    type="password"
+                    id="password-input"
+                    placeholder="Masukkan password Anda"
+                    required
+                  />
+                </div>
+                <div class="text"><a href="#">Lupa password?</a></div>
+                <div class="button input-box">
+                  <input type="submit" value="Login" />
+                </div>
+                <div class="text sign-up-text">
+                  Belum punya akun? <label for="flip">Daftar sekarang</label>
+                </div>
+                <div class="divider">
+                  <span>atau</span>
+                </div>
+                <div class="button input-box google-login">
+                  <button type="button" id="google-login-btn">
+                    <i class="fab fa-google"></i>
+                    Login dengan Google
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="signup-form">
+            <div class="title">Registrasi</div>
+            <form id="signupForm" autocomplete="off">
+              <div class="input-boxes">
+                <div class="input-box">
+                  <i class="fas fa-user"></i>
+                  <input
+                    type="text"
+                    id="name-input"
+                    placeholder="Masukkan nama Anda"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    id="signup-email-input"
+                    placeholder="Masukkan email Anda"
+                    required
+                  />
+                </div>
+                <div class="input-box">
+                  <i class="fas fa-lock"></i>
+                  <input
+                    type="password"
+                    id="signup-password-input"
+                    placeholder="Masukkan password Anda"
+                    required
+                  />
+                </div>
+                <div class="button input-box">
+                  <input type="submit" value="Daftar" />
+                </div>
+                <div class="text sign-up-text">
+                  Sudah punya akun? <label for="flip">Login sekarang</label>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom JS -->
     <script src="login.js"></script>
   </body>
 </html>
