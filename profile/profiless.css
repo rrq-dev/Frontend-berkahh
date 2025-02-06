@@ -1,12 +1,24 @@
-/* Global styles */
+/* Global styles - Updated */
+:root {
+  --primary-color: #2e7d32;
+  --secondary-color: #388e3c;
+  --text-color: #333;
+  --background-color: #1a1a1a; /* Dark background */
+  --card-background: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-shadow: rgba(0, 0, 0, 0.15);
+  --transition-speed: 0.2s;
+}
+
 body {
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
+  background-color: var(--background-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  color: var(--text-color);
 }
 
 /* Navbar styles - Updated */
@@ -14,6 +26,10 @@ body {
   background-color: var(--primary-color);
   padding: 1rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar .container {
@@ -61,19 +77,19 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Main Content */
+/* Main Content - Updated for dark theme */
 .main-content {
   max-width: 800px;
-  margin: 2rem auto;
+  margin: 5rem auto 2rem; /* Added top margin to account for fixed navbar */
   padding: 0 1.5rem;
   animation: fadeIn 0.5s ease-out;
 }
 
-/* Profile Section */
+/* Profile Section - Updated */
 .profile-section {
-  background-color: white;
+  background-color: var(--card-background);
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: all 0.3s ease;
 }
