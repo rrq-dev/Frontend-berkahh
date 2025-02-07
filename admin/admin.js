@@ -62,22 +62,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const updateUserTable = (data) => {
     if (!userTable) return;
 
-    userTable.innerHTML = "";
+    userTable.innerHTML = ""; // Clear existing rows
     data.forEach((user) => {
       const row = userTable.insertRow();
       row.innerHTML = `
-          <td>${user.username || "-"}</td>
-          <td>${user.email || "-"}</td>
-          <td>${user.role?.name || "-"}</td>
-          <td>
-              <button onclick="editUser(${user.id})" class="edit-button">
-                  <i class="fas fa-edit"></i> Edit
-              </button>
-              <button onclick="deleteUser(${user.id})" class="delete-button">
-                  <i class="fas fa-trash"></i> Hapus
-              </button>
-          </td>
-      `;
+      <td>${user.username || "-"}</td>
+      <td>${user.email || "-"}</td>
+      <td>${user.role?.name || "-"}</td>
+      <td>
+          <button onclick="editUser(${user.id})" class="edit-button">
+              <i class="fas fa-edit"></i> Edit
+          </button>
+          <button onclick="deleteUser(${user.id})" class="delete-button">
+              <i class="fas fa-trash"></i> Hapus
+          </button>
+      </td>
+    `;
     });
   };
 
