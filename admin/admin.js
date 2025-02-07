@@ -39,22 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach((masjid) => {
       const row = masjidTable.insertRow();
       row.innerHTML = `
-              <td>${masjid.name || "-"}</td>
-              <td>${masjid.address || "-"}</td>
-              <td>${masjid.description || "-"}</td>
-              <td>
-                  <button onclick="editMasjid(${
-                    masjid.id
-                  })" class="edit-button">
-                      <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button onclick="deleteMasjid(${
-                    masjid.id
-                  })" class="delete-button">
-                      <i class="fas fa-trash"></i> Hapus
-                  </button>
-              </td>
-          `;
+                <td>${masjid.name || "-"}</td>
+                <td>${masjid.address || "-"}</td>
+                <td>${masjid.description || "-"}</td>
+                <td>
+                    <button onclick="editMasjid(${
+                      masjid.id
+                    })" class="edit-button">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button onclick="deleteMasjid(${
+                      masjid.id
+                    })" class="delete-button">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                </td>
+            `;
     });
   };
 
@@ -66,24 +66,24 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach((user) => {
       const row = userTable.insertRow();
       row.innerHTML = `
-      <td>${user.fullname || "-"}</td>
-      <td>${user.username || "-"}</td>
-      <td>${user.email || "-"}</td>
-      <td>${user.phone_number || "-"}</td>
-      <td>${user.address || "-"}</td>
-      <td>${user.role?.name || "-"}</td>
-      <td>${user.bio || "-"}</td>
-      <td>
-        <div class="action-buttons">
-          <button onclick="editUser(${user.id})" class="edit-button">
-            <i class="fas fa-edit"></i> Edit
-          </button>
-          <button onclick="deleteUser(${user.id})" class="delete-button">
-            <i class="fas fa-trash"></i> Hapus
-          </button>
-        </div>
-      </td>
-    `;
+        <td>${user.fullname || "-"}</td>
+        <td>${user.username || "-"}</td>
+        <td>${user.email || "-"}</td>
+        <td>${user.phone_number || "-"}</td>
+        <td>${user.address || "-"}</td>
+        <td>${user.role?.name || "-"}</td>
+        <td>${user.bio || "-"}</td>
+        <td>
+          <div class="action-buttons">
+            <button onclick="editUser(${user.id})" class="edit-button">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button onclick="deleteUser(${user.id})" class="delete-button">
+              <i class="fas fa-trash"></i> Hapus
+            </button>
+          </div>
+        </td>
+      `;
     });
   };
 
@@ -235,16 +235,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const { value: formValues } = await Swal.fire({
         title: "Edit Data Masjid",
         html: `
-        <input id="swal-name" class="swal2-input" value="${
-          masjid.name
-        }" placeholder="Nama Masjid">
-        <input id="swal-address" class="swal2-input" value="${
-          masjid.address
-        }" placeholder="Alamat">
-        <input id="swal-description" class="swal2-input" value="${
-          masjid.description || ""
-        }" placeholder="Deskripsi">
-      `,
+          <input id="swal-name" class="swal2-input" value="${
+            masjid.name
+          }" placeholder="Nama Masjid">
+          <input id="swal-address" class="swal2-input" value="${
+            masjid.address
+          }" placeholder="Alamat">
+          <input id="swal-description" class="swal2-input" value="${
+            masjid.description || ""
+          }" placeholder="Deskripsi">
+        `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Simpan",
@@ -386,87 +386,27 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.classList.add("active");
 
       // Populate modal with user data
-      const modalContent = `
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="edit-fullname">Nama Lengkap</label>
-          <input type="text" id="edit-fullname" value="${
-            user.fullname || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-username">Username</label>
-          <input type="text" id="edit-username" value="${
-            user.username
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-email">Email</label>
-          <input type="email" id="edit-email" value="${
-            user.email
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-phone">Nomor Telepon</label>
-          <input type="tel" id="edit-phone" value="${
-            user.phone_number || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-address">Alamat</label>
-          <input type="text" id="edit-address" value="${
-            user.address || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-bio">Bio</label>
-          <textarea id="edit-bio" class="form-control">${
-            user.bio || ""
-          }</textarea>
-        </div>
-        <div class="form-group">
-          <label for="edit-role">Role</label>
-          <select id="edit-role" class="form-control">
-            <option value="1" ${
-              user.role.id === 1 ? "selected" : ""
-            }>Admin</option>
-            <option value="2" ${
-              user.role.id === 2 ? "selected" : ""
-            }>User</option>
-          </select>
-        </div>
-      </div>
-    `;
-
-      document.querySelector(".modal-body").innerHTML = modalContent;
+      document.getElementById("fullname").value = user.fullname || "";
+      document.getElementById("username").value = user.username || "";
+      document.getElementById("email").value = user.email || "";
+      document.getElementById("phone").value = user.phone_number || "";
+      document.getElementById("address").value = user.address || "";
+      document.getElementById("bio").value = user.bio || "";
+      document.getElementById("role").value = user.role.id || "";
 
       // Handle form submission
-      const saveButton = modal.querySelector(".save-button");
-      const closeButton = modal.querySelector(".close-modal");
-      const cancelButton = modal.querySelector(".cancel-button");
-
-      const closeModal = () => {
-        modal.classList.remove("active");
-      };
-
-      closeButton.onclick = closeModal;
-      cancelButton.onclick = closeModal;
-
+      const saveButton = document.querySelector(".save-button");
       saveButton.onclick = async () => {
         const updatedUser = {
           id: id,
-          fullname: document.getElementById("edit-fullname").value.trim(),
-          username: document.getElementById("edit-username").value.trim(),
-          email: document.getElementById("edit-email").value.trim(),
-          phone_number: document.getElementById("edit-phone").value.trim(),
-          address: document.getElementById("edit-address").value.trim(),
-          bio: document.getElementById("edit-bio").value.trim(),
+          fullname: document.getElementById("fullname").value.trim(),
+          username: document.getElementById("username").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phone_number: document.getElementById("phone").value.trim(),
+          address: document.getElementById("address").value.trim(),
+          bio: document.getElementById("bio").value.trim(),
           role: {
-            id: parseInt(document.getElementById("edit-role").value),
-            name:
-              document.getElementById("edit-role").value === "1"
-                ? "admin"
-                : "user",
+            id: parseInt(document.getElementById("role").value),
           },
         };
 
@@ -490,7 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
           });
 
-          const response = await fetch(
+          const updateResponse = await fetch(
             "https://backend-berkah.onrender.com/updateuser",
             {
               method: "PUT",
@@ -499,11 +439,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           );
 
-          if (!response.ok) throw new Error("Gagal memperbarui data");
+          if (!updateResponse.ok) throw new Error("Gagal memperbarui data");
 
           loadingAlert.close();
-          closeModal();
-
           await Swal.fire({
             title: "Berhasil!",
             text: "Data pengguna berhasil diperbarui",
@@ -512,7 +450,8 @@ document.addEventListener("DOMContentLoaded", () => {
             showConfirmButton: false,
           });
 
-          fetchUserData();
+          fetchUserData(); // Refresh the user data
+          closeModal(); // Close the modal
         } catch (error) {
           console.error("Error updating user:", error);
           Swal.fire({
@@ -523,6 +462,12 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       };
+
+      // Close modal on button click
+      const closeButton = document.querySelector(".close-modal");
+      closeButton.onclick = () => {
+        closeModal();
+      };
     } catch (error) {
       console.error("Error in edit user:", error);
       Swal.fire({
@@ -532,6 +477,13 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#2e7d32",
       });
     }
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("active");
+    document.getElementById("editUserForm").reset(); // Reset the form
   };
 
   // Delete user function
