@@ -293,7 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preferredMasjid").textContent = preferredMasjid
           ? preferredMasjid.name
           : "Belum diisi";
-
         // Update profile picture
         const profilePicture = document.getElementById("profilePicture");
         if (profilePicture) {
