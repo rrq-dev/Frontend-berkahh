@@ -33,35 +33,29 @@
     </nav>
 
     <div class="container">
-      <div class="profile-card">
-        <div class="profile-header">
-          <h2><i class="fas fa-user"></i> Profil Saya</h2>
+      <h1>Edit Profil</h1>
+      <form id="profileForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required />
         </div>
-
-        <div class="profile-info">
-          <h2>Informasi Pribadi</h2>
-          <div class="info-item">
-            <div class="info-label">Username</div>
-            <div class="info-value"><span id="username"></span></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Email</div>
-            <div class="info-value"><span id="email"></span></div>
-          </div>
-
-          <h2>Masjid Favorit</h2>
-          <div class="info-item">
-            <div class="info-label">Masjid Favorit</div>
-            <div class="info-value"><span id="preferredMasjid"></span></div>
-          </div>
-
-          <h2>Bio</h2>
-          <div class="info-item">
-            <div class="info-label">Bio</div>
-            <div class="info-value"><span id="bio"></span></div>
-          </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
         </div>
-      </div>
+        <div class="form-group">
+          <label for="bio">Bio:</label>
+          <textarea id="bio" name="bio" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="preferredMasjid">Pilih Masjid Favorit:</label>
+          <select id="preferredMasjid" name="preferredMasjid" required>
+            <option value="">Pilih Masjid</option>
+            <!-- Options will be populated dynamically -->
+          </select>
+        </div>
+        <button type="submit" class="btn">Simpan Perubahan</button>
+      </form>
     </div>
     <script src="../main.js/index.js"></script>
   </body>
