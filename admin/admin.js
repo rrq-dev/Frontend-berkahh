@@ -414,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
             id: id,
             username: username,
             email: email,
-            role_id: parseInt(roleId), // Ensure role_id is an integer
+            role_id: parseInt(roleId),
           };
         },
       });
