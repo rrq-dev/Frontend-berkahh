@@ -362,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   };
-  // edit user
+  // Edit user
   window.editUser = async (id) => {
     try {
       const response = await fetch(
@@ -380,21 +380,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const { value: formValues } = await Swal.fire({
         title: "Edit Data Pengguna",
         html: `
-                <input id="swal-username" class="swal2-input" value="${
-                  user.username
-                }" placeholder="Username">
-                <input id="swal-email" class="swal2-input" value="${
-                  user.email
-                }" placeholder="Email">
-                <select id="swal-role" class="swal2-input">
-                    <option value="1" ${
-                      user.role.name === "admin" ? "selected" : ""
-                    }>Admin</option>
-                    <option value="2" ${
-                      user.role.name === "user" ? "selected" : ""
-                    }>User</option>
-                </select>
-            `,
+            <input id="swal-username" class="swal2-input" value="${
+              user.username
+            }" placeholder="Username">
+            <input id="swal-email" class="swal2-input" value="${
+              user.email
+            }" placeholder="Email">
+            <select id="swal-role" class="swal2-input">
+                <option value="1" ${
+                  user.role.name === "admin" ? "selected" : ""
+                }>Admin</option>
+                <option value="2" ${
+                  user.role.name === "user" ? "selected" : ""
+                }>User</option>
+            </select>
+        `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Simpan",
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
             id: id,
             username: username,
             email: email,
-            role_id: parseInt(roleId),
+            role_id: parseInt(roleId), // Ensure role_id is an integer
           };
         },
       });
@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
-        fetchUserData();
+        fetchUserData(); // Refresh user data
       }
     } catch (error) {
       console.error("Error updating user:", error);
