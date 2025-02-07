@@ -81,7 +81,6 @@
       </div>
     </div>
 
-    <!-- Edit Modal -->
     <div class="modal" id="editModal">
       <div class="modal-content">
         <div class="modal-header">
@@ -89,11 +88,53 @@
           <button class="close-modal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- Add your form fields here -->
+          <form class="form-container" id="editUserForm">
+            <div class="form-group">
+              <label for="fullname">Nama Lengkap</label>
+              <input type="text" id="fullname" name="fullname" required />
+            </div>
+
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Nomor Telepon</label>
+              <input type="tel" id="phoneNumber" name="phoneNumber" />
+            </div>
+
+            <div class="form-group">
+              <label for="address">Alamat</label>
+              <textarea id="address" name="address" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" name="bio" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="role">Role</label>
+              <select id="role" name="role" required>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
-          <button class="cancel-button">Cancel</button>
-          <button class="save-button">Save Changes</button>
+          <button type="button" class="cancel-button">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" form="editUserForm" class="save-button">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
         </div>
       </div>
     </div>
