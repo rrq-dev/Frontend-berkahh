@@ -428,85 +428,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle profile picture change
   const changePictureBtn = document.querySelector(".change-picture-btn");
   if (changePictureBtn) {
-    changePictureBtn.addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-
-      input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-          // Validasi file
-          if (!file.type.startsWith("image/")) {
-            throw new Error("File harus berupa gambar");
-          }
-
-          if (file.size > 20 * 1024 * 1024) {
-            throw new Error("Ukuran file maksimal 20MB");
-          }
-
-          // Preview image
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const profilePicture = document.getElementById("profilePicture");
-            if (profilePicture) {
-              profilePicture.src = e.target.result;
-            }
-          };
-          reader.readAsDataURL(file);
-
-          // Prepare form data
-          const formData = new FormData();
-          formData.append("profile_picture", file);
-          formData.append("user_id", localStorage.getItem("userId"));
-
-          // Show loading
-          Swal.fire({
-            title: "Mengunggah Gambar",
-            text: "Mohon tunggu...",
-            allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
-
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/profile-picture",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-              },
-              body: formData,
-            }
-          );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Gagal mengunggah gambar");
-          }
-
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: "Foto profil berhasil diperbarui",
-            confirmButtonColor: "#4CAF50",
-          });
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error!",
-            text: error.message || "Gagal mengunggah gambar",
-            confirmButtonColor: "#4CAF50",
-          });
-        }
-      };
-
-      input.click();
-    });
+    // Remove the event listener for changing the profile picture
+    changePictureBtn.removeEventListener("click", () => {});
   }
 
   // Update fungsi initialize dengan animasi
