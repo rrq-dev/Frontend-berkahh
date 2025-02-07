@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Handle profile form
+  // Handle profile form submission
   document.addEventListener("DOMContentLoaded", () => {
     const profileForm = document.getElementById("profileForm");
 
@@ -355,7 +355,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .getElementById("preferredMasjid")
             .value.trim();
           const bio = document.getElementById("bio").value.trim() || "";
-
           // Validasi dasar
           if (!username || !email) {
             throw new Error("Mohon isi semua field yang wajib");
@@ -365,7 +364,6 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             throw new Error("Format email tidak valid");
           }
-
           // Buat objek data untuk update sesuai model UpdatedProfile
           const updateData = {
             user_id: parseInt(userId),
@@ -374,8 +372,6 @@ document.addEventListener("DOMContentLoaded", () => {
             preferred_masjid: preferredMasjid,
             bio,
           };
-
-          console.log("Data yang akan dikirim:", updateData); // Tambahkan ini untuk memeriksa data yang dikirim
 
           // Tampilkan loading
           Swal.fire({
@@ -386,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
               Swal.showLoading();
             },
           });
-
           const response = await fetch(
             "https://backend-berkah.onrender.com/updateprofile",
             {
@@ -398,9 +393,6 @@ document.addEventListener("DOMContentLoaded", () => {
               body: JSON.stringify(updateData),
             }
           );
-
-          console.log("Respons dari server:", response); // Tambahkan ini untuk memeriksa respons dari server
-
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || "Gagal memperbarui profil");
@@ -413,7 +405,6 @@ document.addEventListener("DOMContentLoaded", () => {
             timer: 1500,
             showConfirmButton: false,
           });
-
           // Redirect ke halaman profile setelah berhasil update
           window.location.href = "profile.html";
         } catch (error) {
@@ -427,110 +418,110 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-
-    // Handle profile picture change
-    const changePictureBtn = document.querySelector(".change-picture-btn");
-    if (changePictureBtn) {
-      // Remove the event listener for changing the profile picture
-      changePictureBtn.removeEventListener("click", () => {});
-    }
-
-    // Update fungsi initialize dengan animasi
-    async function initialize() {
-      const token = localStorage.getItem("jwtToken");
-      const isProfilePage = window.location.pathname.includes("/profile/");
-
-      // Tambahkan animasi fade in saat load
-      document.body.style.opacity = "0";
-      document.body.style.transition = "opacity 0.5s";
-      setTimeout(() => {
-        document.body.style.opacity = "1";
-      }, 100);
-
-      // Update auth links dan profile picture
-      updateAuthLinks();
-
-      // Welcome message untuk user baru
-      if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
-        localStorage.setItem("welcomeShown", "true");
-        Swal.fire({
-          title: "Selamat Datang!",
-          text: "di Aplikasi Jumat Berkah",
-          icon: "success",
-          confirmButtonColor: "#4CAF50",
-          timer: 2000,
-          timerProgressBar: true,
-        });
-      }
-
-      // Ambil data masjid untuk semua user
-      if (!isProfilePage) {
-        try {
-          await fetchMasjidData();
-        } catch (error) {
-          console.error("Error fetching masjid data:", error);
-        }
-      }
-    }
-
-    // Event listeners untuk search bar dengan debounce yang lebih responsif
-    if (searchBar && !window.location.pathname.includes("/profile/")) {
-      let debounceTimer;
-
-      searchBar.addEventListener("input", (e) => {
-        // Tampilkan loading indicator
-        const loadingSpinner = document.getElementById("loading-spinner");
-        if (loadingSpinner) loadingSpinner.style.display = "block";
-
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          const searchTerm = e.target.value;
-          await fetchMasjidData(searchTerm);
-
-          // Sembunyikan loading indicator
-          if (loadingSpinner) loadingSpinner.style.display = "none";
-        }, 300); // Reduced debounce time for better responsiveness
-      });
-
-      // Tambahkan event listener untuk tombol search
-      const searchButton = document.getElementById("search-button");
-      if (searchButton) {
-        searchButton.addEventListener("click", async () => {
-          const searchTerm = searchBar.value;
-          await fetchMasjidData(searchTerm);
-        });
-      }
-    }
-
-    // Navbar button effects untuk semua halaman
-    if (navbarButtons) {
-      navbarButtons.forEach((button) => {
-        button.addEventListener("mouseover", () => {
-          const randomColor = getRandomColor();
-          button.style.backgroundColor = randomColor;
-        });
-
-        button.addEventListener("mouseout", () => {
-          button.style.backgroundColor = "";
-        });
-      });
-    }
-
-    // Cek autentikasi untuk halaman profile
-    if (window.location.pathname.includes("/profile/")) {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        window.location.href = "../auth/login.html";
-        return;
-      }
-    }
-
-    // Inisialisasi
-    initialize().catch(console.error);
-
-    // Panggil fungsi saat halaman dimuat
-    if (window.location.pathname.includes("/profile/")) {
-      fetchAndDisplayProfileData();
-    }
   });
+
+  // Handle profile picture change
+  const changePictureBtn = document.querySelector(".change-picture-btn");
+  if (changePictureBtn) {
+    // Remove the event listener for changing the profile picture
+    changePictureBtn.removeEventListener("click", () => {});
+  }
+
+  // Update fungsi initialize dengan animasi
+  async function initialize() {
+    const token = localStorage.getItem("jwtToken");
+    const isProfilePage = window.location.pathname.includes("/profile/");
+
+    // Tambahkan animasi fade in saat load
+    document.body.style.opacity = "0";
+    document.body.style.transition = "opacity 0.5s";
+    setTimeout(() => {
+      document.body.style.opacity = "1";
+    }, 100);
+
+    // Update auth links dan profile picture
+    updateAuthLinks();
+
+    // Welcome message untuk user baru
+    if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
+      localStorage.setItem("welcomeShown", "true");
+      Swal.fire({
+        title: "Selamat Datang!",
+        text: "di Aplikasi Jumat Berkah",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+
+    // Ambil data masjid untuk semua user
+    if (!isProfilePage) {
+      try {
+        await fetchMasjidData();
+      } catch (error) {
+        console.error("Error fetching masjid data:", error);
+      }
+    }
+  }
+
+  // Event listeners untuk search bar dengan debounce yang lebih responsif
+  if (searchBar && !window.location.pathname.includes("/profile/")) {
+    let debounceTimer;
+
+    searchBar.addEventListener("input", (e) => {
+      // Tampilkan loading indicator
+      const loadingSpinner = document.getElementById("loading-spinner");
+      if (loadingSpinner) loadingSpinner.style.display = "block";
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const searchTerm = e.target.value;
+        await fetchMasjidData(searchTerm);
+
+        // Sembunyikan loading indicator
+        if (loadingSpinner) loadingSpinner.style.display = "none";
+      }, 300); // Reduced debounce time for better responsiveness
+    });
+
+    // Tambahkan event listener untuk tombol search
+    const searchButton = document.getElementById("search-button");
+    if (searchButton) {
+      searchButton.addEventListener("click", async () => {
+        const searchTerm = searchBar.value;
+        await fetchMasjidData(searchTerm);
+      });
+    }
+  }
+
+  // Navbar button effects untuk semua halaman
+  if (navbarButtons) {
+    navbarButtons.forEach((button) => {
+      button.addEventListener("mouseover", () => {
+        const randomColor = getRandomColor();
+        button.style.backgroundColor = randomColor;
+      });
+
+      button.addEventListener("mouseout", () => {
+        button.style.backgroundColor = "";
+      });
+    });
+  }
+
+  // Cek autentikasi untuk halaman profile
+  if (window.location.pathname.includes("/profile/")) {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      window.location.href = "../auth/login.html";
+      return;
+    }
+  }
+
+  // Inisialisasi
+  initialize().catch(console.error);
+
+  // Panggil fungsi saat halaman dimuat
+  if (window.location.pathname.includes("/profile/")) {
+    fetchAndDisplayProfileData();
+  }
 });
