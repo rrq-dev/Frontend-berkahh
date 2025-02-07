@@ -269,11 +269,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const updateResponse = await fetch(
-          "https://backend-berkah.onrender.com/updatelocation",
+          "https://backend-berkah.onrender.com/updateuser",
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formValues),
+            body: JSON.stringify({
+              id: formValues.id, // Ensure this matches the backend
+              username: formValues.username,
+              email: formValues.email,
+              role_id: formValues.role_id, // Ensure this matches the backend
+            }),
           }
         );
 
