@@ -534,170 +534,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Edit user function
-  window.editUser = async (id) => {
+  // Delete user function
+  window.deleteUser = async (id) => {
     try {
-      const response = await fetch(
-        `https://backend-berkah.onrender.com/retreive/data/user`
-      );
-      if (!response.ok) throw new Error("Gagal mengambil data");
+      const result = await Swal.fire({
+        title: "Konfirmasi Hapus",
+        text: "Apakah Anda yakin ingin menghapus pengguna ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal",
+      });
 
-      const users = await response.json();
-      const user = users.find((u) => u.id === id);
-
-      if (!user) {
-        throw new Error("Data pengguna tidak ditemukan");
-      }
-
-      // Show edit modal
-      const modal = document.getElementById("editModal");
-      modal.classList.add("active");
-
-      // Populate modal with user data
-      const modalContent = `
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="edit-fullname">Nama Lengkap</label>
-          <input type="text" id="edit-fullname" value="${
-            user.fullname || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-username">Username</label>
-          <input type="text" id="edit-username" value="${
-            user.username
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-email">Email</label>
-          <input type="email" id="edit-email" value="${
-            user.email
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-phone">Nomor Telepon</label>
-          <input type="tel" id="edit-phone" value="${
-            user.phone_number || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-address">Alamat</label>
-          <input type="text" id="edit-address" value="${
-            user.address || ""
-          }" class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="edit-bio">Bio</label>
-          <textarea id="edit-bio" class="form-control">${
-            user.bio || ""
-          }</textarea>
-        </div>
-        <div class="form-group">
-          <label for="edit-role">Role</label>
-          <select id="edit-role" class="form-control">
-            <option value="1" ${
-              user.role.id === 1 ? "selected" : ""
-            }>Admin</option>
-            <option value="2" ${
-              user.role.id === 2 ? "selected" : ""
-            }>User</option>
-          </select>
-        </div>
-      </div>
-    `;
-
-      document.querySelector(".modal-body").innerHTML = modalContent;
-
-      // Handle form submission
-      const saveButton = modal.querySelector(".save-button");
-      const closeButton = modal.querySelector(".close-modal");
-      const cancelButton = modal.querySelector(".cancel-button");
-
-      const closeModal = () => {
-        modal.classList.remove("active");
-      };
-
-      closeButton.onclick = closeModal;
-      cancelButton.onclick = closeModal;
-
-      saveButton.onclick = async () => {
-        const updatedUser = {
-          id: id,
-          fullname: document.getElementById("edit-fullname").value.trim(),
-          username: document.getElementById("edit-username").value.trim(),
-          email: document.getElementById("edit-email").value.trim(),
-          phone_number: document.getElementById("edit-phone").value.trim(),
-          address: document.getElementById("edit-address").value.trim(),
-          bio: document.getElementById("edit-bio").value.trim(),
-          role: {
-            id: parseInt(document.getElementById("edit-role").value),
-            name:
-              document.getElementById("edit-role").value === "1"
-                ? "admin"
-                : "user",
+      if (result.isConfirmed) {
+        const loadingAlert = Swal.fire({
+          title: "Menghapus Data...",
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
           },
-        };
+        });
 
-        if (!updatedUser.username || !updatedUser.email) {
-          Swal.fire({
-            title: "Error!",
-            text: "Username dan email harus diisi!",
-            icon: "error",
-            confirmButtonColor: "#2e7d32",
-          });
-          return;
-        }
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/deleteuser",
+          {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          }
+        );
 
-        try {
-          const loadingAlert = Swal.fire({
-            title: "Menyimpan Perubahan...",
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-              Swal.showLoading();
-            },
-          });
+        if (!response.ok) throw new Error("Gagal menghapus data");
 
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/updateuser",
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updatedUser),
-            }
-          );
+        loadingAlert.close();
+        await Swal.fire({
+          title: "Berhasil!",
+          text: "Data pengguna berhasil dihapus",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-          if (!response.ok) throw new Error("Gagal memperbarui data");
-
-          loadingAlert.close();
-          closeModal();
-
-          await Swal.fire({
-            title: "Berhasil!",
-            text: "Data pengguna berhasil diperbarui",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-
-          fetchUserData();
-        } catch (error) {
-          console.error("Error updating user:", error);
-          Swal.fire({
-            title: "Error!",
-            text: error.message || "Gagal memperbarui data pengguna",
-            icon: "error",
-            confirmButtonColor: "#2e7d32",
-          });
-        }
-      };
+        fetchUserData(); // Refresh the table after deletion
+      }
     } catch (error) {
-      console.error("Error in edit user:", error);
+      console.error("Error deleting user:", error);
       Swal.fire({
         title: "Error!",
-        text: error.message || "Terjadi kesalahan saat mengedit pengguna",
+        text: "Gagal menghapus data pengguna",
         icon: "error",
-        confirmButtonColor: "#2e7d32",
+        confirmButtonColor: "#007bff",
       });
     }
   };
