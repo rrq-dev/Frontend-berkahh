@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profil - Jumat Berkah</title>
+    <link rel="stylesheet" href="profile_edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <a href="../index.html" class="logo">
+          <i class="fas fa-mosque"></i> Jumat Berkah
+        </a>
+        <ul class="nav-links">
+          <li>
+            <a href="../index.html" class="navbar-button">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </li>
+          <li>
+            <a href="profile.html" class="navbar-button">
+              <i class="fas fa-user"></i> Profile
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-picture">
+            <img
+              id="profilePicture"
+              src="https://jumatberkah.vercel.app/assets/default-avatar.png"
+              alt="Profile Picture"
+              onerror="this.src='/assets/default-avatar.png'"
+            />
+            <button
+              type="button"
+              class="change-picture-btn"
+              id="changePictureBtn"
+            >
+              <i class="fas fa-camera"></i>
+            </button>
+            <input
+              type="file"
+              id="pictureInput"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+          <h2><i class="fas fa-user-edit"></i> Edit Profil</h2>
+        </div>
+
+        <form id="editProfileForm">
+          <div class="input-group">
+            <h3>Informasi Pribadi</h3>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" name="bio" rows="4"></textarea>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <h3>Masjid Favorit</h3>
+            <div class="form-group">
+              <label for="preferredMasjid">Pilih Masjid Favorit</label>
+              <select id="preferredMasjid" name="preferredMasjid" required>
+                <option value="">Pilih Masjid</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i> Simpan Perubahan
+            </button>
+            <a href="profile.html" class="cancel-btn">
+              <i class="fas fa-times"></i> Batal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="../main.js/index.js"></script>
+  </body>
+</html>

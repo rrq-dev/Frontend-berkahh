@@ -83,36 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk menghasilkan warna acak
-  function getRandomColor() {
-    const colors = [
-      "#4CAF50", // Green
-      "#2196F3", // Blue
-      "#FF9800", // Orange
-      "#E91E63", // Pink
-      "#9C27B0", // Purple
-      "#00BCD4", // Cyan
-      "#009688", // Teal
-      "#FF5722", // Deep Orange
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
-
-  // Tambahkan event listener untuk hover effect dengan warna acak
-  function addHoverEffects(masjidItem) {
-    masjidItem.addEventListener("mouseover", () => {
-      const randomColor = getRandomColor();
-      masjidItem.style.setProperty("--random-color", randomColor);
-      masjidItem.style.transform = "translateY(-5px)";
-      masjidItem.style.boxShadow = `0 8px 15px rgba(0,0,0,0.2)`;
-    });
-
-    masjidItem.addEventListener("mouseout", () => {
-      masjidItem.style.transform = "translateY(0)";
-      masjidItem.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
-    });
-  }
-
   // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
   function displayMasjidList(masjidData, searchTerm = "") {
     const masjidList = document.getElementById("masjid-list");
@@ -169,8 +139,17 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      // Add hover effects
-      addHoverEffects(masjidItem);
+      // Tambahkan efek hover dengan animasi yang lebih smooth
+      masjidItem.addEventListener("mouseover", () => {
+        masjidItem.style.transform = "translateY(-5px)";
+        masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+        masjidItem.style.transition = "all 0.3s ease";
+      });
+
+      masjidItem.addEventListener("mouseout", () => {
+        masjidItem.style.transform = "translateY(0)";
+        masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+      });
 
       masjidList.appendChild(masjidItem);
     });
@@ -293,15 +272,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preferredMasjid").textContent = preferredMasjid
           ? preferredMasjid.name
           : "Belum diisi";
-        // Update profile picture
-        const profilePicture = document.getElementById("profilePicture");
-        if (profilePicture) {
-          profilePicture.src =
-            currentUser.profile_picture || "default-avatar.png";
-          profilePicture.onerror = () => {
-            profilePicture.src = "default-avatar.png";
-          };
-        }
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
@@ -428,8 +398,85 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle profile picture change
   const changePictureBtn = document.querySelector(".change-picture-btn");
   if (changePictureBtn) {
-    // Remove the event listener for changing the profile picture
-    changePictureBtn.removeEventListener("click", () => {});
+    changePictureBtn.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          // Validasi file
+          if (!file.type.startsWith("image/")) {
+            throw new Error("File harus berupa gambar");
+          }
+
+          if (file.size > 20 * 1024 * 1024) {
+            throw new Error("Ukuran file maksimal 20MB");
+          }
+
+          // Preview image
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const profilePicture = document.getElementById("profilePicture");
+            if (profilePicture) {
+              profilePicture.src = e.target.result;
+            }
+          };
+          reader.readAsDataURL(file);
+
+          // Prepare form data
+          const formData = new FormData();
+          formData.append("profile_picture", file);
+          formData.append("user_id", localStorage.getItem("userId"));
+
+          // Show loading
+          Swal.fire({
+            title: "Mengunggah Gambar",
+            text: "Mohon tunggu...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/profile-picture",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+              },
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Gagal mengunggah gambar");
+          }
+
+          Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            text: "Foto profil berhasil diperbarui",
+            confirmButtonColor: "#4CAF50",
+          });
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: error.message || "Gagal mengunggah gambar",
+            confirmButtonColor: "#4CAF50",
+          });
+        }
+      };
+
+      input.click();
+    });
   }
 
   // Update fungsi initialize dengan animasi
