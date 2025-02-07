@@ -64,11 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
        `;
   }
 
-  // Fungsi untuk mengambil data masjid tanpa perlu token
   async function fetchMasjidData(searchTerm = "") {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location",
+        "https://backend-berkah.onrender.com/retrieve/data/location", // Corrected URL
         {
           method: "GET",
           headers: {
