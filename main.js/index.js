@@ -44,6 +44,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+  // Event listener untuk tombol "Lihat Peta"
+  const viewMapButton = document.getElementById("view-map");
+  if (viewMapButton) {
+    viewMapButton.addEventListener("click", () => {
+      const embedLink =
+        detailsContainer.querySelector(".embed-link").textContent; // Ambil link embed
+      window.open(embedLink, "_blank"); // Buka link di tab baru
+    });
+  }
+
+  // Fungsi untuk menampilkan detail masjid
+  function showMasjidDetails(masjid) {
+    detailsContainer.style.display = "block";
+    detailsContainer.querySelector(".details-body").innerHTML = `
+           <h2>${masjid.name}</h2>
+           <p>${masjid.address}</p>
+           <p class="embed-link">${masjid.embed_link}</p>
+           <button id="view-map" class="navbar-button">Lihat Peta</button>
+       `;
+  }
 
   // Fungsi untuk mengambil data masjid tanpa perlu token
   async function fetchMasjidData(searchTerm = "") {
@@ -394,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  
+
   // Update fungsi initialize dengan animasi
   async function initialize() {
     const token = localStorage.getItem("jwtToken");
