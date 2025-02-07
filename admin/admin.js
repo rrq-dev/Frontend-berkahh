@@ -385,12 +385,12 @@ document.addEventListener("DOMContentLoaded", () => {
           user.email
         }" placeholder="Email">
         <select id="swal-role" class="swal2-input">
-          <option value="1" ${
-            user.role.name === "admin" ? "selected" : ""
-          }>Admin</option>
-          <option value="2" ${
-            user.role.name === "user" ? "selected" : ""
-          }>User</option>
+            <option value="1" ${
+              user.role.id === 1 ? "selected" : ""
+            }>Admin</option>
+            <option value="2" ${
+              user.role.id === 2 ? "selected" : ""
+            }>User</option>
         </select>
       `,
         focusConfirm: false,
@@ -411,10 +411,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           return {
-            id: id,
+            id: user.id, // Use the existing user ID
             username: username,
             email: email,
-            role_id: parseInt(roleId),
+            role: {
+              id: parseInt(roleId), // Ensure role ID is an integer
+              name: roleId === "1" ? "admin" : "user", // Set role name based on selection
+            },
           };
         },
       });
@@ -438,12 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
 
-        if (!updateResponse.ok) {
-          const errorText = await updateResponse.text();
-          throw new Error(
-            `Server responded with status ${updateResponse.status}: ${errorText}`
-          );
-        }
+        if (!updateResponse.ok) throw new Error("Gagal memperbarui data");
 
         loadingAlert.close();
         await Swal.fire({
@@ -454,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
-        fetchUserData(); // Refresh user data
+        fetchUserData(); // Refresh the user data
       }
     } catch (error) {
       console.error("Error updating user:", error);
