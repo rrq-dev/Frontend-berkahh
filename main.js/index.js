@@ -333,97 +333,97 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Handle profile form submission
-  const profileForm = document.getElementById("profileForm");
-  if (profileForm) {
-    profileForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.addEventListener("DOMContentLoaded", () => {
+    const profileForm = document.getElementById("profileForm");
 
-      try {
-        const token = localStorage.getItem("jwtToken");
-        const userId = localStorage.getItem("userId");
+    if (profileForm) {
+      profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-        if (!token || !userId) {
-          throw new Error("Token atau User ID tidak ditemukan");
-        }
+        try {
+          const token = localStorage.getItem("jwtToken");
+          const userId = localStorage.getItem("userId");
 
-        // Validasi input
-        const username = document.getElementById("username").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const preferredMasjid = document
-          .getElementById("preferredMasjid")
-          .value.trim();
-        const bio = document.getElementById("bio")?.value.trim() || "";
-
-        // Validasi dasar
-        if (!username || !email) {
-          throw new Error("Mohon isi semua field yang wajib");
-        }
-
-        // Validasi email
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          throw new Error("Format email tidak valid");
-        }
-
-        // Buat objek data untuk update sesuai model UpdatedProfile
-        const updateData = {
-          user_id: parseInt(userId),
-          username,
-          email,
-          preferred_masjid: preferredMasjid,
-          bio,
-          full_name: "",
-          phone_number: "",
-          address: "",
-        };
-
-        // Tampilkan loading
-        Swal.fire({
-          title: "Memperbarui Profil",
-          text: "Mohon tunggu...",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/updateprofile",
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(updateData),
+          if (!token || !userId) {
+            throw new Error("Token atau User ID tidak ditemukan");
           }
-        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Gagal memperbarui profil");
+          // Validasi input
+          const username = document.getElementById("username").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const preferredMasjid = document
+            .getElementById("preferredMasjid")
+            .value.trim();
+          const bio = document.getElementById("bio").value.trim() || "";
+
+          // Validasi dasar
+          if (!username || !email) {
+            throw new Error("Mohon isi semua field yang wajib");
+          }
+
+          // Validasi email
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new Error("Format email tidak valid");
+          }
+
+          // Buat objek data untuk update sesuai model UpdatedProfile
+          const updateData = {
+            user_id: parseInt(userId),
+            username,
+            email,
+            preferred_masjid: preferredMasjid,
+            bio,
+          };
+
+          // Tampilkan loading
+          Swal.fire({
+            title: "Memperbarui Profil",
+            text: "Mohon tunggu...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/updateprofile",
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(updateData),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Gagal memperbarui profil");
+          }
+
+          await Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            text: "Profil berhasil diperbarui",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          // Redirect ke halaman profile setelah berhasil update
+          window.location.href = "profile.html";
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: error.message || "Terjadi kesalahan saat memperbarui profil",
+            confirmButtonColor: "#4CAF50",
+          });
         }
-
-        await Swal.fire({
-          icon: "success",
-          title: "Berhasil!",
-          text: "Profil berhasil diperbarui",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        // Redirect ke halaman profile setelah berhasil update
-        window.location.href = "profile.html";
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: error.message || "Terjadi kesalahan saat memperbarui profil",
-          confirmButtonColor: "#4CAF50",
-        });
-      }
-    });
-  }
+      });
+    }
+  });
 
   // Handle profile picture change
   const changePictureBtn = document.querySelector(".change-picture-btn");
