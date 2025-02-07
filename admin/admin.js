@@ -357,8 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   };
-
-  // Edit user
+  // edit user
   window.editUser = async (id) => {
     try {
       const response = await fetch(
@@ -436,7 +435,12 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
 
-        if (!updateResponse.ok) throw new Error("Gagal memperbarui data");
+        if (!updateResponse.ok) {
+          const errorText = await updateResponse.text();
+          throw new Error(
+            `Server responded with status ${updateResponse.status}: ${errorText}`
+          );
+        }
 
         loadingAlert.close();
         await Swal.fire({
