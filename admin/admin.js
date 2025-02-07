@@ -211,12 +211,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Edit masjid
+  // Edit mosque
   window.editMasjid = async (id) => {
     try {
       const response = await fetch(
         `https://backend-berkah.onrender.com/retreive/data/location`
       );
+      if (!response.ok) throw new Error("Gagal mengambil data");
+
       const locations = await response.json();
       const masjid = locations.find((loc) => loc.id === id);
 
@@ -227,16 +229,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const { value: formValues } = await Swal.fire({
         title: "Edit Data Masjid",
         html: `
-                  <input id="swal-name" class="swal2-input" value="${
-                    masjid.name
-                  }" placeholder="Nama Masjid">
-                  <input id="swal-address" class="swal2-input" value="${
-                    masjid.address
-                  }" placeholder="Alamat">
-                  <input id="swal-description" class="swal2-input" value="${
-                    masjid.description || ""
-                  }" placeholder="Deskripsi">
-              `,
+        <input id="swal-name" class="swal2-input" value="${
+          masjid.name
+        }" placeholder="Nama Masjid">
+        <input id="swal-address" class="swal2-input" value="${
+          masjid.address
+        }" placeholder="Alamat">
+        <input id="swal-description" class="swal2-input" value="${
+          masjid.description || ""
+        }" placeholder="Deskripsi">
+      `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Simpan",
@@ -269,16 +271,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const updateResponse = await fetch(
-          "https://backend-berkah.onrender.com/updateuser",
+          "https://backend-berkah.onrender.com/updatelocation",
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: formValues.id, // Ensure this matches the backend
-              username: formValues.username,
-              email: formValues.email,
-              role_id: formValues.role_id, // Ensure this matches the backend
-            }),
+            body: JSON.stringify(formValues),
           }
         );
 
@@ -293,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
         });
 
-        fetchMasjidData();
+        fetchMasjidData(); // Refresh the mosque data
       }
     } catch (error) {
       console.error("Error updating masjid:", error);
@@ -362,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   };
+
   // Edit user
   window.editUser = async (id) => {
     try {
@@ -380,21 +378,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const { value: formValues } = await Swal.fire({
         title: "Edit Data Pengguna",
         html: `
-            <input id="swal-username" class="swal2-input" value="${
-              user.username
-            }" placeholder="Username">
-            <input id="swal-email" class="swal2-input" value="${
-              user.email
-            }" placeholder="Email">
-            <select id="swal-role" class="swal2-input">
-                <option value="1" ${
-                  user.role.name === "admin" ? "selected" : ""
-                }>Admin</option>
-                <option value="2" ${
-                  user.role.name === "user" ? "selected" : ""
-                }>User</option>
-            </select>
-        `,
+        <input id="swal-username" class="swal2-input" value="${
+          user.username
+        }" placeholder="Username">
+        <input id="swal-email" class="swal2-input" value="${
+          user.email
+        }" placeholder="Email">
+        <select id="swal-role" class="swal2-input">
+          <option value="1" ${
+            user.role.name === "admin" ? "selected" : ""
+          }>Admin</option>
+          <option value="2" ${
+            user.role.name === "user" ? "selected" : ""
+          }>User</option>
+        </select>
+      `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: "Simpan",
