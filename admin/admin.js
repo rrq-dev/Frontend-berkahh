@@ -75,9 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${user.bio || "-"}</td>
         <td>
           <div class="action-buttons">
-            <button onclick="editUser(${user.id})" class="edit-button">
-              <i class="fas fa-edit"></i> Edit
-            </button>
             <button onclick="deleteUser(${user.id})" class="delete-button">
               <i class="fas fa-trash"></i> Hapus
             </button>
