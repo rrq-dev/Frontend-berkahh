@@ -62,20 +62,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const updateUserTable = (data) => {
     if (!userTable) return;
 
-    userTable.innerHTML = ""; // Clear existing rows
+    userTable.innerHTML = "";
     data.forEach((user) => {
       const row = userTable.insertRow();
       row.innerHTML = `
+      <td>${user.fullname || "-"}</td>
       <td>${user.username || "-"}</td>
       <td>${user.email || "-"}</td>
+      <td>${user.phone_number || "-"}</td>
+      <td>${user.address || "-"}</td>
       <td>${user.role?.name || "-"}</td>
+      <td>${user.bio || "-"}</td>
       <td>
+        <div class="action-buttons">
           <button onclick="editUser(${user.id})" class="edit-button">
-              <i class="fas fa-edit"></i> Edit
+            <i class="fas fa-edit"></i> Edit
           </button>
           <button onclick="deleteUser(${user.id})" class="delete-button">
-              <i class="fas fa-trash"></i> Hapus
+            <i class="fas fa-trash"></i> Hapus
           </button>
+        </div>
       </td>
     `;
     });
@@ -360,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Edit user
+  // Edit user function
   window.editUser = async (id) => {
     try {
       const response = await fetch(
@@ -375,173 +381,323 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Data pengguna tidak ditemukan");
       }
 
-      const { value: formValues } = await Swal.fire({
-        title: "Edit Data Pengguna",
-        html: `
-        <input id="swal-username" class="swal2-input" value="${
-          user.username
-        }" placeholder="Username">
-        <input id="swal-email" class="swal2-input" value="${
-          user.email
-        }" placeholder="Email">
-        <input id="swal-fullname" class="swal2-input" value="${
-          user.full_name || ""
-        }" placeholder="Full Name">
-        <input id="swal-phone" class="swal2-input" value="${
-          user.phone_number || ""
-        }" placeholder="Phone Number">
-        <input id="swal-address" class="swal2-input" value="${
-          user.address || ""
-        }" placeholder="Address">
-        <input id="swal-bio" class="swal2-input" value="${
-          user.bio || ""
-        }" placeholder="Bio">
-        <select id="swal-role" class="swal2-input">
-          <option value="1" ${
-            user.role.id === 1 ? "selected" : ""
-          }>Admin</option>
-          <option value="2" ${
-            user.role.id === 2 ? "selected" : ""
-          }>User</option>
-        </select>
-      `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: "Simpan",
-        cancelButtonText: "Batal",
-        confirmButtonColor: "#007bff",
-        preConfirm: () => {
-          const username = document
-            .getElementById("swal-username")
-            .value.trim();
-          const email = document.getElementById("swal-email").value.trim();
-          const fullName = document
-            .getElementById("swal-fullname")
-            .value.trim();
-          const phoneNumber = document
-            .getElementById("swal-phone")
-            .value.trim();
-          const address = document.getElementById("swal-address").value.trim();
-          const bio = document.getElementById("swal-bio").value.trim();
-          const roleId = document.getElementById("swal-role").value;
+      // Show edit modal
+      const modal = document.getElementById("editModal");
+      modal.classList.add("active");
 
-          if (!username || !email) {
-            Swal.showValidationMessage("Username dan email harus diisi!");
-            return false;
-          }
+      // Populate modal with user data
+      const modalContent = `
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-fullname">Nama Lengkap</label>
+          <input type="text" id="edit-fullname" value="${
+            user.fullname || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-username">Username</label>
+          <input type="text" id="edit-username" value="${
+            user.username
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-email">Email</label>
+          <input type="email" id="edit-email" value="${
+            user.email
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-phone">Nomor Telepon</label>
+          <input type="tel" id="edit-phone" value="${
+            user.phone_number || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-address">Alamat</label>
+          <input type="text" id="edit-address" value="${
+            user.address || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-bio">Bio</label>
+          <textarea id="edit-bio" class="form-control">${
+            user.bio || ""
+          }</textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-role">Role</label>
+          <select id="edit-role" class="form-control">
+            <option value="1" ${
+              user.role.id === 1 ? "selected" : ""
+            }>Admin</option>
+            <option value="2" ${
+              user.role.id === 2 ? "selected" : ""
+            }>User</option>
+          </select>
+        </div>
+      </div>
+    `;
 
-          return {
-            id: id,
-            username: username,
-            email: email,
-            full_name: fullName,
-            phone_number: phoneNumber,
-            address: address,
-            bio: bio,
-            role: {
-              id: parseInt(roleId),
-              name: roleId === "1" ? "admin" : "user",
-            },
-          };
-        },
-      });
+      document.querySelector(".modal-body").innerHTML = modalContent;
 
-      if (formValues) {
-        const loadingAlert = Swal.fire({
-          title: "Menyimpan Perubahan...",
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
+      // Handle form submission
+      const saveButton = modal.querySelector(".save-button");
+      const closeButton = modal.querySelector(".close-modal");
+      const cancelButton = modal.querySelector(".cancel-button");
+
+      const closeModal = () => {
+        modal.classList.remove("active");
+      };
+
+      closeButton.onclick = closeModal;
+      cancelButton.onclick = closeModal;
+
+      saveButton.onclick = async () => {
+        const updatedUser = {
+          id: id,
+          fullname: document.getElementById("edit-fullname").value.trim(),
+          username: document.getElementById("edit-username").value.trim(),
+          email: document.getElementById("edit-email").value.trim(),
+          phone_number: document.getElementById("edit-phone").value.trim(),
+          address: document.getElementById("edit-address").value.trim(),
+          bio: document.getElementById("edit-bio").value.trim(),
+          role: {
+            id: parseInt(document.getElementById("edit-role").value),
+            name:
+              document.getElementById("edit-role").value === "1"
+                ? "admin"
+                : "user",
           },
-        });
+        };
 
-        const updateResponse = await fetch(
-          "https://backend-berkah.onrender.com/updateuser",
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formValues),
-          }
-        );
+        if (!updatedUser.username || !updatedUser.email) {
+          Swal.fire({
+            title: "Error!",
+            text: "Username dan email harus diisi!",
+            icon: "error",
+            confirmButtonColor: "#2e7d32",
+          });
+          return;
+        }
 
-        if (!updateResponse.ok) throw new Error("Gagal memperbarui data");
+        try {
+          const loadingAlert = Swal.fire({
+            title: "Menyimpan Perubahan...",
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          });
 
-        loadingAlert.close();
-        await Swal.fire({
-          title: "Berhasil!",
-          text: "Data pengguna berhasil diperbarui",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/updateuser",
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedUser),
+            }
+          );
 
-        fetchUserData(); // Refresh the user data
-      }
+          if (!response.ok) throw new Error("Gagal memperbarui data");
+
+          loadingAlert.close();
+          closeModal();
+
+          await Swal.fire({
+            title: "Berhasil!",
+            text: "Data pengguna berhasil diperbarui",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          fetchUserData();
+        } catch (error) {
+          console.error("Error updating user:", error);
+          Swal.fire({
+            title: "Error!",
+            text: error.message || "Gagal memperbarui data pengguna",
+            icon: "error",
+            confirmButtonColor: "#2e7d32",
+          });
+        }
+      };
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error in edit user:", error);
       Swal.fire({
         title: "Error!",
-        text: error.message || "Gagal memperbarui data pengguna",
+        text: error.message || "Terjadi kesalahan saat mengedit pengguna",
         icon: "error",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
     }
   };
 
-  // Delete user
-  window.deleteUser = async (id) => {
+  // Edit user function
+  window.editUser = async (id) => {
     try {
-      const result = await Swal.fire({
-        title: "Konfirmasi Hapus",
-        text: "Apakah Anda yakin ingin menghapus pengguna ini?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#dc3545",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Ya, Hapus!",
-        cancelButtonText: "Batal",
-      });
+      const response = await fetch(
+        `https://backend-berkah.onrender.com/retreive/data/user`
+      );
+      if (!response.ok) throw new Error("Gagal mengambil data");
 
-      if (result.isConfirmed) {
-        const loadingAlert = Swal.fire({
-          title: "Menghapus Data...",
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        });
+      const users = await response.json();
+      const user = users.find((u) => u.id === id);
 
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/deleteuser",
-          {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: id }),
-          }
-        );
-
-        if (!response.ok) throw new Error("Gagal menghapus data");
-
-        loadingAlert.close();
-        await Swal.fire({
-          title: "Berhasil!",
-          text: "Pengguna berhasil dihapus",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        fetchUserData();
+      if (!user) {
+        throw new Error("Data pengguna tidak ditemukan");
       }
+
+      // Show edit modal
+      const modal = document.getElementById("editModal");
+      modal.classList.add("active");
+
+      // Populate modal with user data
+      const modalContent = `
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-fullname">Nama Lengkap</label>
+          <input type="text" id="edit-fullname" value="${
+            user.fullname || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-username">Username</label>
+          <input type="text" id="edit-username" value="${
+            user.username
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-email">Email</label>
+          <input type="email" id="edit-email" value="${
+            user.email
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-phone">Nomor Telepon</label>
+          <input type="tel" id="edit-phone" value="${
+            user.phone_number || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-address">Alamat</label>
+          <input type="text" id="edit-address" value="${
+            user.address || ""
+          }" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="edit-bio">Bio</label>
+          <textarea id="edit-bio" class="form-control">${
+            user.bio || ""
+          }</textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-role">Role</label>
+          <select id="edit-role" class="form-control">
+            <option value="1" ${
+              user.role.id === 1 ? "selected" : ""
+            }>Admin</option>
+            <option value="2" ${
+              user.role.id === 2 ? "selected" : ""
+            }>User</option>
+          </select>
+        </div>
+      </div>
+    `;
+
+      document.querySelector(".modal-body").innerHTML = modalContent;
+
+      // Handle form submission
+      const saveButton = modal.querySelector(".save-button");
+      const closeButton = modal.querySelector(".close-modal");
+      const cancelButton = modal.querySelector(".cancel-button");
+
+      const closeModal = () => {
+        modal.classList.remove("active");
+      };
+
+      closeButton.onclick = closeModal;
+      cancelButton.onclick = closeModal;
+
+      saveButton.onclick = async () => {
+        const updatedUser = {
+          id: id,
+          fullname: document.getElementById("edit-fullname").value.trim(),
+          username: document.getElementById("edit-username").value.trim(),
+          email: document.getElementById("edit-email").value.trim(),
+          phone_number: document.getElementById("edit-phone").value.trim(),
+          address: document.getElementById("edit-address").value.trim(),
+          bio: document.getElementById("edit-bio").value.trim(),
+          role: {
+            id: parseInt(document.getElementById("edit-role").value),
+            name:
+              document.getElementById("edit-role").value === "1"
+                ? "admin"
+                : "user",
+          },
+        };
+
+        if (!updatedUser.username || !updatedUser.email) {
+          Swal.fire({
+            title: "Error!",
+            text: "Username dan email harus diisi!",
+            icon: "error",
+            confirmButtonColor: "#2e7d32",
+          });
+          return;
+        }
+
+        try {
+          const loadingAlert = Swal.fire({
+            title: "Menyimpan Perubahan...",
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          const response = await fetch(
+            "https://backend-berkah.onrender.com/updateuser",
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedUser),
+            }
+          );
+
+          if (!response.ok) throw new Error("Gagal memperbarui data");
+
+          loadingAlert.close();
+          closeModal();
+
+          await Swal.fire({
+            title: "Berhasil!",
+            text: "Data pengguna berhasil diperbarui",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          fetchUserData();
+        } catch (error) {
+          console.error("Error updating user:", error);
+          Swal.fire({
+            title: "Error!",
+            text: error.message || "Gagal memperbarui data pengguna",
+            icon: "error",
+            confirmButtonColor: "#2e7d32",
+          });
+        }
+      };
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error in edit user:", error);
       Swal.fire({
         title: "Error!",
-        text: "Gagal menghapus pengguna",
+        text: error.message || "Terjadi kesalahan saat mengedit pengguna",
         icon: "error",
-        confirmButtonColor: "#007bff",
+        confirmButtonColor: "#2e7d32",
       });
     }
   };
