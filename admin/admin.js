@@ -384,13 +384,25 @@ document.addEventListener("DOMContentLoaded", () => {
         <input id="swal-email" class="swal2-input" value="${
           user.email
         }" placeholder="Email">
+        <input id="swal-fullname" class="swal2-input" value="${
+          user.full_name || ""
+        }" placeholder="Full Name">
+        <input id="swal-phone" class="swal2-input" value="${
+          user.phone_number || ""
+        }" placeholder="Phone Number">
+        <input id="swal-address" class="swal2-input" value="${
+          user.address || ""
+        }" placeholder="Address">
+        <input id="swal-bio" class="swal2-input" value="${
+          user.bio || ""
+        }" placeholder="Bio">
         <select id="swal-role" class="swal2-input">
-            <option value="1" ${
-              user.role.id === 1 ? "selected" : ""
-            }>Admin</option>
-            <option value="2" ${
-              user.role.id === 2 ? "selected" : ""
-            }>User</option>
+          <option value="1" ${
+            user.role.id === 1 ? "selected" : ""
+          }>Admin</option>
+          <option value="2" ${
+            user.role.id === 2 ? "selected" : ""
+          }>User</option>
         </select>
       `,
         focusConfirm: false,
@@ -403,6 +415,14 @@ document.addEventListener("DOMContentLoaded", () => {
             .getElementById("swal-username")
             .value.trim();
           const email = document.getElementById("swal-email").value.trim();
+          const fullName = document
+            .getElementById("swal-fullname")
+            .value.trim();
+          const phoneNumber = document
+            .getElementById("swal-phone")
+            .value.trim();
+          const address = document.getElementById("swal-address").value.trim();
+          const bio = document.getElementById("swal-bio").value.trim();
           const roleId = document.getElementById("swal-role").value;
 
           if (!username || !email) {
@@ -411,12 +431,16 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           return {
-            id: user.id, // Use the existing user ID
+            id: id,
             username: username,
             email: email,
+            full_name: fullName,
+            phone_number: phoneNumber,
+            address: address,
+            bio: bio,
             role: {
-              id: parseInt(roleId), // Ensure role ID is an integer
-              name: roleId === "1" ? "admin" : "user", // Set role name based on selection
+              id: parseInt(roleId),
+              name: roleId === "1" ? "admin" : "user",
             },
           };
         },
