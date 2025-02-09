@@ -225,10 +225,10 @@ body {
 .masjid-content {
   position: relative;
   z-index: 1;
-  flex: 1; /* Menggunakan flex-grow agar konten memenuhi item */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Mengatur elemen konten dalam kolom */
-  justify-content: space-between; /* Spasi antara judul dan detail */
+  flex-direction: column;
+  justify-content: space-between; /* Tetap menggunakan space-between */
 }
 
 .masjid-content h3 {
@@ -240,13 +240,17 @@ body {
 }
 
 .masjid-content p {
-  margin-bottom: 0.5rem; /* Margin bawah paragraf lebih kecil */
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; /* Gap icon dan teks lebih kecil */
-  color: #777; /* Warna teks detail sedikit lebih terang */
-  font-size: 0.9rem; /* Ukuran font detail lebih kecil */
-  line-height: 1.4; /* Line height untuk detail */
+  margin-bottom: 0.7rem; /* Sedikit diperbesar untuk ruang bawah */
+  display: -webkit-box; /* Menggunakan -webkit-box untuk ellipsis */
+  -webkit-line-clamp: 3; /* Batasan jumlah baris deskripsi */
+  line-clamp: 3; /* Standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* Menyembunyikan teks yang melebihi batas */
+  gap: 0.5rem;
+  color: #777;
+  font-size: 0.9rem;
+  line-height: 1.5; /* Line height lebih besar untuk kerapihan baris */
+  text-align: justify; /* Teks rata kanan-kiri untuk tampilan lebih formal */
 }
 
 .masjid-content i {
