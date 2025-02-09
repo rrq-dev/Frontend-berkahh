@@ -1,9 +1,7 @@
 :root {
   --primary-color: #2658f2;
   --secondary-color: #d287f8;
-  --accent-color: var(
-    --secondary-color
-  ); /* Added accent color, defaulting to secondary */
+  --accent-color: var(--secondary-color);
   --text-color: #02091a;
   --background-color: #ecf1fe;
   --card-background: #ffffff;
@@ -90,9 +88,7 @@ body {
 }
 
 .navbar-button:hover {
-  background-color: var(
-    --secondary-color
-  ); /* Using Secondary color for hover */
+  background-color: var(--secondary-color);
   transform: translateY(-2px);
 }
 
@@ -117,13 +113,13 @@ body {
 }
 
 .welcome-section p {
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
   font-size: 1.1rem;
 }
 
 /* Search Styles */
 .search-container {
-  max-width: 800px; /* Increased max-width */
+  max-width: 800px;
   margin: 0 auto 2.5rem;
   display: flex;
   gap: 10px;
@@ -140,7 +136,7 @@ body {
 .search-icon {
   position: absolute;
   left: 1.2rem;
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
   pointer-events: none;
 }
 
@@ -156,7 +152,7 @@ body {
 }
 
 #search-bar:focus {
-  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2); /* Adjusted shadow color to match primary color */
+  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2);
   border-color: var(--secondary-color);
 }
 
@@ -179,8 +175,11 @@ body {
 /* Masjid Grid Styles */
 .masjid-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  ); /* Ukuran minimum item dan responsif */
+  gap: 1.5rem; /* Ruang antar item lebih kecil */
   padding: 2rem;
   margin: 0 auto;
   max-width: 1400px;
@@ -188,13 +187,15 @@ body {
 
 .masjid-item {
   background-color: var(--card-background);
-  border-radius: 15px;
-  padding: 1.8rem;
-  box-shadow: 0 4px 6px var(--shadow-color);
+  border-radius: 10px; /* Border radius lebih kecil dan modern */
+  padding: 1.5rem; /* Padding sedikit dikurangi */
+  box-shadow: 0 2px 5px var(--shadow-color); /* Box shadow lebih halus */
   transition: all 0.3s ease;
-  border: 2px solid #ffffff;
+  border: 1px solid #eee; /* Border lebih tipis dan warna lebih lembut */
   position: relative;
   overflow: hidden;
+  display: flex; /* Menggunakan Flexbox untuk tata letak internal */
+  flex-direction: column; /* Mengatur item content secara vertikal */
 }
 
 .masjid-item::before {
@@ -203,46 +204,59 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 5px; /* Height garis lebih tebal sedikit */
   background-color: var(--primary-color);
   transition: background-color 0.3s ease;
+  border-radius: 10px 10px 0 0; /* Border radius di atas saja */
+}
+
+.masjid-item:hover {
+  box-shadow: 0 6px 12px var(--hover-shadow); /* Efek hover lebih terasa */
+  transform: translateY(-3px); /* Efek hover lebih halus */
+  border-color: var(--accent-color); /* Border berubah warna saat hover */
 }
 
 .masjid-item:hover::before {
   background-color: var(
-    --secondary-color
-  ); /* Using Secondary color for hover effect */
+    --accent-color
+  ); /* Warna garis atas berubah saat hover */
 }
 
 .masjid-content {
   position: relative;
   z-index: 1;
+  flex: 1; /* Menggunakan flex-grow agar konten memenuhi item */
+  display: flex;
+  flex-direction: column; /* Mengatur elemen konten dalam kolom */
+  justify-content: space-between; /* Spasi antara judul dan detail */
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
+  margin-bottom: 0.7rem; /* Margin bawah judul lebih kecil */
+  font-size: 1.2rem; /* Ukuran font judul lebih kecil */
   font-weight: 600;
+  line-height: 1.3; /* Line height untuk judul */
 }
 
 .masjid-content p {
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem; /* Margin bawah paragraf lebih kecil */
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  color: #555; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
-  font-size: 1rem;
+  gap: 0.5rem; /* Gap icon dan teks lebih kecil */
+  color: #777; /* Warna teks detail sedikit lebih terang */
+  font-size: 0.9rem; /* Ukuran font detail lebih kecil */
+  line-height: 1.4; /* Line height untuk detail */
 }
 
 .masjid-content i {
   color: var(--primary-color);
-  font-size: 1.1rem;
+  font-size: 1rem; /* Ukuran icon lebih kecil */
 }
 
 /* Highlight style for search results */
 .highlight {
-  background-color: var(--accent-color); /* Using accent color variable */
+  background-color: var(--accent-color);
   padding: 0 4px;
   border-radius: 4px;
   color: var(--text-color);
@@ -279,7 +293,7 @@ body {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
 }
 
 /* Footer */
@@ -342,6 +356,16 @@ body {
     padding: 1rem 0.5rem;
   }
 
+  .masjid-item {
+    padding: 1rem;
+  }
+  .masjid-content h3 {
+    font-size: 1.1rem;
+  }
+  .masjid-content p {
+    font-size: 0.85rem;
+  }
+
   .search-container {
     padding: 0 1rem;
   }
@@ -358,8 +382,8 @@ body {
 
 /* Performance Optimizations - Apply hardware acceleration hints */
 .navbar,
-.masjid-item, /* Renamed from .masjid-card to .masjid-item to match your HTML/JS */
-.navbar-button /* Renamed from .detail-btn to .navbar-button to match your HTML/JS, and because .detail-btn was not used */ {
+.masjid-item,
+.navbar-button {
   will-change: transform;
   backface-visibility: hidden;
   transform: translateZ(0);
@@ -368,7 +392,6 @@ body {
 /* Accessibility Improvements - Focus styles for interactive elements */
 .navbar-button:focus,
 #search-bar:focus {
-  /* Removed .detail-btn as it's not used/needed, added focus to navbar-button which is interactive */
   outline: 3px solid rgba(38, 88, 242, 0.4);
   outline-offset: 2px;
 }
@@ -388,7 +411,6 @@ body {
   }
 
   .masjid-info p {
-    /* .masjid-info is not used, consider renaming/removing if not intended */
     color: #ddd;
   }
 }
@@ -417,17 +439,15 @@ body {
 }
 
 /* No Results Message */
-.no-results, /* Renamed from .no-data to .no-results to match your JS class name */
+.no-results,
 .no-data {
-  /* Kept .no-data just in case you use it elsewhere, but prioritize .no-results for consistency */
   text-align: center;
   padding: 2rem;
   color: #666;
 }
 
-.no-results i, /* Renamed from .no-data i to .no-results i to match your JS class name */
+.no-results i,
 .no-data i {
-  /* Kept .no-data i just in case you use it elsewhere, but prioritize .no-results for consistency */
   font-size: 3rem;
   margin-bottom: 1rem;
   color: var(--primary-color);
