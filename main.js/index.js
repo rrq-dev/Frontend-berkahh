@@ -82,45 +82,46 @@ document.addEventListener("DOMContentLoaded", () => {
       }
    
       async function fetchMasjidData(searchTerm = "") {
-        try {
-          const response = await fetch(
-            "https://backend-berkah.onrender.com/retrieve/data/location",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-    
-          if (!response.ok) {
-            // *** FIX 2: Handle 404 and other errors more gracefully ***
-            if (response.status === 404) {
-              throw new Error("Data masjid tidak ditemukan"); // Specific message for 404
-            } else {
-              throw new Error(`Gagal mengambil data masjid: ${response.status} ${response.statusText}`); // Include status code
-            }
-          }
-    
-          const masjidData = await response.json();
-    
-          if (!window.location.pathname.includes("/profile/")) {
-            displayMasjidList(masjidData, searchTerm);
-          }
-    
-          return masjidData;
-        } catch (error) {
-          console.error("Error fetching masjid data:", error);
-          if (!window.location.pathname.includes("/profile/")) {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: error.message || "Gagal memuat data masjid!", // Display specific error message if available
-              confirmButtonColor: "#4CAF50",
-            });
-          }
-        }
-      }
+          try {
+            const apiUrl = "https://backend-berkah.onrender.com/retrieve/data/location"; // Definisikan apiUrl disini
+            console.log("Fetching masjid data from:", apiUrl); // *** Tambahkan console.log untuk URL ***
+    
+            const response = await fetch(apiUrl, { // Gunakan apiUrl disini
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+    
+            if (!response.ok) {
+              // *** FIX 2: Handle 404 and other errors more gracefully ***
+              if (response.status === 404) {
+                throw new Error("Endpoint data masjid tidak ditemukan di server (404)"); // Pesan error lebih spesifik untuk 404
+              } else {
+                throw new Error(`Gagal mengambil data masjid: ${response.status} ${response.statusText}`); // Include status code
+              }
+            }
+    
+            const masjidData = await response.json();
+    
+            if (!window.location.pathname.includes("/profile/")) {
+              displayMasjidList(masjidData, searchTerm);
+            }
+    
+            return masjidData;
+          } catch (error) {
+            console.error("Error fetching masjid data:", error);
+            if (!window.location.pathname.includes("/profile/")) {
+              Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message || "Gagal memuat data masjid!", // Display specific error message if available // *** Pesan error sudah diperbaiki sebelumnya ***
+                confirmButtonColor: "#4CAF50",
+              });
+            }
+          }
+        }
     
       // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
       function displayMasjidList(masjidData, searchTerm = "") {
