@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchMasjidData(searchTerm = "") {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retrieve/data/location", // Your backend URL
+        "https://backend-berkah.onrender.com/retrieve/data/location",
         {
           method: "GET",
           headers: {
@@ -86,8 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (!response.ok) {
-        const errorData = await response.json(); // Try to parse error response
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        // *** FIX 2: Handle 404 and other errors more gracefully ***
+        if (response.status === 404) {
+          throw new Error("Data masjid tidak ditemukan"); // Specific message for 404
+        } else {
+          throw new Error(`Gagal mengambil data masjid: ${response.status} ${response.statusText}`); // Include status code
+        }
       }
 
       const masjidData = await response.json();
@@ -103,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: error.message || "Gagal memuat data masjid!", // Show detailed error
+          text: error.message || "Gagal memuat data masjid!", // Display specific error message if available
           confirmButtonColor: "#4CAF50",
         });
       }
@@ -261,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
   // Fungsi untuk mengambil dan menampilkan data profil
-  async function fetchAndDisplayProfileData() {
+ async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
 
@@ -271,8 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      // Fetch user data
       const userResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/user", // Your backend URL
+        "https://backend-berkah.onrender.com/retreive/data/user",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -280,38 +285,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      if (!userResponse.ok) {
-        const errorData = await userResponse.json();
-        throw new Error(errorData.message || `HTTP error! status: ${userResponse.status}`);
-      }
-
+      if (!userResponse.ok) throw new Error("Gagal mengambil data user");
       const users = await userResponse.json();
       const currentUser = users.find((u) => u.id === parseInt(userId));
 
+      // Fetch masjid data (only if needed for other profile info)
       const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retrieve/data/location" // Your backend URL
+        "https://backend-berkah.onrender.com/retreive/data/location"
       );
-
-      if (!masjidResponse.ok) {
-        const errorData = await masjidResponse.json();
-        throw new Error(errorData.message || `HTTP error! status: ${masjidResponse.status}`);
-      }
-
+      if (!masjidResponse.ok) throw new Error("Gagal mengambil data masjid");
       const masjidData = await masjidResponse.json();
 
       if (window.location.pathname.includes("profile.html")) {
-        document.getElementById("username").textContent = currentUser.username || "-";
+        // Update profile page dengan data terbaru
+        document.getElementById("username").textContent =
+          currentUser.username || "-";
         document.getElementById("email").textContent = currentUser.email || "-";
-        document.getElementById("bio").textContent = currentUser.bio || "Belum diisi";
+        document.getElementById("bio").textContent =
+          currentUser.bio || "Belum diisi";
 
-        if (currentUser.preferred_masjid) {
+        // *** FIX:  Don't display preferred masjid if it's not set ***
+        if (currentUser.preferred_masjid) {  // Check if preferred_masjid exists
           const preferredMasjid = masjidData.find(
-            (m) => m.id === currentUser.preferred_masjid // ID is already an integer
+            (m) => m.id === parseInt(currentUser.preferred_masjid)
           );
-
-          document.getElementById("preferredMasjid").textContent = preferredMasjid?.name || "Belum diisi"; // Optional chaining
+          document.getElementById("preferredMasjid").textContent = preferredMasjid
+            ? preferredMasjid.name
+            : "Belum diisi";
         } else {
-          document.getElementById("preferredMasjid").textContent = "Belum diisi";
+          document.getElementById("preferredMasjid").textContent = "Belum diisi"; // Or any other default message
         }
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
@@ -333,15 +335,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     } catch (error) {
-      console.error("Error fetching or displaying profile data:", error);
+      console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.message || "Gagal memuat data profil!", // Show detailed error
+        text: "Gagal memuat data profil",
         confirmButtonColor: "#4CAF50",
       });
     }
   }
+
   // Handle profile form submission
   const profileForm = document.getElementById("profileForm");
   if (profileForm) {
