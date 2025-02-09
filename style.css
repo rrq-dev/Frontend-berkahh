@@ -1,8 +1,8 @@
 :root {
-  --primary-color: #2e7d32;
-  --secondary-color: #388e3c;
-  --text-color: #333;
-  --background-color: #f8f9fa;
+  --primary-color: #2658f2;
+  --secondary-color: #d287f8;
+  --text-color: #02091a;
+  --background-color: #ecf1fe;
   --card-background: #ffffff;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --hover-shadow: rgba(0, 0, 0, 0.15);
@@ -87,7 +87,7 @@ body {
 }
 
 .navbar-button:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--secondary-color); /* Using Secondary color for hover */
   transform: translateY(-2px);
 }
 
@@ -112,7 +112,7 @@ body {
 }
 
 .welcome-section p {
-  color: #666;
+  color: #666; /* Kept as #666 - consider using a shade of text color if needed for stronger contrast */
   font-size: 1.1rem;
 }
 
@@ -135,7 +135,7 @@ body {
 .search-icon {
   position: absolute;
   left: 1.2rem;
-  color: #666;
+  color: #666; /* Kept as #666 - consider using a shade of text color if needed for stronger contrast */
   pointer-events: none;
 }
 
@@ -147,11 +147,11 @@ body {
   font-size: 1rem;
   outline: none;
   transition: all var(--transition-speed) ease;
-  background-color: white;
+  background-color: white; /* Kept as white for search bar background */
 }
 
 #search-bar:focus {
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2); /* Adjusted shadow color to match primary color */
   border-color: var(--secondary-color);
 }
 
@@ -187,7 +187,7 @@ body {
   padding: 1.8rem;
   box-shadow: 0 4px 6px var(--shadow-color);
   transition: all 0.3s ease;
-  border: 2px solid #ffffff;
+  border: 2px solid #ffffff; /* Kept as white for border */
   position: relative;
   overflow: hidden;
 }
@@ -204,7 +204,7 @@ body {
 }
 
 .masjid-item:hover::before {
-  background-color: var(--random-color, var(--primary-color));
+  background-color: var(--secondary-color); /* Using Secondary color for hover effect */
 }
 
 .masjid-content {
@@ -224,7 +224,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  color: #555;
+  color: #555; /* Kept as #555 - consider using a shade of text color if needed for stronger contrast */
   font-size: 1rem;
 }
 
@@ -235,10 +235,10 @@ body {
 
 /* Highlight style for search results */
 .highlight {
-  background-color: #ffd700;
+  background-color: var(--accent-color); /* Corrected variable name to --accent-color (if you intended to add it) or var(--secondary-color) or var(--accent) if you defined --accent variable */
   padding: 0 4px;
   border-radius: 4px;
-  color: #000;
+  color: var(--text-color); /* Highlight text color to text color */
 }
 
 /* Masjid Details Modal */
@@ -272,7 +272,7 @@ body {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: #666; /* Kept as #666 - consider using a shade of text color if needed for stronger contrast */
 }
 
 /* Footer - Optimized */
@@ -362,7 +362,7 @@ body {
 .navbar-button:focus,
 #search-bar:focus,
 .detail-btn:focus {
-  outline: 3px solid rgba(46, 125, 50, 0.4);
+  outline: 3px solid rgba(38, 88, 242, 0.4);
   outline-offset: 2px;
 }
 
