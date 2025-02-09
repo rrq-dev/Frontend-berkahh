@@ -90,8 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Pastikan hanya satu opsi yang tidak di-comment (aktif) pada saat pengujian.
 
       // Opsi 1: URL dengan spelling yang benar dan path logis (direkomendasikan)
-      const apiUrl =
-        "https://backend-berkah.onrender.com/retreive/data/location";
+      const apiUrl = "https://backend-berkah.onrender.com/retreive/data";
 
       // Opsi 2: URL lebih sederhana (alternatif jika opsi 1 gagal)
       // const apiUrl = "https://backend-berkah.onrender.com/location";
@@ -168,11 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (filteredAndSortedData.length === 0) {
       masjidList.innerHTML = `
-                  <div class="no-results">
-                      <i class="fas fa-search"></i>
-                      <p>Masjid yang dicari tidak ditemukan</p>
-                  </div>
-              `;
+          <div class="no-results">
+            <i class="fas fa-search"></i>
+            <p>Masjid yang dicari tidak ditemukan</p>
+          </div>
+        `;
       return;
     }
 
@@ -192,20 +191,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const mapLink = masjid.embed_link; // Ambil embed_link dari data masjid
 
       masjidItem.innerHTML = `
-                  <div class="masjid-content">
-                      <h3>${highlightedName}</h3>
-                      <p>
-                          <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                              <i class="fas fa-map-marker-alt"></i> ${
-                                masjid.address
-                              }
-                          </a>
-                      </p>
-                      <p><i class="fas fa-info-circle"></i> ${
-                        masjid.description || "Tidak ada deskripsi"
-                      }</p>
-                  </div>
-              `;
+          <div class="masjid-content">
+            <h3>${highlightedName}</h3>
+            <p>
+              <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+              </a>
+            </p>
+            <p><i class="fas fa-info-circle"></i> ${
+              masjid.description || "Tidak ada deskripsi"
+            }</p>
+          </div>
+        `;
 
       // Tambahkan efek hover dengan animasi yang lebih smooth
       masjidItem.addEventListener("mouseover", () => {
@@ -337,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentUser = users.find((u) => u.id === parseInt(userId));
       // Fetch masjid data (only if needed for other profile info)
       const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data/location"
+        "https://backend-berkah.onrender.com/retreive/data"
       );
       if (!masjidResponse.ok) {
         // Tangani error HTTP response dengan lebih baik
