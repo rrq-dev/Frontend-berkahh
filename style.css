@@ -34,7 +34,7 @@ body {
   width: 100%;
 }
 
-/* Navbar Styles */
+/* ======= Navbar Styles ======= */
 .navbar {
   background-color: var(--primary-color);
   padding: 0.8rem 0;
@@ -92,7 +92,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Main Content Styles */
+/* ======= Main Content Styles ======= */
 .main-content {
   margin-top: 70px;
   padding: 2rem 0;
@@ -117,7 +117,7 @@ body {
   font-size: 1.1rem;
 }
 
-/* Search Styles */
+/* ======= Search Styles ======= */
 .search-container {
   max-width: 800px;
   margin: 0 auto 2.5rem;
@@ -172,7 +172,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Masjid Grid Styles */
+/* ======= Masjid Grid Styles ======= */
 .masjid-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -184,11 +184,11 @@ body {
 
 .masjid-item {
   background-color: var(--card-background);
-  border-radius: 10px;
+  border-radius: 12px; /* Sedikit lebih besar border radius */
   padding: 1.5rem;
-  box-shadow: 0 2px 5px var(--shadow-color);
+  box-shadow: 0 3px 7px var(--shadow-color); /* Sedikit lebih kuat box shadow */
   transition: all 0.3s ease;
-  border: 1px solid #eee;
+  border: 1px solid #ddd; /* Warna border lebih gelap sedikit */
   position: relative;
   overflow: hidden;
   display: flex;
@@ -201,15 +201,15 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 5px;
+  height: 6px; /* Lebih tebal garis atas */
   background-color: var(--primary-color);
   transition: background-color 0.3s ease;
-  border-radius: 10px 10px 0 0;
+  border-radius: 12px 12px 0 0; /* Sesuai dengan border radius card */
 }
 
 .masjid-item:hover {
-  box-shadow: 0 6px 12px var(--hover-shadow);
-  transform: translateY(-3px);
+  box-shadow: 0 8px 16px var(--hover-shadow); /* Efek hover lebih kuat */
+  transform: translateY(-4px); /* Lebih tinggi efek translate Y */
   border-color: var(--accent-color);
 }
 
@@ -223,44 +223,50 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start; /* Mengubah justify-content menjadi flex-start */
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
-  margin-bottom: 0.7rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.3;
+  margin-bottom: 0.5rem; /* Margin bawah judul lebih kecil lagi */
+  font-size: 1.5rem; /* Ukuran font judul **diperbesar** */
+  font-weight: 700; /* Font weight judul lebih tebal */
+  line-height: 1.2; /* Line height judul sedikit dirapatkan */
+  text-align: center; /* Judul di tengah */
 }
 
 /* Style for Masjid Location */
 .masjid-content .masjid-location {
   color: var(--secondary-color);
-  font-weight: 500;
-  font-size: 0.85rem;
-  margin-bottom: 0.6rem; /* Increased margin bottom for better separation */
+  font-weight: 600; /* Font weight lokasi sedikit lebih tebal */
+  font-size: 0.9rem;
+  margin-bottom: 1rem; /* Margin bottom lokasi diperbesar */
+  padding-left: 1rem; /* Padding kiri untuk mensejajarkan icon */
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  align-items: center; /* Menjaga icon dan teks tetap sejajar */
+  gap: 0.4rem;
   text-align: left;
   -webkit-line-clamp: unset;
   line-clamp: unset;
   -webkit-box-orient: unset;
   overflow: visible;
+  position: relative; /* Untuk positioning pseudo-element */
 }
 
 .masjid-content .masjid-location i {
   color: var(--secondary-color);
   font-size: 0.9rem;
+  position: absolute; /* Positioning absolute untuk icon lokasi */
+  left: 0; /* Letakkan icon di paling kiri dalam container lokasi */
 }
 
 /* Style for Masjid Description */
 .masjid-content .masjid-description {
   margin-bottom: 0.7rem;
+  padding: 0 1rem; /* Padding kiri kanan pada deskripsi */
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Adjusted line clamp to 2 lines for description */
-  line-clamp: 2; /* Standard property for compatibility */
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   gap: 0.5rem;
@@ -381,7 +387,7 @@ body {
     padding: 1rem;
   }
   .masjid-content h3 {
-    font-size: 1.1rem;
+    font-size: 1.3rem; /* Ukuran font judul sedikit lebih besar di mobile */
   }
   .masjid-content p,
   .masjid-content .masjid-location,
@@ -403,7 +409,7 @@ body {
   }
 }
 
-/* Performance Optimizations - Apply hardware acceleration hints */
+/* Performance Optimizations */
 .navbar,
 .masjid-item,
 .navbar-button {
@@ -412,7 +418,7 @@ body {
   transform: translateZ(0);
 }
 
-/* Accessibility Improvements - Focus styles for interactive elements */
+/* Accessibility Improvements */
 .navbar-button:focus,
 #search-bar:focus {
   outline: 3px solid rgba(38, 88, 242, 0.4);
