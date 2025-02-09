@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const searchBar = document.getElementById("search-bar");
   const detailsContainer = document.getElementById("masjid-details");
-  const navbarButtons = document.querySelectorAll(".navbar-button");
+  const navbarButtons = document.querySelectorAll(".navbar-button"); // Handle Google OAuth Callback Token
 
-  // Handle Google OAuth Callback Token
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
 
@@ -15,17 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Format token tidak valid");
       }
 
-      const payload = JSON.parse(atob(tokenParts[1]));
+      const payload = JSON.parse(atob(tokenParts[1])); // Simpan token dan user info
 
-      // Simpan token dan user info
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("userId", payload.user_id);
-      localStorage.setItem("userRole", payload.role);
+      localStorage.setItem("userRole", payload.role); // Hapus token dari URL tanpa reload halaman
 
-      // Hapus token dari URL tanpa reload halaman
-      window.history.replaceState({}, document.title, window.location.pathname);
+      window.history.replaceState({}, document.title, window.location.pathname); // Tampilkan pesan selamat datang untuk login Google
 
-      // Tampilkan pesan selamat datang untuk login Google
       Swal.fire({
         title: "Login Berhasil!",
         text: "Selamat datang kembali!",
@@ -51,9 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
+  } // Event listener untuk tombol "Lihat Peta"
 
-  // Event listener untuk tombol "Lihat Peta"
   const viewMapButton = document.getElementById("view-map");
   if (viewMapButton) {
     viewMapButton.addEventListener("click", () => {
@@ -66,12 +61,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function showMasjidDetails(masjid) {
     detailsContainer.style.display = "block";
     detailsContainer.querySelector(".details-body").innerHTML = `
-      <h2>${masjid.name}</h2>
-      <p>${masjid.address}</p>
-      <div class="map-container"> ${masjid.embed_link}   </div>
-      <button id="view-map" class="navbar-button">Lihat Peta</button>
-    `;
-    // Re-attach event listener after re-rendering details
+        <h2>${masjid.name}</h2>
+        <p>${masjid.address}</p>
+        <div class="map-container"> ${masjid.embed_link}
+        </div>
+        <button id="view-map" class="navbar-button">Lihat Peta</button>
+      `; // Re-attach event listener after re-rendering details
     const viewMapButton = document.getElementById("view-map");
     if (viewMapButton) {
       viewMapButton.addEventListener("click", () => {
@@ -80,28 +75,15 @@ document.addEventListener("DOMContentLoaded", () => {
         window.open(embedLink, "_blank");
       });
     }
-  }
-  // Fungsi untuk mengambil data masjid tanpa perlu token (diambil dari kode terbaru user)
+  } // Fungsi untuk mengambil data masjid tanpa perlu token (diambil dari kode terbaru user)
   async function fetchMasjidData(searchTerm = "") {
     try {
-      // *** FIX 4: TRY DIFFERENT API ENDPOINTS - TEST ONE AT A TIME ***
-      // Penjelasan Opsi API Endpoint:
-      // Pilih salah satu URL di bawah ini untuk menguji koneksi ke backend.
-      // Pastikan hanya satu opsi yang tidak di-comment (aktif) pada saat pengujian.
+      // *** API ENDPOINT YANG DIPERBAIKI (SESUAI TABEL locations) ***
+      // Endpoint ini sekarang spesifik untuk mengambil data lokasi masjid dari tabel 'locations'
+      const apiUrl =
+        "https://backend-berkah.onrender.com/retreive/data/location";
 
-      // Opsi 1: URL dengan spelling yang benar dan path logis (direkomendasikan)
-      const apiUrl = "https://backend-berkah.onrender.com/retreive/data";
-
-      // Opsi 2: URL lebih sederhana (alternatif jika opsi 1 gagal)
-      // const apiUrl = "https://backend-berkah.onrender.com/location";
-
-      // Opsi 3: URL dengan kebab-case (alternatif lain)
-      // const apiUrl = "https://backend-berkah.onrender.com/get-location";
-
-      // Opsi 4: URL root API (untuk tes koneksi dasar)
-      // const apiUrl = "https://backend-berkah.onrender.com/";
-
-      console.log("Fetching masjid data from:", apiUrl); // Log URL yang digunakan
+      console.log("Fetching masjid data from:", apiUrl);
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -111,16 +93,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!response.ok) {
-        // Tangani error HTTP response dengan lebih baik
+        // Penanganan error HTTP response yang lebih informatif
         const message = `HTTP error! status: ${
           response.status
         }, text: ${await response.text()}`;
         throw new Error(`Gagal mengambil data masjid: ${message}`);
       }
 
-      const masjidData = await response.json();
+      const masjidData = await response.json(); // Hanya panggil displayMasjidList jika BUKAN di halaman profil
 
-      // Hanya panggil displayMasjidList jika berada di halaman utama
       if (!window.location.pathname.includes("/profile/")) {
         displayMasjidList(masjidData, searchTerm);
       }
@@ -135,76 +116,69 @@ document.addEventListener("DOMContentLoaded", () => {
           text: "Gagal memuat data masjid!",
           confirmButtonColor: "#4CAF50",
         });
-      }
-      // Lempar kembali error untuk ditangani di fungsi pemanggil jika perlu
+      } // Lempar kembali error untuk ditangani oleh fungsi pemanggil
       throw error;
     }
   }
 
-  // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
   function displayMasjidList(masjidData, searchTerm = "") {
     const masjidList = document.getElementById("masjid-list");
     if (!masjidList) return;
 
-    masjidList.innerHTML = "";
+    masjidList.innerHTML = ""; // Filter dan sort masjid berdasarkan relevansi pencarian
 
-    // Filter dan sort masjid berdasarkan relevansi pencarian
     const filteredAndSortedData = masjidData
       .map((masjid) => {
         const name = masjid.name.toLowerCase();
-        const search = searchTerm.toLowerCase();
+        const search = searchTerm.toLowerCase(); // Hitung skor relevansi
 
-        // Hitung skor relevansi
         let score = 0;
-        if (name === search) score = 100; // Match sempurna
-        else if (name.startsWith(search)) score = 75; // Match di awal
-        else if (name.includes(search)) score = 50; // Match sebagian
+        if (name === search) score = 100;
+        else if (name.startsWith(search)) score = 75;
+        else if (name.includes(search)) score = 50;
 
         return { ...masjid, score };
       })
-      .filter((masjid) => masjid.score > 0) // Filter yang relevan saja
-      .sort((a, b) => b.score - a.score); // Sort berdasarkan skor
+      .filter((masjid) => masjid.score > 0)
+      .sort((a, b) => b.score - a.score);
 
     if (filteredAndSortedData.length === 0) {
       masjidList.innerHTML = `
-          <div class="no-results">
-            <i class="fas fa-search"></i>
-            <p>Masjid yang dicari tidak ditemukan</p>
-          </div>
-        `;
+            <div class="no-results">
+              <i class="fas fa-search"></i>
+              <p>Masjid yang dicari tidak ditemukan</p>
+            </div>
+          `;
       return;
     }
 
     filteredAndSortedData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
-      masjidItem.className = "masjid-item";
+      masjidItem.className = "masjid-item"; // Highlight teks yang cocok dengan pencarian
 
-      // Highlight teks yang cocok dengan pencarian
       const highlightedName = searchTerm
         ? masjid.name.replace(
             new RegExp(searchTerm, "gi"),
             (match) => `<span class="highlight">${match}</span>`
           )
-        : masjid.name;
+        : masjid.name; // Membuat lokasi masjid menjadi link ke Google Maps
 
-      // Membuat lokasi masjid menjadi link ke Google Maps
-      const mapLink = masjid.embed_link; // Ambil embed_link dari data masjid
+      const mapLink = masjid.embed_link;
 
       masjidItem.innerHTML = `
-          <div class="masjid-content">
-            <h3>${highlightedName}</h3>
-            <p>
-              <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                <i class="fas fa-map-marker-alt"></i> ${masjid.address}
-              </a>
-            </p>
-            <p><i class="fas fa-info-circle"></i> ${
-              masjid.description || "Tidak ada deskripsi"
-            }</p>
-          </div>
-        `;
+            <div class="masjid-content">
+              <h3>${highlightedName}</h3>
+              <p>
+                <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                  <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+                </a>
+              </p>
+              <p><i class="fas fa-info-circle"></i> ${
+    masjid.description || "Tidak ada deskripsi"
+  }</p>
+            </div>
+          `;
 
-      // Tambahkan efek hover dengan animasi yang lebih smooth
       masjidItem.addEventListener("mouseover", () => {
         masjidItem.style.transform = "translateY(-5px)";
         masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
@@ -217,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       masjidItem.addEventListener("click", (event) => {
-        // Cegah event click pada item masjid untuk menimpa link lokasi
         if (
           event.target.tagName !== "A" &&
           event.target.parentNode.tagName !== "A"
@@ -230,14 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
     const logoutBtn = document.querySelector(".logout-btn");
     const loginBtn = document.querySelector(".login-btn");
     const profileBtn = document.querySelector(".profile-btn");
     const token = localStorage.getItem("jwtToken");
     if (token) {
-      // User sudah login
       if (logoutBtn) {
         logoutBtn.style.display = "block";
         logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
@@ -250,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
         profileBtn.style.display = "block";
       }
     } else {
-      // User belum login
       if (logoutBtn) {
         logoutBtn.style.display = "none";
       }
@@ -264,7 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fungsi untuk logout
   function logout() {
     Swal.fire({
       title: "Apakah Anda yakin?",
@@ -277,11 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Hapus semua data user dari localStorage
         localStorage.clear();
-        // Update tampilan navbar
         updateAuthLinks();
-        // Tampilkan pesan sukses
         Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
@@ -290,7 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
           timer: 1500,
           timerProgressBar: true,
           didClose: () => {
-            // Redirect ke halaman utama
             window.location.href = "https://jumatberkah.vercel.app/";
           },
         });
@@ -303,9 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
     closeDetailsButton.addEventListener("click", () => {
       detailsContainer.style.display = "none";
     });
-  }
+  } // Fungsi untuk mengambil dan menampilkan data profil
 
-  // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
@@ -314,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     try {
-      // Fetch user data
+      // Fetch user data - Endpoint spesifik untuk user
       const userResponse = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/user",
         {
@@ -324,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
       if (!userResponse.ok) {
-        // Tangani error HTTP response dengan lebih baik
+        // Penanganan error HTTP response yang lebih informatif
         const message = `HTTP error! status: ${
           userResponse.status
         }, text: ${await userResponse.text()}`;
@@ -332,12 +296,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const users = await userResponse.json();
       const currentUser = users.find((u) => u.id === parseInt(userId));
-      // Fetch masjid data (only if needed for other profile info)
+      if (!currentUser) {
+        throw new Error("User tidak ditemukan dalam data yang diterima");
+      } // Fetch data masjid - Endpoint spesifik untuk lokasi masjid
       const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data"
+        "https://backend-berkah.onrender.com/retreive/data/location"
       );
       if (!masjidResponse.ok) {
-        // Tangani error HTTP response dengan lebih baik
+        // Penanganan error HTTP response yang lebih informatif
         const message = `HTTP error! status: ${
           masjidResponse.status
         }, text: ${await masjidResponse.text()}`;
@@ -345,31 +311,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const masjidData = await masjidResponse.json();
       if (window.location.pathname.includes("profile.html")) {
-        // Update profile page dengan data terbaru
         document.getElementById("username").textContent =
           currentUser.username || "-";
         document.getElementById("email").textContent = currentUser.email || "-";
         document.getElementById("bio").textContent =
-          currentUser.bio || "Belum diisi";
-        // *** FIX:  Don't display preferred masjid as requested ***
-        // document.getElementById("preferredMasjid").textContent = "Tidak ditampilkan"; // Or any other default message  // <---- LINE 342 (Commented out)
+          currentUser.bio || "Belum diisi"; // Bagian preferredMasjid di-comment out sesuai permintaan // document.getElementById("preferredMasjid").textContent = "Tidak ditampilkan";
       } else if (window.location.pathname.includes("profile_edit.html")) {
-        // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
         document.getElementById("email").value = currentUser.email || "";
-        document.getElementById("bio").value = currentUser.bio || "";
-        // Populate masjid dropdown (Commented out as per user request to not display preferredMasjid)
-        // const masjidSelect = document.getElementById("preferredMasjid");
-        // masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>';
-        // masjidData.forEach((masjid) => {
-        //  const option = document.createElement("option");
-        //  option.value = masjid.id;
-        //  option.textContent = masjid.name;
-        //  if (currentUser.preferred_masjid === masjid.id.toString()) {
-        //   option.selected = true;
-        //  }
-        //  masjidSelect.appendChild(option);
-        // });
+        document.getElementById("bio").value = currentUser.bio || ""; // Dropdown masjid di-comment out sesuai permintaan // const masjidSelect = document.getElementById("preferredMasjid"); // masjidSelect.innerHTML = '<option value="">Pilih Masjid</option>'; // masjidData.forEach((masjid) => { //  const option = document.createElement("option"); //  option.value = masjid.id; //  option.textContent = masjid.name; //  if (currentUser.preferred_masjid === masjid.id.toString()) { //   option.selected = true; //  } //  masjidSelect.appendChild(option); // });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -378,13 +328,11 @@ document.addEventListener("DOMContentLoaded", () => {
         title: "Error",
         text: "Gagal memuat data profil",
         confirmButtonColor: "#4CAF50",
-      });
-      // Lempar kembali error untuk ditangani di fungsi pemanggil jika perlu
+      }); // Lempar kembali error untuk ditangani oleh fungsi pemanggil
       throw error;
     }
-  }
+  } // Handle profile form submission
 
-  // Handle profile form submission
   const profileForm = document.getElementById("profileForm");
   if (profileForm) {
     profileForm.addEventListener("submit", async (e) => {
@@ -395,33 +343,27 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!token || !userId) {
           throw new Error("Token atau User ID tidak ditemukan");
         }
-        // Validasi input
         const username = document.getElementById("username").value.trim();
         const email = document.getElementById("email").value.trim();
-        // const preferredMasjid = document  // Commented out as preferredMasjid is not used now
-        //  .getElementById("preferredMasjid")
-        //  .value.trim();
         const bio = document.getElementById("bio")?.value.trim() || "";
-        // Validasi dasar
+
         if (!username || !email) {
           throw new Error("Mohon isi semua field yang wajib");
         }
-        // Validasi email
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           throw new Error("Format email tidak valid");
         }
-        // Buat objek data untuk update sesuai model UpdatedProfile
+
         const updateData = {
           user_id: parseInt(userId),
           username,
           email,
-          preferred_masjid: "", // Set preferred_masjid to empty string as it's not used now
+          preferred_masjid: "", // preferred_masjid tidak digunakan lagi
           bio,
           full_name: "",
           phone_number: "",
           address: "",
         };
-        // Tampilkan loading
         Swal.fire({
           title: "Memperbarui Profil",
           text: "Mohon tunggu...",
@@ -453,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
           timerProgressBar: true,
         });
-        // Redirect ke halaman profile setelah berhasil update
         window.location.href = "profile.html";
       } catch (error) {
         console.error("Error updating profile:", error);
@@ -465,20 +406,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     });
-  }
-  // Update fungsi initialize dengan animasi
+  } // Fungsi initialize dengan animasi fade-in
+
   async function initialize() {
     const token = localStorage.getItem("jwtToken");
     const isProfilePage = window.location.pathname.includes("/profile/");
-    // Tambahkan animasi fade in saat load
+
     document.body.style.opacity = "0";
     document.body.style.transition = "opacity 0.5s";
     setTimeout(() => {
       document.body.style.opacity = "1";
     }, 100);
-    // Update auth links dan profile picture
+
     updateAuthLinks();
-    // Welcome message untuk user baru
+
     if (!token && !isProfilePage && !localStorage.getItem("welcomeShown")) {
       localStorage.setItem("welcomeShown", "true");
       Swal.fire({
@@ -490,20 +431,19 @@ document.addEventListener("DOMContentLoaded", () => {
         timerProgressBar: true,
       });
     }
-    // Ambil data masjid untuk semua user
+
     if (!isProfilePage) {
       try {
         await fetchMasjidData();
       } catch (error) {
-        console.error("Error fetching masjid data:", error);
+        console.error("Error fetching masjid data pada initialize:", error);
       }
     }
-  }
-  // Event listeners untuk search bar dengan debounce yang lebih responsif
+  } // Event listener untuk search bar dengan debounce
+
   if (searchBar && !window.location.pathname.includes("/profile/")) {
     let debounceTimer;
     searchBar.addEventListener("input", (e) => {
-      // Tampilkan loading indicator
       const loadingSpinner = document.getElementById("loading-spinner");
       if (loadingSpinner) loadingSpinner.style.display = "block";
       clearTimeout(debounceTimer);
@@ -512,21 +452,21 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           await fetchMasjidData(searchTerm);
         } catch (error) {
-          // Tangani error fetchMasjidData di sini jika perlu, misalnya menampilkan pesan error spesifik
+          // Penanganan error fetchMasjidData dalam debounce
           console.error("Gagal fetch data masjid saat debounce:", error);
           Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "Gagal memuat data masjid saat mencari!",
+            text: "Gagal memuat data masjid saat mencari.",
             confirmButtonColor: "#4CAF50",
           });
         } finally {
-          // Sembunyikan loading indicator setelah fetch selesai atau error
+          // Pastikan loading spinner selalu disembunyikan
           if (loadingSpinner) loadingSpinner.style.display = "none";
         }
-      }, 300); // Reduced debounce time for better responsiveness
+      }, 300);
     });
-    // Tambahkan event listener untuk tombol search
+
     const searchButton = document.getElementById("search-button");
     if (searchButton) {
       searchButton.addEventListener("click", async () => {
@@ -534,7 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           await fetchMasjidData(searchTerm);
         } catch (error) {
-          // Tangani error fetchMasjidData di sini jika perlu, misalnya menampilkan pesan error spesifik
+          // Penanganan error fetchMasjidData saat klik tombol search
           console.error(
             "Gagal fetch data masjid saat tombol search diklik:",
             error
@@ -542,17 +482,17 @@ document.addEventListener("DOMContentLoaded", () => {
           Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "Gagal memuat data masjid saat mencari!",
+            text: "Gagal memuat data masjid saat mencari.",
             confirmButtonColor: "#4CAF50",
           });
         } finally {
-          // Sembunyikan loading indicator setelah fetch selesai atau error
+          // Pastikan loading spinner selalu disembunyikan
           if (loadingSpinner) loadingSpinner.style.display = "none";
         }
       });
     }
-  }
-  // Navbar button effects untuk semua halaman
+  } // Efek warna navbar button
+
   if (navbarButtons) {
     navbarButtons.forEach((button) => {
       button.addEventListener("mouseover", () => {
@@ -563,8 +503,8 @@ document.addEventListener("DOMContentLoaded", () => {
         button.style.backgroundColor = "";
       });
     });
-  }
-  // Cek autentikasi untuk halaman profile
+  } // Proteksi halaman profile
+
   if (window.location.pathname.includes("/profile/")) {
     const token = localStorage.getItem("jwtToken");
     if (!token) {
@@ -572,7 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     fetchAndDisplayProfileData().catch((error) => {
-      // Tambahkan error handling untuk fetchAndDisplayProfileData
+      // Penanganan error jika fetchAndDisplayProfileData gagal saat inisialisasi halaman profile
       console.error("Gagal memuat data profil pada initialize:", error);
       Swal.fire({
         icon: "error",
@@ -582,6 +522,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   } else {
-    initialize().catch(console.error); // Panggil initialize jika bukan di halaman profile
+    initialize().catch(console.error);
   }
 });
