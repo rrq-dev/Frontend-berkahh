@@ -279,7 +279,27 @@ body {
   align-items: center;
   z-index: 1001;
 }
+.masjid-content p.masjid-location {
+  color: var(
+    --secondary-color
+  ); /* Warna lokasi dibedakan, misal warna sekunder */
+  font-weight: 500; /* Font weight sedikit ditebalkan */
+  font-size: 0.85rem; /* Ukuran font sedikit lebih kecil dari deskripsi */
+  margin-bottom: 0.5rem; /* Margin bawah sedikit disesuaikan */
+  display: flex; /* Menggunakan flexbox untuk icon dan teks */
+  align-items: center; /* Mengatur icon dan teks sejajar vertikal */
+  gap: 0.3rem; /* Jarak antara icon dan teks */
+  text-align: left; /* Teks rata kiri saja */
+  -webkit-line-clamp: unset; /* Hilangkan batasan baris, lokasi biasanya singkat */
+  line-clamp: unset; /* Standard property for compatibility */
+  -webkit-box-orient: unset;
+  overflow: visible; /* Tampilkan semua teks lokasi */
+}
 
+.masjid-content p.masjid-location i {
+  color: var(--secondary-color); /* Warna icon lokasi sama dengan teks */
+  font-size: 0.9rem; /* Ukuran icon lokasi sedikit lebih kecil */
+}
 .details-content {
   background-color: var(--card-background);
   padding: 2rem;
