@@ -33,6 +33,7 @@ body {
   padding: 0 20px;
   width: 100%;
 }
+
 /* Navbar Styles */
 .navbar {
   background-color: var(--primary-color);
@@ -87,9 +88,7 @@ body {
 }
 
 .navbar-button:hover {
-  background-color: var(
-    --secondary-color
-  ); /* Using Secondary color for hover */
+  background-color: var(--secondary-color);
   transform: translateY(-2px);
 }
 
@@ -114,13 +113,13 @@ body {
 }
 
 .welcome-section p {
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
   font-size: 1.1rem;
 }
 
 /* Search Styles */
 .search-container {
-  max-width: 800px; /* Increased max-width */
+  max-width: 800px;
   margin: 0 auto 2.5rem;
   display: flex;
   gap: 10px;
@@ -137,7 +136,7 @@ body {
 .search-icon {
   position: absolute;
   left: 1.2rem;
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
   pointer-events: none;
 }
 
@@ -153,7 +152,7 @@ body {
 }
 
 #search-bar:focus {
-  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2); /* Adjusted shadow color to match primary color */
+  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2);
   border-color: var(--secondary-color);
 }
 
@@ -192,8 +191,9 @@ body {
   border: 2px solid #ffffff;
   position: relative;
   overflow: hidden;
-  display: flex; /* Use flexbox for vertical alignment */
-  flex-direction: column; /* Align items vertically */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure all cards have the same height */
 }
 
 .masjid-item::before {
@@ -214,21 +214,23 @@ body {
 .masjid-content {
   position: relative;
   z-index: 1;
-  flex-grow: 1; /* Allow content to take up available space */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
   margin-bottom: 1rem;
-  font-size: 1.6rem; /* Increased font size */
+  font-size: 1.6rem;
   font-weight: 600;
-  text-align: center; /* Center the masjid name */
+  text-align: center;
 }
 
 .masjid-content p {
   margin-bottom: 0.8rem;
   display: flex;
-  align-items: flex-start; /* Align items to the start of the container */
+  align-items: flex-start;
   gap: 0.8rem;
   color: #555;
   font-size: 1rem;
@@ -364,31 +366,29 @@ body {
   transform: translateZ(0);
 }
 
-.view-details-button,
-.view-map-button {
-  background-color: var(--primary-color); /* Warna latar belakang */
-  color: white; /* Warna teks */
-  border: none; /* Hilangkan border */
-  padding: 0.6rem 1.2rem; /* Padding tombol */
-  border-radius: 5px; /* Bentuk border */
-  cursor: pointer; /* Ubah cursor saat dihover */
-  transition: background-color 0.3s ease; /* Transisi warna */
-  font-size: 1rem; /* Ukuran font */
-  display: inline-flex; /* Mengatur ikon dan teks sejajar */
-  align-items: center; /* Mengatur ikon dan teks rata tengah */
-  gap: 0.5rem; /* Jarak antara ikon dan teks */
+/* View Details Button Styles */
+.view-details-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: auto;
 }
 
-.view-details-button:hover,
-.view-map-button:hover {
-  background-color: var(
-    --secondary-color
-  ); /* Warna latar belakang saat dihover */
+.view-details-button:hover {
+  background-color: var(--secondary-color);
 }
 
-.view-details-button i,
-.view-map-button i {
-  margin-right: 0.3rem; /* Jarak antara ikon dan teks */
+.view-details-button i {
+  margin-right: 0.3rem;
 }
 
 /* Style untuk kontainer peta */
