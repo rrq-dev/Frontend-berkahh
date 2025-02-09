@@ -91,7 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       // *** API ENDPOINT YANG DIPERBAIKI (SESUAI TABEL locations) ***
       // Endpoint ini sekarang spesifik untuk mengambil data lokasi masjid dari tabel 'locations'
-      const apiUrl = "https://backend-berkah.onrender.com/retreive/data";
+      const apiUrl =
+        "https://backend-berkah.onrender.com/retreive/data/location";
 
       console.log("Fetching masjid data from:", apiUrl);
 
@@ -310,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("User tidak ditemukan dalam data yang diterima");
       } // Fetch data masjid - Endpoint spesifik untuk lokasi masjid
       const masjidResponse = await fetch(
-        "https://backend-berkah.onrender.com/retreive/data"
+        "https://backend-berkah.onrender.com/retreive/data/location"
       );
       if (!masjidResponse.ok) {
         // Penanganan error HTTP response yang lebih informatif
