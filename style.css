@@ -1,9 +1,7 @@
 :root {
   --primary-color: #2658f2;
   --secondary-color: #d287f8;
-  --accent-color: var(
-    --secondary-color
-  ); /* Added accent color, defaulting to secondary */
+  --accent-color: var(--secondary-color);
   --text-color: #02091a;
   --background-color: #ecf1fe;
   --card-background: #ffffff;
@@ -35,7 +33,6 @@ body {
   padding: 0 20px;
   width: 100%;
 }
-
 /* Navbar Styles */
 .navbar {
   background-color: var(--primary-color);
@@ -195,6 +192,8 @@ body {
   border: 2px solid #ffffff;
   position: relative;
   overflow: hidden;
+  display: flex; /* Use flexbox for vertical alignment */
+  flex-direction: column; /* Align items vertically */
 }
 
 .masjid-item::before {
@@ -209,29 +208,29 @@ body {
 }
 
 .masjid-item:hover::before {
-  background-color: var(
-    --secondary-color
-  ); /* Using Secondary color for hover effect */
+  background-color: var(--secondary-color);
 }
 
 .masjid-content {
   position: relative;
   z-index: 1;
+  flex-grow: 1; /* Allow content to take up available space */
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
   margin-bottom: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.6rem; /* Increased font size */
   font-weight: 600;
+  text-align: center; /* Center the masjid name */
 }
 
 .masjid-content p {
   margin-bottom: 0.8rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align items to the start of the container */
   gap: 0.8rem;
-  color: #555; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #555;
   font-size: 1rem;
 }
 
