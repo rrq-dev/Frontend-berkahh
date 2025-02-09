@@ -175,11 +175,8 @@ body {
 /* Masjid Grid Styles */
 .masjid-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(300px, 1fr)
-  ); /* Ukuran minimum item dan responsif */
-  gap: 1.5rem; /* Ruang antar item lebih kecil */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
   padding: 2rem;
   margin: 0 auto;
   max-width: 1400px;
@@ -187,15 +184,15 @@ body {
 
 .masjid-item {
   background-color: var(--card-background);
-  border-radius: 10px; /* Border radius lebih kecil dan modern */
-  padding: 1.5rem; /* Padding sedikit dikurangi */
-  box-shadow: 0 2px 5px var(--shadow-color); /* Box shadow lebih halus */
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px var(--shadow-color);
   transition: all 0.3s ease;
-  border: 1px solid #eee; /* Border lebih tipis dan warna lebih lembut */
+  border: 1px solid #eee;
   position: relative;
   overflow: hidden;
-  display: flex; /* Menggunakan Flexbox untuk tata letak internal */
-  flex-direction: column; /* Mengatur item content secara vertikal */
+  display: flex;
+  flex-direction: column;
 }
 
 .masjid-item::before {
@@ -204,22 +201,20 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 5px; /* Height garis lebih tebal sedikit */
+  height: 5px;
   background-color: var(--primary-color);
   transition: background-color 0.3s ease;
-  border-radius: 10px 10px 0 0; /* Border radius di atas saja */
+  border-radius: 10px 10px 0 0;
 }
 
 .masjid-item:hover {
-  box-shadow: 0 6px 12px var(--hover-shadow); /* Efek hover lebih terasa */
-  transform: translateY(-3px); /* Efek hover lebih halus */
-  border-color: var(--accent-color); /* Border berubah warna saat hover */
+  box-shadow: 0 6px 12px var(--hover-shadow);
+  transform: translateY(-3px);
+  border-color: var(--accent-color);
 }
 
 .masjid-item:hover::before {
-  background-color: var(
-    --accent-color
-  ); /* Warna garis atas berubah saat hover */
+  background-color: var(--accent-color);
 }
 
 .masjid-content {
@@ -228,34 +223,56 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Tetap menggunakan space-between */
+  justify-content: space-between;
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
-  margin-bottom: 0.7rem; /* Margin bawah judul lebih kecil */
-  font-size: 1.2rem; /* Ukuran font judul lebih kecil */
+  margin-bottom: 0.7rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  line-height: 1.3; /* Line height untuk judul */
+  line-height: 1.3;
 }
 
-.masjid-content p {
-  margin-bottom: 0.7rem; /* Sedikit diperbesar untuk ruang bawah */
-  display: -webkit-box; /* Menggunakan -webkit-box untuk ellipsis */
-  -webkit-line-clamp: 3; /* Batasan jumlah baris deskripsi */
-  line-clamp: 3; /* Standard property for compatibility */
+/* Style for Masjid Location */
+.masjid-content .masjid-location {
+  color: var(--secondary-color);
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem; /* Increased margin bottom for better separation */
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: left;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: visible;
+}
+
+.masjid-content .masjid-location i {
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+/* Style for Masjid Description */
+.masjid-content .masjid-description {
+  margin-bottom: 0.7rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Adjusted line clamp to 2 lines for description */
+  line-clamp: 2; /* Standard property for compatibility */
   -webkit-box-orient: vertical;
-  overflow: hidden; /* Menyembunyikan teks yang melebihi batas */
+  overflow: hidden;
   gap: 0.5rem;
   color: #777;
   font-size: 0.9rem;
-  line-height: 1.5; /* Line height lebih besar untuk kerapihan baris */
-  text-align: justify; /* Teks rata kanan-kiri untuk tampilan lebih formal */
+  line-height: 1.5;
+  text-align: justify;
 }
 
 .masjid-content i {
   color: var(--primary-color);
-  font-size: 1rem; /* Ukuran icon lebih kecil */
+  font-size: 1rem;
 }
 
 /* Highlight style for search results */
@@ -279,27 +296,7 @@ body {
   align-items: center;
   z-index: 1001;
 }
-.masjid-content p.masjid-location {
-  color: var(
-    --secondary-color
-  ); /* Warna lokasi dibedakan, misal warna sekunder */
-  font-weight: 500; /* Font weight sedikit ditebalkan */
-  font-size: 0.85rem; /* Ukuran font sedikit lebih kecil dari deskripsi */
-  margin-bottom: 0.5rem; /* Margin bawah sedikit disesuaikan */
-  display: flex; /* Menggunakan flexbox untuk icon dan teks */
-  align-items: center; /* Mengatur icon dan teks sejajar vertikal */
-  gap: 0.3rem; /* Jarak antara icon dan teks */
-  text-align: left; /* Teks rata kiri saja */
-  -webkit-line-clamp: unset; /* Hilangkan batasan baris, lokasi biasanya singkat */
-  line-clamp: unset; /* Standard property for compatibility */
-  -webkit-box-orient: unset;
-  overflow: visible; /* Tampilkan semua teks lokasi */
-}
 
-.masjid-content p.masjid-location i {
-  color: var(--secondary-color); /* Warna icon lokasi sama dengan teks */
-  font-size: 0.9rem; /* Ukuran icon lokasi sedikit lebih kecil */
-}
 .details-content {
   background-color: var(--card-background);
   padding: 2rem;
@@ -386,7 +383,9 @@ body {
   .masjid-content h3 {
     font-size: 1.1rem;
   }
-  .masjid-content p {
+  .masjid-content p,
+  .masjid-content .masjid-location,
+  .masjid-content .masjid-description {
     font-size: 0.85rem;
   }
 
