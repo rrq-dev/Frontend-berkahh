@@ -44,6 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
   // Event listener untuk tombol "Lihat Peta"
   const viewMapButton = document.getElementById("view-map");
   if (viewMapButton) {
@@ -67,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchMasjidData(searchTerm = "") {
     try {
       const response = await fetch(
-        "https://backend-berkah.onrender.com/retrieve/data/location", // Corrected URL
+        "https://backend-berkah.onrender.com/retrieve/data/location",
         {
           method: "GET",
           headers: {
@@ -77,12 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (!response.ok) {
-        throw new Error("Gagal mengambil data masjid");
+        // *** FIX 2: Handle 404 and other errors more gracefully ***
+        if (response.status === 404) {
+          throw new Error("Data masjid tidak ditemukan"); // Specific message for 404
+        } else {
+          throw new Error(`Gagal mengambil data masjid: ${response.status} ${response.statusText}`); // Include status code
+        }
       }
 
       const masjidData = await response.json();
 
-      // Hanya panggil displayMasjidList jika berada di halaman utama
       if (!window.location.pathname.includes("/profile/")) {
         displayMasjidList(masjidData, searchTerm);
       }
@@ -94,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: "Gagal memuat data masjid!",
+          text: error.message || "Gagal memuat data masjid!", // Display specific error message if available
           confirmButtonColor: "#4CAF50",
         });
       }
