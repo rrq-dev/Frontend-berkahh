@@ -364,6 +364,46 @@ body {
   transform: translateZ(0);
 }
 
+.view-details-button,
+.view-map-button {
+  background-color: var(--primary-color); /* Warna latar belakang */
+  color: white; /* Warna teks */
+  border: none; /* Hilangkan border */
+  padding: 0.6rem 1.2rem; /* Padding tombol */
+  border-radius: 5px; /* Bentuk border */
+  cursor: pointer; /* Ubah cursor saat dihover */
+  transition: background-color 0.3s ease; /* Transisi warna */
+  font-size: 1rem; /* Ukuran font */
+  display: inline-flex; /* Mengatur ikon dan teks sejajar */
+  align-items: center; /* Mengatur ikon dan teks rata tengah */
+  gap: 0.5rem; /* Jarak antara ikon dan teks */
+}
+
+.view-details-button:hover,
+.view-map-button:hover {
+  background-color: var(
+    --secondary-color
+  ); /* Warna latar belakang saat dihover */
+}
+
+.view-details-button i,
+.view-map-button i {
+  margin-right: 0.3rem; /* Jarak antara ikon dan teks */
+}
+
+/* Style untuk kontainer peta */
+.details-map-container {
+  width: 100%; /* Lebar peta */
+  height: 300px; /* Tinggi peta */
+  margin-bottom: 1rem; /* Margin bawah peta */
+}
+
+.details-map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 /* Accessibility Improvements - Focus styles for interactive elements */
 .navbar-button:focus,
 #search-bar:focus {

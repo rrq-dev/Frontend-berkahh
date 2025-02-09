@@ -62,28 +62,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const detailsContainer = document.getElementById("masjid-details");
     detailsContainer.style.display = "block";
     detailsContainer.querySelector(".details-body").innerHTML = `
-      <div class="details-header">
-        <h2 class="details-title">${masjid.name}</h2>
-      </div>
-      <div class="details-info">
-        <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
-      </div>
-      <div class="details-map-container">
-        ${masjid.embed_link}
-      </div>
-      <div class="details-actions">
-        <button id="view-map" class="navbar-button details-view-map-button">Lihat Peta</button>
-      </div>
+        <div class="details-header">
+            <h2 class="details-title">${masjid.name}</h2>
+        </div>
+        <div class="details-info">
+            <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
+        </div>
+        <div class="details-map-container">
+            ${masjid.embed_link} 
+        </div>
+        <div class="details-actions">
+            <button id="view-map" class="view-map-button">
+                <i class="fas fa-map-marker-alt"></i> Lihat di Peta
+            </button>
+        </div>
     `;
 
-    // Re-attach event listener setelah render ulang detail
     const viewMapButton = document.getElementById("view-map");
     if (viewMapButton) {
       viewMapButton.addEventListener("click", () => {
-        const embedLink = detailsContainer.querySelector(
+        const iframe = detailsContainer.querySelector(
           ".details-map-container iframe"
-        ).src; // Ambil src dari iframe
-        window.open(embedLink, "_blank");
+        );
+        if (iframe && iframe.src) {
+          window.open(iframe.src, "_blank");
+        } else {
+          console.error("Iframe source is missing or invalid.");
+          // Handle the error, e.g., display a message to the user.
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Tidak dapat membuka peta. Link tidak valid.",
+            confirmButtonColor: "#4CAF50",
+          });
+        }
       });
     }
   }
@@ -136,12 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const masjidList = document.getElementById("masjid-list");
     if (!masjidList) return;
 
-    masjidList.innerHTML = ""; // Filter dan sort masjid berdasarkan relevansi pencarian
+    masjidList.innerHTML = ""; // Bersihkan daftar sebelum menampilkan hasil baru
 
     const filteredAndSortedData = masjidData
       .map((masjid) => {
         const name = masjid.name.toLowerCase();
-        const search = searchTerm.toLowerCase(); // Hitung skor relevansi
+        const search = searchTerm.toLowerCase();
 
         let score = 0;
         if (name === search) score = 100;
@@ -155,40 +167,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (filteredAndSortedData.length === 0) {
       masjidList.innerHTML = `
-            <div class="no-results">
-              <i class="fas fa-search"></i>
-              <p>Masjid yang dicari tidak ditemukan</p>
-            </div>
-          `;
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>Masjid yang dicari tidak ditemukan</p>
+            </div>
+        `;
       return;
     }
 
     filteredAndSortedData.forEach((masjid) => {
       const masjidItem = document.createElement("div");
-      masjidItem.className = "masjid-item"; // Highlight teks yang cocok dengan pencarian
+      masjidItem.className = "masjid-item";
 
       const highlightedName = searchTerm
         ? masjid.name.replace(
             new RegExp(searchTerm, "gi"),
             (match) => `<span class="highlight">${match}</span>`
           )
-        : masjid.name; // Membuat lokasi masjid menjadi link ke Google Maps
+        : masjid.name;
 
+      // Gunakan masjid.embed_link langsung untuk peta
       const mapLink = masjid.embed_link;
 
       masjidItem.innerHTML = `
-            <div class="masjid-content">
-              <h3>${highlightedName}</h3>
-              <p>
-                <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                  <i class="fas fa-map-marker-alt"></i> ${masjid.address}
-                </a>
-              </p>
-              <p><i class="fas fa-info-circle"></i> ${
-    masjid.description || "Tidak ada deskripsi"
-  }</p>
-            </div>
-          `;
+            <div class="masjid-content">
+                <h3>${highlightedName}</h3>
+                <p>
+                    <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+                    </a>
+                </p>
+                <p><i class="fas fa-info-circle"></i> ${
+                  masjid.description || "Tidak ada deskripsi"
+                }</p>
+                <button class="view-details-button" data-masjid-id="${
+                  masjid.id
+                }">
+                    <i class="fas fa-eye"></i> Lihat Detail
+                </button>
+            </div>
+        `;
 
       masjidItem.addEventListener("mouseover", () => {
         masjidItem.style.transform = "translateY(-5px)";
@@ -201,19 +219,16 @@ document.addEventListener("DOMContentLoaded", () => {
         masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
       });
 
-      masjidItem.addEventListener("click", (event) => {
-        if (
-          event.target.tagName !== "A" &&
-          event.target.parentNode.tagName !== "A"
-        ) {
-          showMasjidDetails(masjid);
-        }
+      const viewDetailsButton = masjidItem.querySelector(
+        ".view-details-button"
+      );
+      viewDetailsButton.addEventListener("click", () => {
+        showMasjidDetails(masjid);
       });
 
       masjidList.appendChild(masjidItem);
     });
   }
-
   function updateAuthLinks() {
     const logoutBtn = document.querySelector(".logout-btn");
     const loginBtn = document.querySelector(".login-btn");
