@@ -263,9 +263,9 @@ document.addEventListener("DOMContentLoaded", () => {
             detailsContainer.style.display = "none";
         });
     }
-    
+
   // Fungsi untuk mengambil dan menampilkan data profil
-  async function fetchAndDisplayProfileData() {
+ async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
 
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const users = await userResponse.json();
       const currentUser = users.find((u) => u.id === parseInt(userId));
 
-      // Fetch masjid data
+      // Fetch masjid data (only if needed for other profile info)
       const masjidResponse = await fetch(
         "https://backend-berkah.onrender.com/retreive/data/location"
       );
@@ -304,12 +304,17 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("bio").textContent =
           currentUser.bio || "Belum diisi";
 
-        const preferredMasjid = masjidData.find(
-          (m) => m.id === parseInt(currentUser.preferred_masjid)
-        );
-        document.getElementById("preferredMasjid").textContent = preferredMasjid
-          ? preferredMasjid.name
-          : "Belum diisi";
+        // *** FIX:  Don't display preferred masjid if it's not set ***
+        if (currentUser.preferred_masjid) {  // Check if preferred_masjid exists
+          const preferredMasjid = masjidData.find(
+            (m) => m.id === parseInt(currentUser.preferred_masjid)
+          );
+          document.getElementById("preferredMasjid").textContent = preferredMasjid
+            ? preferredMasjid.name
+            : "Belum diisi";
+        } else {
+          document.getElementById("preferredMasjid").textContent = "Belum diisi"; // Or any other default message
+        }
       } else if (window.location.pathname.includes("profile_edit.html")) {
         // Update edit profile page
         document.getElementById("username").value = currentUser.username || "";
