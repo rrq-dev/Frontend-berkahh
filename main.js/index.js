@@ -61,6 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function showMasjidDetails(masjid) {
     const detailsContainer = document.getElementById("masjid-details");
     detailsContainer.style.display = "block";
+
+    // Pastikan embed_link ada dan valid, jika tidak tampilkan pesan
+    let embed_link = "";
+    if (masjid.embed_link) {
+      embed_link = masjid.embed_link;
+    } else {
+      console.warn(`embed_link untuk masjid ${masjid.name} tidak tersedia.`);
+      embed_link = `<p>Peta tidak tersedia.</p>`; // Pesan tanpa iframe
+    }
+
     detailsContainer.querySelector(".details-body").innerHTML = `
         <div class="details-header">
             <h2 class="details-title">${masjid.name}</h2>
@@ -69,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
         </div>
         <div class="details-map-container">
-            ${masjid.embed_link} 
+            ${embed_link}
         </div>
         <div class="details-actions">
             <button id="view-map" class="view-map-button">
@@ -88,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
           window.open(iframe.src, "_blank");
         } else {
           console.error("Iframe source is missing or invalid.");
-          // Handle the error, e.g., display a message to the user.
           Swal.fire({
             icon: "error",
             title: "Oops...",
@@ -186,16 +195,22 @@ document.addEventListener("DOMContentLoaded", () => {
           )
         : masjid.name;
 
-      // Gunakan masjid.embed_link langsung untuk peta
-      const mapLink = masjid.embed_link;
+      // Pastikan embed_link ada dan valid, jika tidak tampilkan pesan
+      let embed_link_display = "";
+      if (masjid.embed_link) {
+        embed_link_display = `<a href="${masjid.embed_link}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                    <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+                </a>`;
+      } else {
+        console.warn(`embed_link untuk masjid ${masjid.name} tidak tersedia.`);
+        embed_link_display = `<p><i class="fas fa-map-marker-alt"></i> ${masjid.address} (Peta tidak tersedia)</p>`; // Pesan tanpa tautan
+      }
 
       masjidItem.innerHTML = `
             <div class="masjid-content">
                 <h3>${highlightedName}</h3>
                 <p>
-                    <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                        <i class="fas fa-map-marker-alt"></i> ${masjid.address}
-                    </a>
+                    ${embed_link_display}
                 </p>
                 <p><i class="fas fa-info-circle"></i> ${
                   masjid.description || "Tidak ada deskripsi"
