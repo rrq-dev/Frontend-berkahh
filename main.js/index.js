@@ -257,6 +257,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const closeDetailsButton = document.querySelector(".close-details");
+    if (closeDetailsButton) {
+        closeDetailsButton.addEventListener("click", () => {
+            detailsContainer.style.display = "none";
+        });
+    }
+    
   // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
