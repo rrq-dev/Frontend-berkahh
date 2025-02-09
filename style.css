@@ -184,11 +184,11 @@ body {
 
 .masjid-item {
   background-color: var(--card-background);
-  border-radius: 12px; /* Sedikit lebih besar border radius */
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 3px 7px var(--shadow-color); /* Sedikit lebih kuat box shadow */
+  box-shadow: 0 3px 7px var(--shadow-color);
   transition: all 0.3s ease;
-  border: 1px solid #ddd; /* Warna border lebih gelap sedikit */
+  border: 1px solid #ddd;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -201,15 +201,15 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 6px; /* Lebih tebal garis atas */
+  height: 6px;
   background-color: var(--primary-color);
   transition: background-color 0.3s ease;
-  border-radius: 12px 12px 0 0; /* Sesuai dengan border radius card */
+  border-radius: 12px 12px 0 0;
 }
 
 .masjid-item:hover {
-  box-shadow: 0 8px 16px var(--hover-shadow); /* Efek hover lebih kuat */
-  transform: translateY(-4px); /* Lebih tinggi efek translate Y */
+  box-shadow: 0 8px 16px var(--hover-shadow);
+  transform: translateY(-4px);
   border-color: var(--accent-color);
 }
 
@@ -223,47 +223,47 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Mengubah justify-content menjadi flex-start */
+  justify-content: flex-start;
 }
 
 .masjid-content h3 {
   color: var(--primary-color);
-  margin-bottom: 0.5rem; /* Margin bawah judul lebih kecil lagi */
-  font-size: 1.5rem; /* Ukuran font judul **diperbesar** */
-  font-weight: 700; /* Font weight judul lebih tebal */
-  line-height: 1.2; /* Line height judul sedikit dirapatkan */
-  text-align: center; /* Judul di tengah */
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
 }
 
 /* Style for Masjid Location */
 .masjid-content .masjid-location {
   color: var(--secondary-color);
-  font-weight: 600; /* Font weight lokasi sedikit lebih tebal */
+  font-weight: 600;
   font-size: 0.9rem;
-  margin-bottom: 1rem; /* Margin bottom lokasi diperbesar */
-  padding-left: 1rem; /* Padding kiri untuk mensejajarkan icon */
+  margin-bottom: 1rem;
+  padding-left: 1rem;
   display: flex;
-  align-items: center; /* Menjaga icon dan teks tetap sejajar */
+  align-items: center;
   gap: 0.4rem;
   text-align: left;
   -webkit-line-clamp: unset;
   line-clamp: unset;
   -webkit-box-orient: unset;
   overflow: visible;
-  position: relative; /* Untuk positioning pseudo-element */
+  position: relative;
 }
 
 .masjid-content .masjid-location i {
   color: var(--secondary-color);
   font-size: 0.9rem;
-  position: absolute; /* Positioning absolute untuk icon lokasi */
-  left: 0; /* Letakkan icon di paling kiri dalam container lokasi */
+  position: absolute;
+  left: 0;
 }
 
 /* Style for Masjid Description */
 .masjid-content .masjid-description {
   margin-bottom: 0.7rem;
-  padding: 0 1rem; /* Padding kiri kanan pada deskripsi */
+  padding: 0 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -289,27 +289,104 @@ body {
   color: var(--text-color);
 }
 
-/* Masjid Details Modal */
+/* ======= Masjid Details Modal Styles ======= */
 .masjid-details {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6); /* Background lebih gelap untuk modal */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.masjid-details.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 .details-content {
   background-color: var(--card-background);
   padding: 2rem;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
+  border-radius: 12px; /* Border radius modal sesuai dengan card */
+  max-width: 600px; /* Lebar modal sedikit diperbesar */
+  width: 95%;
   position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Box shadow modal lebih kuat */
+}
+
+.details-header {
+  border-bottom: 2px solid var(--primary-color); /* Garis bawah header */
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.details-title {
+  color: var(--primary-color);
+  font-size: 2rem; /* Ukuran judul modal lebih besar */
+  font-weight: 700;
+  text-align: left; /* Judul modal rata kiri */
+  margin-bottom: 0.5rem;
+}
+
+.details-info {
+  margin-bottom: 1.5rem;
+}
+
+.details-address {
+  color: #555; /* Warna alamat sedikit lebih gelap */
+  font-size: 1rem; /* Ukuran font alamat sedikit lebih besar */
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem; /* Margin bottom alamat */
+}
+
+.details-address i {
+  color: var(--secondary-color); /* Icon alamat warna sekunder */
+  font-size: 1.2rem;
+}
+
+.details-map-container {
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden; /* Memastikan peta tidak keluar dari container */
+  box-shadow: 0 3px 8px var(--shadow-color); /* Shadow untuk map container */
+}
+
+.details-map-container iframe {
+  width: 100%;
+  height: 300px; /* Tinggi peta yang lebih proporsional */
+  border: none;
+  display: block; /* Menghilangkan border bawah iframe */
+}
+
+.details-actions {
+  text-align: right; /* Tombol aksi di kanan bawah modal */
+}
+
+.details-view-map-button {
+  background-color: var(--accent-color); /* Warna tombol "Lihat Peta" */
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.details-view-map-button:hover {
+  background-color: var(--secondary-color); /* Hover effect warna sekunder */
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .close-details {
@@ -318,12 +395,17 @@ body {
   right: 1rem;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.8rem; /* Ukuran tombol close diperbesar */
   cursor: pointer;
-  color: #666;
+  color: #888; /* Warna tombol close sedikit lebih terang */
+  transition: color 0.2s ease;
 }
 
-/* Footer */
+.close-details:hover {
+  color: #666; /* Hover effect warna lebih gelap */
+}
+
+/* ======= Footer ======= */
 .footer {
   background-color: var(--primary-color);
   color: white;
@@ -356,7 +438,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Responsive Design */
+/* ======= Responsive Design ======= */
 @media (max-width: 768px) {
   .navbar {
     padding: 0.6rem 0;
@@ -387,7 +469,7 @@ body {
     padding: 1rem;
   }
   .masjid-content h3 {
-    font-size: 1.3rem; /* Ukuran font judul sedikit lebih besar di mobile */
+    font-size: 1.3rem;
   }
   .masjid-content p,
   .masjid-content .masjid-location,
@@ -407,25 +489,43 @@ body {
   .social-links {
     justify-content: center;
   }
+
+  .details-content {
+    padding: 1.5rem; /* Padding modal lebih kecil di mobile */
+  }
+
+  .details-title {
+    font-size: 1.8rem; /* Ukuran judul modal lebih kecil di mobile */
+  }
+  .details-address {
+    font-size: 0.9rem; /* Ukuran alamat modal lebih kecil di mobile */
+  }
+  .details-map-container iframe {
+    height: 250px; /* Tinggi peta modal lebih kecil di mobile */
+  }
 }
 
-/* Performance Optimizations */
+/* ======= Performance Optimizations ======= */
 .navbar,
 .masjid-item,
-.navbar-button {
+.navbar-button,
+.details-view-map-button,
+.close-details {
   will-change: transform;
   backface-visibility: hidden;
   transform: translateZ(0);
 }
 
-/* Accessibility Improvements */
+/* ======= Accessibility Improvements ======= */
 .navbar-button:focus,
-#search-bar:focus {
+#search-bar:focus,
+.details-view-map-button:focus,
+.close-details:focus {
   outline: 3px solid rgba(38, 88, 242, 0.4);
   outline-offset: 2px;
 }
 
-/* Dark Mode Support */
+/* ======= Dark Mode Support ======= */
 @media (prefers-color-scheme: dark) {
   :root {
     --background-color: #1a1a1a;
@@ -442,9 +542,13 @@ body {
   .masjid-info p {
     color: #ddd;
   }
+  .details-content {
+    background-color: #2d2d2d; /* Card background dark mode untuk modal */
+    color: var(--text-color); /* Text color dark mode untuk modal */
+  }
 }
 
-/* Loading Spinner */
+/* ======= Loading Spinner ======= */
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -467,7 +571,7 @@ body {
   }
 }
 
-/* No Results Message */
+/* ======= No Results Message ======= */
 .no-results,
 .no-data {
   text-align: center;

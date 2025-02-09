@@ -59,23 +59,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showMasjidDetails(masjid) {
+    const detailsContainer = document.getElementById("masjid-details");
     detailsContainer.style.display = "block";
     detailsContainer.querySelector(".details-body").innerHTML = `
-        <h2>${masjid.name}</h2>
-        <p>${masjid.address}</p>
-        <div class="map-container"> ${masjid.embed_link}
-        </div>
-        <button id="view-map" class="navbar-button">Lihat Peta</button>
-      `; // Re-attach event listener after re-rendering details
+      <div class="details-header">
+        <h2 class="details-title">${masjid.name}</h2>
+      </div>
+      <div class="details-info">
+        <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
+      </div>
+      <div class="details-map-container">
+        ${masjid.embed_link}
+      </div>
+      <div class="details-actions">
+        <button id="view-map" class="navbar-button details-view-map-button">Lihat Peta</button>
+      </div>
+    `;
+
+    // Re-attach event listener setelah render ulang detail
     const viewMapButton = document.getElementById("view-map");
     if (viewMapButton) {
       viewMapButton.addEventListener("click", () => {
-        const embedLink =
-          detailsContainer.querySelector(".embed-link").textContent;
+        const embedLink = detailsContainer.querySelector(
+          ".details-map-container iframe"
+        ).src; // Ambil src dari iframe
         window.open(embedLink, "_blank");
       });
     }
-  } // Fungsi untuk mengambil data masjid tanpa perlu token (diambil dari kode terbaru user)
+  }
   async function fetchMasjidData(searchTerm = "") {
     try {
       // *** API ENDPOINT YANG DIPERBAIKI (SESUAI TABEL locations) ***
