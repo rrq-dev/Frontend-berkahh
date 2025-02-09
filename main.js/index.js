@@ -81,18 +81,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
   }
 
+  // Fungsi untuk mengambil data masjid tanpa perlu token (diambil dari kode terbaru user)
   async function fetchMasjidData(searchTerm = "") {
       try {
           // *** FIX 4: TRY DIFFERENT API ENDPOINTS - TEST ONE AT A TIME ***
 
-          // Opsi 1: URL dengan spelling yang benar dari awal, dan path yang lebih logis
-          // const apiUrl = "https://backend-berkah.onrender.com/retrieve/data/location";
+          // Opsi 1: URL dengan spelling yang benar dari awal, dan path yang lebih logis (dari kode user sebelumnya)
+          const apiUrl = "https://backend-berkah.onrender.com/retreive/data/location";
 
           // Opsi 2: URL lebih sederhana berdasarkan nama function backend (GetLocation)
           // const apiUrl = "https://backend-berkah.onrender.com/location";
 
           // Opsi 3: URL lebih eksplisit berdasarkan nama function backend (getLocation - camelCase to kebab-case)
-          const apiUrl = "https://backend-berkah.onrender.com/get-location";
+          // const apiUrl = "https://backend-berkah.onrender.com/get-location";
 
           // Opsi 4: URL root API saja - untuk tes apakah root API respons
           // const apiUrl = "https://backend-berkah.onrender.com/";
@@ -100,8 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           console.log("Fetching masjid data from:", apiUrl); // *** Tambahkan console.log untuk URL ***
 
-
-          const response = await fetch(apiUrl, { // Gunakan apiUrl disini
+          const response = await fetch(apiUrl, {
               method: "GET",
               headers: {
                   "Content-Type": "application/json",
@@ -109,16 +109,12 @@ document.addEventListener("DOMContentLoaded", () => {
           });
 
           if (!response.ok) {
-              // *** FIX 2: Handle 404 and other errors more gracefully ***
-              if (response.status === 404) {
-                  throw new Error("Endpoint data masjid tidak ditemukan di server (404)"); // Pesan error lebih spesifik untuk 404
-              } else {
-                  throw new Error(`Gagal mengambil data masjid: ${response.status} ${response.statusText}`); // Include status code
-              }
+              throw new Error("Gagal mengambil data masjid"); // Error message lebih generik dari kode user
           }
 
           const masjidData = await response.json();
 
+          // Hanya panggil displayMasjidList jika berada di halaman utama (dari kode user)
           if (!window.location.pathname.includes("/profile/")) {
               displayMasjidList(masjidData, searchTerm);
           }
@@ -130,32 +126,38 @@ document.addEventListener("DOMContentLoaded", () => {
               Swal.fire({
                   icon: "error",
                   title: "Oops...",
-                  text: error.message || "Gagal memuat data masjid!", // Display specific error message if available // *** Pesan error sudah diperbaiki sebelumnya ***
+                  text: "Gagal memuat data masjid!", // Error message dari kode user
                   confirmButtonColor: "#4CAF50",
               });
           }
       }
   }
 
-  // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif
+
+  // Fungsi untuk menampilkan daftar masjid dengan pencarian yang lebih responsif (dari kode user)
   function displayMasjidList(masjidData, searchTerm = "") {
       const masjidList = document.getElementById("masjid-list");
       if (!masjidList) return;
+
       masjidList.innerHTML = "";
+
       // Filter dan sort masjid berdasarkan relevansi pencarian
       const filteredAndSortedData = masjidData
           .map((masjid) => {
               const name = masjid.name.toLowerCase();
               const search = searchTerm.toLowerCase();
+
               // Hitung skor relevansi
               let score = 0;
               if (name === search) score = 100; // Match sempurna
               else if (name.startsWith(search)) score = 75; // Match di awal
               else if (name.includes(search)) score = 50; // Match sebagian
+
               return { ...masjid, score };
           })
           .filter((masjid) => masjid.score > 0) // Filter yang relevan saja
           .sort((a, b) => b.score - a.score); // Sort berdasarkan skor
+
       if (filteredAndSortedData.length === 0) {
           masjidList.innerHTML = `
               <div class="no-results">
@@ -165,9 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           return;
       }
+
       filteredAndSortedData.forEach((masjid) => {
           const masjidItem = document.createElement("div");
           masjidItem.className = "masjid-item";
+
           // Highlight teks yang cocok dengan pencarian
           const highlightedName = searchTerm
               ? masjid.name.replace(
@@ -175,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   (match) => `<span class="highlight">${match}</span>`
               )
               : masjid.name;
+
           masjidItem.innerHTML = `
               <div class="masjid-content">
                   <h3>${highlightedName}</h3>
@@ -184,22 +189,26 @@ document.addEventListener("DOMContentLoaded", () => {
                   }</p>
               </div>
           `;
+
           // Tambahkan efek hover dengan animasi yang lebih smooth
           masjidItem.addEventListener("mouseover", () => {
               masjidItem.style.transform = "translateY(-5px)";
               masjidItem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
               masjidItem.style.transition = "all 0.3s ease";
           });
+
           masjidItem.addEventListener("mouseout", () => {
               masjidItem.style.transform = "translateY(0)";
               masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
           });
+
           masjidItem.addEventListener("click", () => {
               showMasjidDetails(masjid);
           });
           masjidList.appendChild(masjidItem);
       });
   }
+
 
   // Fungsi untuk update auth links dan profile picture
   function updateAuthLinks() {
@@ -299,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const currentUser = users.find((u) => u.id === parseInt(userId));
           // Fetch masjid data (only if needed for other profile info)
           const masjidResponse = await fetch(
-              "https://backend-berkah.onrender.com/retreive/data"
+              "https://backend-berkah.onrender.com/retreive/data/location"
           );
           if (!masjidResponse.ok) throw new Error("Gagal mengambil data masjid");
           const masjidData = await masjidResponse.json();
