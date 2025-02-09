@@ -180,10 +180,17 @@ document.addEventListener("DOMContentLoaded", () => {
               )
               : masjid.name;
 
+          // Membuat lokasi masjid menjadi link ke Google Maps
+          const mapLink = masjid.embed_link; // Ambil embed_link dari data masjid
+
           masjidItem.innerHTML = `
               <div class="masjid-content">
                   <h3>${highlightedName}</h3>
-                  <p><i class="fas fa-map-marker-alt"></i> ${masjid.address}</p>
+                  <p>
+                      <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                          <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+                      </a>
+                  </p>
                   <p><i class="fas fa-info-circle"></i> ${
                       masjid.description || "Tidak ada deskripsi"
                   }</p>
@@ -202,9 +209,14 @@ document.addEventListener("DOMContentLoaded", () => {
               masjidItem.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
           });
 
-          masjidItem.addEventListener("click", () => {
-              showMasjidDetails(masjid);
+          masjidItem.addEventListener("click", (event) => {
+              // Cegah event click pada item masjid untuk menimpa link lokasi
+              if (event.target.tagName !== 'A' && event.target.parentNode.tagName !== 'A') {
+                  showMasjidDetails(masjid);
+              }
           });
+
+
           masjidList.appendChild(masjidItem);
       });
   }
