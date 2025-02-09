@@ -50,6 +50,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: row; /* Pastikan flex-direction: row; di base styles */
 }
 
 .logo {
@@ -445,7 +446,9 @@ body {
   }
 
   .navbar .container {
-    flex-direction: column;
+    flex-direction: row; /* Diubah menjadi row agar navbar tidak melebar */
+    justify-content: space-between;
+    align-items: center;
     gap: 0.8rem;
   }
 
