@@ -62,15 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
       window.open(embedLink, "_blank"); // Buka link di tab baru
     });
   }
-  // Fungsi untuk menampilkan detail masjid
+
   function showMasjidDetails(masjid) {
     detailsContainer.style.display = "block";
     detailsContainer.querySelector(".details-body").innerHTML = `
-                      <h2>${masjid.name}</h2>
-                      <p>${masjid.address}</p>
-                      <p class="embed-link">${masjid.embed_link}</p>
-                      <button id="view-map" class="navbar-button">Lihat Peta</button>
-                  `;
+      <h2>${masjid.name}</h2>
+      <p>${masjid.address}</p>
+      <div class="map-container"> ${masjid.embed_link}   </div>
+      <button id="view-map" class="navbar-button">Lihat Peta</button>
+    `;
     // Re-attach event listener after re-rendering details
     const viewMapButton = document.getElementById("view-map");
     if (viewMapButton) {
@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
   // Fungsi untuk mengambil data masjid tanpa perlu token (diambil dari kode terbaru user)
   async function fetchMasjidData(searchTerm = "") {
     try {
