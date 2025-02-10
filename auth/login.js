@@ -29,77 +29,82 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
   });
 
-  loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  // Pastikan elemen sudah ada sebelum menambahkan event listener
+  if (loginForm) {
+    // Tambahkan pengecekan apakah elemen ditemukan
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    const email = document.getElementById("email-input").value;
-    const password = document.getElementById("password-input").value;
+      const email = document.getElementById("email-input").value;
+      const password = document.getElementById("password-input").value;
 
-    if (!email || !password) {
-      Swal.fire({
-        title: "Login Gagal",
-        text: "Email dan password harus diisi.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    try {
-      showLoading("Memproses Login...");
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }), // Shorthand untuk email: email, password: password
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json(); // Tangkap pesan error dari server
-        throw new Error(
-          errorData.error || "Login gagal. Periksa email dan password Anda."
-        );
+      if (!email || !password) {
+        Swal.fire({
+          title: "Login Gagal",
+          text: "Email dan password harus diisi.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
       }
 
-      const data = await response.json();
+      try {
+        showLoading("Memproses Login...");
 
-      localStorage.setItem("jwtToken", data.token);
-      localStorage.setItem("userId", data.user.id);
-      localStorage.setItem("userRole", data.user.role);
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          }
+        );
 
-      hideLoading(); // Tutup loading sebelum redirect
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || "Login gagal. Periksa email dan password Anda."
+          );
+        }
 
-      Swal.fire({
-        title: "Login Berhasil!",
-        text: "Selamat datang kembali!",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      }).then(() => {
-        // Redirect setelah notifikasi sukses
-        const redirectUrl =
-          data.user.role === "admin"
-            ? "https://jumatberkah.vercel.app/admin/admin.html"
-            : "https://jumatberkah.vercel.app/";
-        window.location.href = redirectUrl;
-      });
-    } catch (error) {
-      console.error("Error during login:", error);
-      hideLoading(); // Pastikan loading ditutup jika error
-      Swal.fire({
-        title: "Login Gagal",
-        text: error.message,
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  });
+        const data = await response.json();
+
+        localStorage.setItem("jwtToken", data.token);
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("userRole", data.user.role);
+
+        hideLoading();
+
+        Swal.fire({
+          title: "Login Berhasil!",
+          text: "Selamat datang kembali!",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        }).then(() => {
+          const redirectUrl =
+            data.user.role === "admin"
+              ? "https://jumatberkah.vercel.app/admin/admin.html"
+              : "https://jumatberkah.vercel.app/";
+          window.location.href = redirectUrl;
+        });
+      } catch (error) {
+        console.error("Error during login:", error);
+        hideLoading();
+        Swal.fire({
+          title: "Login Gagal",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  } else {
+    console.error("Elemen loginForm tidak ditemukan!");
+  }
 
   // Handle Google OAuth Callback
   const urlParams = new URLSearchParams(window.location.search);
