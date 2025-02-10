@@ -3,22 +3,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
 
-  // Menangani login dengan Google
-  googleLoginBtn.addEventListener("click", () => {
+  // Fungsi untuk menampilkan loading overlay
+  function showLoading(message = "Memproses...") {
     Swal.fire({
-      title: "Menghubungkan ke Google...",
-      html: "Mohon tunggu sebentar",
+      title: message,
       allowOutsideClick: false,
       showConfirmButton: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
+  }
 
+  // Fungsi untuk menutup loading overlay
+  function hideLoading() {
+    Swal.close();
+  }
+
+  // Menangani login dengan Google
+  googleLoginBtn.addEventListener("click", () => {
+    showLoading("Menghubungkan ke Google...");
     setTimeout(() => {
       window.location.href =
         "https://backend-berkah.onrender.com/auth/google/login";
-    }, 800);
+    }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
   });
 
   loginForm.addEventListener("submit", async (event) => {
@@ -33,20 +41,12 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Email dan password harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
       return;
     }
 
     try {
-      Swal.fire({
-        title: "Memproses...",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+      showLoading("Memproses Login...");
 
       const response = await fetch(
         "https://backend-berkah.onrender.com/login",
@@ -55,48 +55,48 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
+          body: JSON.stringify({ email, password }), // Shorthand untuk email: email, password: password
         }
       );
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Username atau password salah");
+        const errorData = await response.json(); // Tangkap pesan error dari server
+        throw new Error(
+          errorData.error || "Login gagal. Periksa email dan password Anda."
+        );
       }
 
-      // Simpan data ke localStorage
+      const data = await response.json();
+
       localStorage.setItem("jwtToken", data.token);
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userRole", data.user.role);
 
-      await Swal.fire({
+      hideLoading(); // Tutup loading sebelum redirect
+
+      Swal.fire({
         title: "Login Berhasil!",
         text: "Selamat datang kembali!",
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
         timerProgressBar: true,
+      }).then(() => {
+        // Redirect setelah notifikasi sukses
+        const redirectUrl =
+          data.user.role === "admin"
+            ? "https://jumatberkah.vercel.app/admin/admin.html"
+            : "https://jumatberkah.vercel.app/";
+        window.location.href = redirectUrl;
       });
-
-      // Redirect berdasarkan role
-      const redirectUrl =
-        data.user.role === "admin"
-          ? "https://jumatberkah.vercel.app/admin/admin.html"
-          : "https://jumatberkah.vercel.app/";
-
-      window.location.href = redirectUrl;
     } catch (error) {
       console.error("Error during login:", error);
+      hideLoading(); // Pastikan loading ditutup jika error
       Swal.fire({
         title: "Login Gagal",
         text: error.message,
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
     }
   });
@@ -112,18 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
       text: decodeURIComponent(error),
       icon: "error",
       confirmButtonText: "OK",
-      confirmButtonColor: "#007bff",
     });
   } else if (token) {
-    Swal.fire({
-      title: "Memproses login...",
-      html: "Mohon tunggu sebentar",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+    showLoading("Memproses login..."); // Tampilkan loading saat callback Google
 
     try {
       const tokenParts = token.split(".");
@@ -133,31 +124,31 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("userId", payload.user_id);
       localStorage.setItem("userRole", payload.role);
 
-      setTimeout(() => {
-        Swal.fire({
-          title: "Login Berhasil!",
-          text: "Selamat datang kembali!",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          timerProgressBar: true,
-        }).then(() => {
-          const redirectUrl =
-            payload.role === "admin"
-              ? "https://jumatberkah.vercel.app/admin/admin.html"
-              : "https://jumatberkah.vercel.app/";
+      hideLoading(); // Tutup loading setelah token diproses
 
-          window.location.href = redirectUrl;
-        });
-      }, 800);
+      Swal.fire({
+        title: "Login Berhasil!",
+        text: "Selamat datang kembali!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      }).then(() => {
+        const redirectUrl =
+          payload.role === "admin"
+            ? "https://jumatberkah.vercel.app/admin/admin.html"
+            : "https://jumatberkah.vercel.app/";
+
+        window.location.href = redirectUrl;
+      });
     } catch (error) {
       console.error("Error processing token:", error);
+      hideLoading(); // Pastikan loading ditutup jika error
       Swal.fire({
         title: "Login Gagal",
         text: "Error memproses informasi login",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
     }
   }
@@ -176,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Semua field harus diisi.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
       return;
     }
@@ -188,21 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Password minimal 6 karakter",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
       return;
     }
 
     try {
-      Swal.fire({
-        title: "Memproses registrasi...",
-        html: "Mohon tunggu sebentar",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+      showLoading("Memproses registrasi...");
 
       const response = await fetch(
         "https://backend-berkah.onrender.com/register",
@@ -211,19 +192,16 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            username: username,
-            email: email,
-            password: password,
-          }),
+          body: JSON.stringify({ username, email, password }),
         }
       );
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Registrasi gagal");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Registrasi gagal");
       }
+
+      hideLoading(); // Tutup loading sebelum notifikasi sukses
 
       await Swal.fire({
         title: "Registrasi Berhasil!",
@@ -234,16 +212,16 @@ document.addEventListener("DOMContentLoaded", () => {
         timerProgressBar: true,
       });
 
-      // Redirect ke halaman login
+      // Redirect ke halaman login setelah notifikasi
       window.location.href = "login.html";
     } catch (error) {
       console.error("Error during registration:", error);
+      hideLoading(); // Pastikan loading ditutup jika error
       Swal.fire({
         title: "Registrasi Gagal",
         text: error.message || "Terjadi kesalahan saat registrasi",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#007bff",
       });
     }
   });
