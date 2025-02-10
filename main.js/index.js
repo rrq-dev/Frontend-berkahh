@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showMasjidDetails(masjid) {
+    const detailsContainer = document.getElementById("masjid-details");
     detailsContainer.style.display = "block";
 
     let embed_link = "";
@@ -276,8 +277,9 @@ document.addEventListener("DOMContentLoaded", () => {
     closeDetailsButton.addEventListener("click", () => {
       detailsContainer.style.display = "none";
     });
-  } // Fungsi untuk mengambil dan menampilkan data profil
+  }
 
+  // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");

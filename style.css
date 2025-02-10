@@ -252,12 +252,14 @@ body {
 /* Masjid Details Modal */
 .masjid-details {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  height: auto;
   background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
+  display: none; /* Modal awalnya disembunyikan */
   justify-content: center;
   align-items: center;
   z-index: 1001;
@@ -267,9 +269,10 @@ body {
   background-color: var(--card-background);
   padding: 2rem;
   border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
+  width: 100%;
   position: relative;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .close-details {
@@ -280,7 +283,7 @@ body {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666; /* Consider using a shade of text color for stronger contrast if needed for accessibility */
+  color: #666;
 }
 
 /* Footer */
