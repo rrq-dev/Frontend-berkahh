@@ -59,12 +59,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showMasjidDetails(masjid) {
-    const detailsContainer = document.getElementById("masjid-details");
-    detailsContainer.style.display = "block";
+    // ... (Kode Anda sebelumnya untuk menampilkan modal)
 
     let embed_link = "";
     if (masjid.embed_link) {
-      embed_link = masjid.embed_link;
+      // Buat iframe secara dinamis
+      embed_link = `
+            <iframe 
+                src="${masjid.embed_link.replace(
+                  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.823009946409!2d107.55732785541993!3d-6.8659299999999925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e6a068cc097b%3A0xa8987b4117b7e7e0!2sMasjid%20Jami%20At%20-%20Taufiq!5e0!3m2!1sid!2sid!4v1739146677156!5m2!1sid!2sid",
+                  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15842.958781268419!2d107.58811545541991!3d-6.921689699999987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e625bd2312d5%3A0xfc2c9204afbcbb9f!2sMasjid%20Raya%20Bandung!5e0!3m2!1sid!2sid!4v1739146764012!5m2!1sid!2sid"
+                )}" 
+                width="100%" 
+                height="300" 
+                frameborder="0" 
+                style="border:0"
+                allowfullscreen
+            ></https:>
+        `;
     } else {
       console.warn(`embed_link untuk masjid ${masjid.name} tidak tersedia.`);
       embed_link = `<p>Peta tidak tersedia.</p>`;
