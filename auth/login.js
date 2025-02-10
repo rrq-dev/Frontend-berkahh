@@ -20,14 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
-  // Menangani login dengan Google
-  googleLoginBtn.addEventListener("click", () => {
-    showLoading("Menghubungkan ke Google...");
-    setTimeout(() => {
-      window.location.href =
-        "https://backend-berkah.onrender.com/auth/google/login";
-    }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
-  });
+  // // Menangani login dengan Google
+  // googleLoginBtn.addEventListener("click", () => {
+  //   showLoading("Menghubungkan ke Google...");
+  //   setTimeout(() => {
+  //     window.location.href =
+  //       "https://backend-berkah.onrender.com/auth/google/login";
+  //   }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
+  // });
 
   // Pastikan elemen sudah ada sebelum menambahkan event listener
   if (loginForm) {
