@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Ganti dengan endpoint Anda
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/x-www-form-urlencoded", // Important
+                  "Content-Type": "application/json", // Important
                 },
                 body: "email=" + email, // Format body request yang benar
               }
