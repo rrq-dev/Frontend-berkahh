@@ -2,305 +2,330 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
 :root {
-    --text: #e7edfd;
-    --background: #010613;
-    --primary: #0d40d9;
-    --secondary: #530778;
-    --accent: #a10aa9;
+  --text: #e7edfd;
+  --background: #010613;
+  --primary: #0d40d9;
+  --secondary: #530778;
+  --accent: #a10aa9;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--background); /* Updated background color */
-    padding: 30px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background); /* Updated background color */
+  padding: 30px;
 }
 
 .container {
-    position: relative;
-    max-width: 850px;
-    width: 100%;
-    background: var(--card-background); /* Consider defining --card-background variable in :root if needed */
-    padding: 40px 30px;
-    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15); /* Consider updating shadow color for new theme */
-    perspective: 2700px;
-    border-radius: 12px;
+  position: relative;
+  max-width: 850px;
+  width: 100%;
+  background: var(
+    --card-background
+  ); /* Consider defining --card-background variable in :root if needed */
+  padding: 40px 30px;
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15); /* Consider updating shadow color for new theme */
+  perspective: 2700px;
+  border-radius: 12px;
 }
 
 .container .cover {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    height: 100%;
-    width: 50%;
-    z-index: 98;
-    transition: all 1s ease;
-    transform-origin: left;
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 50%;
+  z-index: 98;
+  transition: all 1s ease;
+  transform-origin: left;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 .container #flip:checked ~ .cover {
-    transform: rotateY(-180deg);
+  transform: rotateY(-180deg);
 }
 
 .container .cover .front,
 .container .cover .back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    border-radius: 0 12px 12px 0;
-    overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 0 12px 12px 0;
+  overflow: hidden;
 }
 
 .cover .back {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 .container .cover img {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    z-index: 10;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: 10;
 }
 
 .container .cover .text {
-    position: absolute;
-    z-index: 10;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+  position: absolute;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .container .cover .text::before {
-    content: "";
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    opacity: 0.6;
-    background: var(--primary); /* Updated cover text background color */
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  opacity: 0.6;
+  background: var(--primary); /* Updated cover text background color */
 }
 
 .cover .text .text-1,
 .cover .text .text-2 {
-    z-index: 20;
-    font-size: 26px;
-    font-weight: 600;
-    color: var(--text); /* Updated cover text color */
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Keep text-shadow as is or adjust for new text color visibility */
+  z-index: 20;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text); /* Updated cover text color */
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Keep text-shadow as is or adjust for new text color visibility */
 }
 
 .cover .text .text-2 {
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 10px;
 }
 
 .container .forms {
-    height: 100%;
-    width: 100%;
-    background: var(--card-background); /* Consider defining --card-background variable in :root if needed */
+  height: 100%;
+  width: 100%;
+  background: var(
+    --card-background
+  ); /* Consider defining --card-background variable in :root if needed */
 }
 
 .container .form-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .form-content .login-form,
 .form-content .signup-form {
-    width: calc(100% / 2 - 25px);
+  width: calc(100% / 2 - 25px);
 }
 
 .forms .form-content .title {
-    position: relative;
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text); /* Updated title color */
-    margin-bottom: 30px;
+  position: relative;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text); /* Updated title color */
+  margin-bottom: 30px;
 }
 
 .forms .form-content .title:before {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -10px;
-    height: 3px;
-    width: 25px;
-    background: var(--primary); /* Updated title underline color */
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  height: 3px;
+  width: 25px;
+  background: var(--primary); /* Updated title underline color */
 }
 
 .forms .form-content .input-boxes {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .forms .form-content .input-box {
-    display: flex;
-    align-items: center;
-    height: 50px;
-    width: 100%;
-    margin: 10px 0;
-    position: relative;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  margin: 10px 0;
+  position: relative;
 }
 
 .form-content .input-box input {
-    height: 100%;
-    width: 100%;
-    outline: none;
-    border: none;
-    padding: 0 30px;
-    font-size: 16px;
-    font-weight: 500;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.2); /* Keep default border color or adjust for theme */
-    transition: all 0.3s ease;
-    color: var(--text); /* Updated input text color */
-    background: var(--background); /* Updated input background color for contrast - may need adjustment based on visual preference */
+  height: 100%;
+  width: 100%;
+  outline: none;
+  border: none;
+  padding: 0 30px;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.2); /* Keep default border color or adjust for theme */
+  transition: all 0.3s ease;
+  color: var(--text); /* Updated input text color */
+  background: var(
+    --background
+  ); /* Updated input background color for contrast - may need adjustment based on visual preference */
 }
 
 .form-content .input-box input:focus,
 .form-content .input-box input:valid {
-    border-color: var(--primary); /* Updated input focus border color */
+  border-color: var(--primary); /* Updated input focus border color */
 }
 
 .form-content .input-box i {
-    position: absolute;
-    color: var(--primary); /* Updated input icon color */
-    font-size: 17px;
+  position: absolute;
+  color: var(--primary); /* Updated input icon color */
+  font-size: 17px;
 }
 
 /* Divider Style */
 .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 20px 0;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
 }
 
 .divider::before,
 .divider::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #ddd; /* Keep divider line color or adjust for theme */
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd; /* Keep divider line color or adjust for theme */
 }
 
 .divider span {
-    padding: 0 10px;
-    color: #666; /* Keep divider text color or adjust for theme */
-    font-size: 14px;
+  padding: 0 10px;
+  color: #666; /* Keep divider text color or adjust for theme */
+  font-size: 14px;
 }
 
 /* Button Styles */
 .forms .form-content .button {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .forms .form-content .button input {
-    color: var(--text); /* Updated button text color */
-    background: var(--primary); /* Updated button background color */
-    border-radius: 8px;
-    padding: 0;
-    cursor: pointer;
-    transition: all 0.4s ease;
-    font-weight: 500;
-    font-size: 16px;
+  color: var(--text); /* Updated button text color */
+  background: var(--primary); /* Updated button background color */
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .forms .form-content .button input:hover {
-    background: var(--secondary); /* Updated button hover background color */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2); /* Keep or adjust shadow for new theme */
+  background: var(--secondary); /* Updated button hover background color */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2); /* Keep or adjust shadow for new theme */
 }
 
 /* Google Login Button */
 .forms .form-content .button.input-box.google-login button {
-    background: var(--card-background); /* Consider defining --card-background variable in :root if needed */
-    border: 2px solid #ddd; /* Keep Google login border color or adjust for theme */
-    border-radius: 8px;
-    color: var(--text); /* Updated Google login button text color */
-    font-size: 16px;
-    font-weight: 500;
-    padding: 12px 20px;
-    cursor: pointer;
-    width: 100%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Keep or adjust shadow for new theme */
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  background: var(
+    --card-background
+  ); /* Consider defining --card-background variable in :root if needed */
+  border: 2px solid #ddd; /* Keep Google login border color or adjust for theme */
+  border-radius: 8px;
+  color: var(--text); /* Updated Google login button text color */
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 20px;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Keep or adjust shadow for new theme */
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .forms .form-content .button.input-box.google-login button:hover {
-    background: #f8f9fa; /* Keep Google login hover background or adjust for theme */
-    border-color: var(--primary); /* Updated Google login hover border color */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15); /* Keep or adjust shadow for new theme */
+  background: #f8f9fa; /* Keep Google login hover background or adjust for theme */
+  border-color: var(--primary); /* Updated Google login hover border color */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15); /* Keep or adjust shadow for new theme */
 }
 
 .forms .form-content .button.input-box.google-login button i {
-    color: #db4437; /* Keep Google icon color */
-    font-size: 20px;
-    position: static;
+  color: #db4437; /* Keep Google icon color */
+  font-size: 20px;
+  position: static;
 }
 
 /* Text Links */
 .forms .form-content .text {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text); /* Updated normal text color */
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text); /* Updated normal text color */
 }
 
 .forms .form-content .text a {
-    text-decoration: none;
-    color: var(--primary); /* Updated link color */
+  text-decoration: none;
+  color: var(--primary); /* Updated link color */
 }
 
 .forms .form-content .text a:hover {
-    text-decoration: underline; /* Keep underline on hover */
+  text-decoration: underline; /* Keep underline on hover */
 }
 
 /* Responsive Design */
 @media (max-width: 730px) {
-    .container .cover {
-        display: none;
-    }
+  .container .cover {
+    display: none;
+  }
 
-    .form-content .login-form,
-    .form-content .signup-form {
-        width: 100%;
-    }
+  .form-content .login-form,
+  .form-content .signup-form {
+    width: 100%;
+  }
 
-    .form-content .signup-form {
-        display: none;
-    }
+  .form-content .signup-form {
+    display: none;
+  }
 
-    .container #flip:checked ~ .forms .signup-form {
-        display: block;
-    }
+  .container #flip:checked ~ .forms .signup-form {
+    display: block;
+  }
 
-    .container #flip:checked ~ .forms .login-form {
-        display: none;
-    }
+  .container #flip:checked ~ .forms .login-form {
+    display: none;
+  }
 
-    .container {
-        padding: 25px 20px;
-    }
+  .container {
+    padding: 25px 20px;
+  }
+}
+
+/* Perubahan Spesifik untuk Reset Form */
+.reset-form {
+  width: 100%; /* Pastikan form reset memenuhi lebar container */
+}
+
+.reset-form .input-boxes {
+  margin-top: 20px; /* Sesuaikan margin jika diperlukan */
+}
+
+.reset-form .input-box {
+  margin: 15px 0; /* Sesuaikan margin jika diperlukan */
+}
+
+.reset-form .button {
+  margin-top: 25px; /* Sesuaikan margin jika diperlukan */
 }
