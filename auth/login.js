@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
+  const resetForm = document.getElementById("resetForm"); // Ensure resetForm is defined
 
   // Fungsi untuk menampilkan loading overlay
   function showLoading(message = "Memproses...") {
@@ -20,18 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
-  // // Menangani login dengan Google
-  // googleLoginBtn.addEventListener("click", () => {
-  //   showLoading("Menghubungkan ke Google...");
-  //   setTimeout(() => {
-  //     window.location.href =
-  //       "https://backend-berkah.onrender.com/auth/google/login";
-  //   }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
-  // });
-
-  // Pastikan elemen sudah ada sebelum menambahkan event listener
+  // --- Bagian Login ---
   if (loginForm) {
-    // Tambahkan pengecekan apakah elemen ditemukan
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -64,9 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(
-            errorData.error || "Login gagal. Periksa email dan password Anda."
-          );
+          // Improved error handling for login:
+          let errorMessage = "Login gagal. Periksa email dan password Anda.";
+          if (errorData && errorData.message) {
+            // Check if backend returns a more specific message
+            errorMessage = errorData.message;
+          }
+          throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -105,10 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Elemen loginForm tidak ditemukan!");
   }
-  // handle reset form
+
+  // --- Bagian Lupa Password (Reset Password Request) ---
   const forgotPasswordLink = document.getElementById("forgot-password-link");
   if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener("click", (event) => {
+    forgotPasswordLink.addEventListener("click", async (event) => {
       event.preventDefault(); // Mencegah navigasi default link
 
       Swal.fire({
@@ -132,17 +128,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Ganti dengan endpoint Anda
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json", // Important
+                  "Content-Type": "application/x-www-form-urlencoded", // Ubah Content-Type
                 },
-                body: "email=" + email, // Format body request yang benar
+                body: "email=" + email, // Format body request yang benar (x-www-form-urlencoded)
               }
             );
 
             if (!response.ok) {
               const errorData = await response.json();
-              throw new Error(
-                errorData.error || "Gagal mengirim permintaan reset password."
-              );
+              // Improved error handling for reset password request:
+              let errorMessage = "Gagal mengirim permintaan reset password.";
+              if (errorData && errorData.message) {
+                errorMessage = errorData.message; // Use backend message if available
+              }
+              throw new Error(errorMessage);
             }
 
             return response.json(); // Mengembalikan data respon jika sukses
@@ -166,7 +165,101 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Elemen forgot-password-link tidak ditemukan!");
   }
 
-  // Handle Google OAuth Callback
+  // --- Bagian Reset Password Form Submission ---
+  if (resetForm) {
+    resetForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const newPassword = document.getElementById("new-password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+
+      if (!newPassword || !confirmPassword) {
+        Swal.fire({
+          title: "Gagal Reset Password",
+          text: "Password baru dan konfirmasi password harus diisi.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        Swal.fire({
+          title: "Gagal Reset Password",
+          text: "Password baru dan konfirmasi password tidak sama.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      // Ambil token dari URL (asumsi token ada di query parameter 'token')
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get("token");
+
+      if (!token) {
+        Swal.fire({
+          title: "Gagal Reset Password",
+          text: "Token reset password tidak valid.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      try {
+        showLoading("Mengatur Password Baru...");
+
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/new-password", // Endpoint new-password Anda
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              token: token, // Kirim token
+              password: newPassword, // Kirim password baru (gunakan 'password' bukan 'newPassword' untuk konsistensi endpoint)
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          // Improved error handling for new password submission:
+          let errorMessage = "Gagal mengatur password baru.";
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message; // Use backend message if available
+          }
+          throw new Error(errorMessage);
+        }
+
+        hideLoading();
+
+        Swal.fire({
+          title: "Password Berhasil Diperbarui!",
+          text: "Password baru Anda telah berhasil diatur. Silakan login dengan password baru Anda.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href = "login.html"; // Redirect ke halaman login setelah berhasil
+        });
+      } catch (error) {
+        console.error("Error saat mengatur password baru:", error);
+        hideLoading();
+        Swal.fire({
+          title: "Gagal Reset Password",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  } else {
+    console.error("Elemen resetForm tidak ditemukan!"); // Consider adding resetForm definition at the beginning if not already defined in HTML
+  }
+
+  // --- Bagian Google OAuth Callback (sama seperti sebelumnya) ---
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
   const error = urlParams.get("error");
@@ -218,76 +311,83 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Registration functionality
-  signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  // --- Bagian Registrasi (sama seperti sebelumnya) ---
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    const username = document.getElementById("name-input").value;
-    const email = document.getElementById("signup-email-input").value;
-    const password = document.getElementById("signup-password-input").value;
+      const username = document.getElementById("name-input").value;
+      const email = document.getElementById("signup-email-input").value;
+      const password = document.getElementById("signup-password-input").value;
 
-    if (!username || !email || !password) {
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: "Semua field harus diisi.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    // Validasi password minimal 6 karakter
-    if (password.length < 6) {
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: "Password minimal 6 karakter",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    try {
-      showLoading("Memproses registrasi...");
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, email, password }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Registrasi gagal");
+      if (!username || !email || !password) {
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: "Semua field harus diisi.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
       }
 
-      hideLoading(); // Tutup loading sebelum notifikasi sukses
+      // Validasi password minimal 6 karakter
+      if (password.length < 6) {
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: "Password minimal 6 karakter",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
 
-      await Swal.fire({
-        title: "Registrasi Berhasil!",
-        text: "Silakan login dengan akun baru Anda",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      });
+      try {
+        showLoading("Memproses registrasi...");
 
-      // Redirect ke halaman login setelah notifikasi
-      window.location.href = "login.html";
-    } catch (error) {
-      console.error("Error during registration:", error);
-      hideLoading(); // Pastikan loading ditutup jika error
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: error.message || "Terjadi kesalahan saat registrasi",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  });
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, email, password }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          // Improved error handling for registration:
+          let errorMessage = "Registrasi gagal";
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message; // Use backend message if available
+          }
+          throw new Error(errorMessage);
+        }
+
+        hideLoading(); // Tutup loading sebelum notifikasi sukses
+
+        await Swal.fire({
+          title: "Registrasi Berhasil!",
+          text: "Silakan login dengan akun baru Anda",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+
+        // Redirect ke halaman login setelah notifikasi
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Error during registration:", error);
+        hideLoading(); // Pastikan loading ditutup jika error
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: error.message || "Terjadi kesalahan saat registrasi",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  }
 });
