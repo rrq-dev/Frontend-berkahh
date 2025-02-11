@@ -228,6 +228,22 @@ body {
   font-weight: 500;
   font-size: 16px;
 }
+/* Perubahan Spesifik untuk Reset Form */
+.reset-form {
+  width: 100%; /* Pastikan form reset memenuhi lebar container */
+}
+
+.reset-form .input-boxes {
+  margin-top: 20px; /* Sesuaikan margin jika diperlukan */
+}
+
+.reset-form .input-box {
+  margin: 15px 0; /* Sesuaikan margin jika diperlukan */
+}
+
+.reset-form .button {
+  margin-top: 25px; /* Sesuaikan margin jika diperlukan */
+}
 
 .forms .form-content .button input:hover {
   background: var(--secondary); /* Updated button hover background color */
@@ -311,21 +327,4 @@ body {
   .container {
     padding: 25px 20px;
   }
-}
-
-/* Perubahan Spesifik untuk Reset Form */
-.reset-form {
-  width: 100%; /* Pastikan form reset memenuhi lebar container */
-}
-
-.reset-form .input-boxes {
-  margin-top: 20px; /* Sesuaikan margin jika diperlukan */
-}
-
-.reset-form .input-box {
-  margin: 15px 0; /* Sesuaikan margin jika diperlukan */
-}
-
-.reset-form .button {
-  margin-top: 25px; /* Sesuaikan margin jika diperlukan */
 }
