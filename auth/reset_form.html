@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reset Form</title>
+    <title>Lupa Password</title>
     <link rel="stylesheet" href="login.css" />
   </head>
   <body>
@@ -11,29 +11,20 @@
       <div class="forms">
         <div class="form-content">
           <div class="reset-form">
-            <div class="title">Reset Password</div>
-            <form id="resetForm" autocomplete="off">
+            <div class="title">Lupa Password</div>
+            <form id="forgotForm" autocomplete="off">
               <div class="input-boxes">
                 <div class="input-box">
-                  <i class="fas fa-lock"></i>
+                  <i class="fas fa-envelope"></i>
                   <input
-                    type="password"
-                    id="new-password"
-                    placeholder="Password Baru"
-                    required
-                  />
-                </div>
-                <div class="input-box">
-                  <i class="fas fa-lock"></i>
-                  <input
-                    type="password"
-                    id="confirm-password"
-                    placeholder="Konfirmasi Password Baru"
+                    type="email"
+                    id="email-input"
+                    placeholder="Masukkan email Anda"
                     required
                   />
                 </div>
                 <div class="button input-box">
-                  <input type="submit" value="Reset Password" />
+                  <input type="submit" value="Kirim" />
                 </div>
               </div>
             </form>
@@ -41,6 +32,8 @@
         </div>
       </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="login.js"></script>
   </body>
 </html>

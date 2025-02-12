@@ -97,66 +97,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Lupa Password
   if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener("click", async (event) => {
+    forgotPasswordLink.addEventListener("click", (event) => {
       event.preventDefault();
-
-      Swal.fire({
-        title: "Reset Password",
-        input: "email",
-        inputPlaceholder: "Masukkan email Anda yang terdaftar",
-        showCancelButton: true,
-        confirmButtonText: "Kirim",
-        cancelButtonText: "Batal",
-        showLoaderOnConfirm: true,
-        preConfirm: async (selectedEmail) => {
-          if (!selectedEmail) {
-            Swal.showValidationMessage(`Email harus diisi`);
-            return false;
-          }
-
-          try {
-            showLoading("Memproses Permintaan...");
-
-            const resetResponse = await fetch(
-              "https://backend-berkah.onrender.com/forgotpassword",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email: selectedEmail }),
-              }
-            );
-
-            if (!resetResponse.ok) {
-              const errorData = await resetResponse.json();
-              throw new Error(
-                errorData.error || "Gagal memproses permintaan reset password."
-              );
-            }
-
-            hideLoading();
-            return resetResponse.json();
-          } catch (error) {
-            Swal.showValidationMessage(`${error}`);
-            hideLoading();
-            return false;
-          }
-        },
-        allowOutsideClick: () => !Swal.isLoading(),
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            icon: "success",
-            title: "Permintaan reset password berhasil dikirim.",
-            text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
-            confirmButtonText: "OK",
-          });
-        }
-      });
+      window.location.href = "forgot_password.html";
     });
   } else {
     console.error("Elemen forgot-password-link tidak ditemukan!");
+  }
+
+  // Forgot Password Form Submit (disatukan di sini)
+  const forgotForm = document.getElementById("forgotForm");
+  if (forgotForm) {
+    forgotForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("email-input").value;
+
+      try {
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/forgotpassword",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || "Gagal memproses permintaan reset password."
+          );
+        }
+
+        Swal.fire({
+          icon: "success",
+          title: "Permintaan reset password berhasil dikirim.",
+          text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href = "login.html"; // Redirect ke halaman login setelah sukses
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: error.message,
+        });
+      }
+    });
+  } else {
+    console.error("Elemen forgotForm tidak ditemukan!");
   }
 
   // Registrasi
