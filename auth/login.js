@@ -111,66 +111,64 @@ document.addEventListener("DOMContentLoaded", () => {
     resetPasswordButton.addEventListener("click", async (event) => {
       event.preventDefault(); // Mencegah form submit default jika ada dalam form
 
-      const email = resetEmailInput.value;
-
-      if (!email) {
-        Swal.fire({
-          title: "Email Kosong",
-          text: "Silakan masukkan email Anda.",
-          icon: "warning",
-          confirmButtonText: "OK",
-        });
-        return;
-      }
-
-      try {
-        showLoading("Memproses Permintaan..."); // Fungsi loading dari kode login.js
-
-        const response = await fetch(
-          "https://backend-berkah.onrender.com/reset-password", // Endpoint backend Anda
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json", // Mengirim data dalam format JSON
-            },
-            body: JSON.stringify({ email: email }), // Kirim email dalam body JSON
+      Swal.fire({
+        title: "Reset Password",
+        input: "email",
+        inputLabel: "Masukkan email Anda",
+        inputPlaceholder: "contoh@email.com",
+        showCancelButton: true,
+        confirmButtonText: "Kirim",
+        cancelButtonText: "Batal",
+        showLoaderOnConfirm: true, // Tampilkan loading saat konfirmasi
+        preConfirm: async (email) => {
+          if (!email) {
+            Swal.showValidationMessage(`Email harus diisi`);
+            return false;
           }
-        );
+          try {
+            showLoading("Memproses Permintaan..."); // Fungsi loading dari kode login.js
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || "Gagal memproses permintaan reset password."
-          );
+            const response = await fetch(
+              "https://backend-berkah.onrender.com/reset-password", // Endpoint backend Anda
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json", // Mengirim data dalam format JSON
+                },
+                body: JSON.stringify({ email: email }), // Kirim email dalam body JSON
+              }
+            );
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || "Gagal memproses permintaan reset password."
+              );
+            }
+
+            hideLoading(); // Fungsi hide loading dari kode login.js
+            return response.json(); // Mengembalikan data respon jika sukses
+          } catch (error) {
+            Swal.showValidationMessage(`${error}`);
+            hideLoading(); // Pastikan loading dihide jika error validasi
+            return false; // Indicate validation failure
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: "Berhasil!",
+            text: "Permintaan reset password berhasil dikirim. Silakan periksa email Anda.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
         }
-
-        hideLoading(); // Fungsi hide loading dari kode login.js
-
-        Swal.fire({
-          title: "Berhasil!",
-          text: "Permintaan reset password berhasil dikirim. Silakan periksa email Anda.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-
-        // Kosongkan input field setelah berhasil (opsional)
-        resetEmailInput.value = "";
-      } catch (error) {
-        console.error("Error reset password:", error);
-        hideLoading(); // Pastikan loading dihide jika error terjadi
-
-        Swal.fire({
-          title: "Gagal!",
-          text: error.message,
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
+      });
     });
   } else {
     console.error("Tombol resetPasswordButton tidak ditemukan!");
   }
-
   // Handle Google OAuth Callback
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
