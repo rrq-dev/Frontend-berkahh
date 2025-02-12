@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fungsi untuk mengambil daftar pengguna (termasuk ID) dari backend
   async function fetchEmailListData() {
     try {
-      const apiUrl = "https://backend-berkah.onrender.com/getemail"; // Endpoint untuk mengambil data pengguna (termasuk ID dan email)
+      const apiUrl = "https://backend-berkah.onrender.com/getemail";
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
@@ -35,17 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = `HTTP error! status: ${
           response.status
         }, text: ${await response.text()}`;
-        throw new Error(`Gagal mengambil daftar pengguna: ${message}`); // Pesan error diubah
+        throw new Error(`Gagal mengambil daftar pengguna: ${message}`);
       }
 
-      const userDataList = await response.json(); // Respon sekarang adalah array objek pengguna
-      return userDataList; // Mengembalikan data pengguna (termasuk ID dan email)
+      const userDataList = await response.json();
+      return userDataList;
     } catch (error) {
-      console.error("Error fetching user list data:", error); // Pesan error diubah
+      console.error("Error fetching user list data:", error);
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Gagal memuat daftar pengguna!", // Pesan error diubah
+        text: "Gagal memuat daftar pengguna!",
         confirmButtonColor: "#4CAF50",
       });
       throw error;
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         showLoading("Mengambil Daftar Email...");
 
-        const userDataList = await fetchEmailListData(); // Memanggil fungsi fetchEmailListData untuk mengambil data pengguna
+        const userDataList = await fetchEmailListData();
 
         hideLoading();
 
@@ -150,13 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        // Sekarang kita menggunakan userDataList yang berisi objek pengguna
         Swal.fire({
           title: "Reset Password",
           input: "select",
           inputOptions: userDataList.reduce((options, user) => {
-            // Iterasi melalui userDataList
-            options[user.Email] = user.Email; // Menampilkan email di pilihan
+            options[user.Email] = user.Email;
             return options;
           }, {}),
           inputPlaceholder: "Pilih email Anda",
@@ -170,11 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
               return false;
             }
 
-            // Cari user yang sesuai dengan email yang dipilih (opsional, jika Anda butuh ID di sini)
             const selectedUser = userDataList.find(
               (user) => user.Email === selectedEmail
             );
-            const userId = selectedUser ? selectedUser.ID : null; // Ambil ID jika diperlukan
+            const userId = selectedUser ? selectedUser.ID : null;
 
             try {
               showLoading("Memproses Permintaan...");
@@ -186,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ email: selectedEmail }), // Tetap kirim email untuk reset password
+                  body: JSON.stringify({ email: selectedEmail }),
                 }
               );
 
@@ -218,11 +215,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } catch (error) {
-        console.error("Error fetching user list data:", error); // Pesan error diubah
+        console.error("Error fetching user list data:", error);
         hideLoading();
         Swal.fire({
           title: "Gagal!",
-          text: error.message || "Gagal mengambil daftar pengguna.", // Pesan error diubah
+          text: error.message || "Gagal mengambil daftar pengguna.",
           icon: "error",
           confirmButtonText: "OK",
         });
