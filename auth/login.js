@@ -20,38 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
-  // Fungsi untuk mengambil daftar pengguna (termasuk ID) dari backend
-  async function fetchEmailListData() {
-    try {
-      const apiUrl = "https://backend-berkah.onrender.com/getemail";
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const message = `HTTP error! status: ${
-          response.status
-        }, text: ${await response.text()}`;
-        throw new Error(`Gagal mengambil daftar pengguna: ${message}`);
-      }
-
-      const userDataList = await response.json();
-      return userDataList;
-    } catch (error) {
-      console.error("Error fetching user list data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Gagal memuat daftar pengguna!",
-        confirmButtonColor: "#4CAF50",
-      });
-      throw error;
-    }
-  }
-
   // Pastikan elemen sudah ada sebelum menambahkan event listener
   if (loginForm) {
     // Tambahkan pengecekan apakah elemen ditemukan
@@ -133,65 +101,60 @@ document.addEventListener("DOMContentLoaded", () => {
     forgotPasswordLink.addEventListener("click", async (event) => {
       event.preventDefault();
 
-      try {
-        showLoading("Mengambil Daftar Email...");
-        const userDataList = await fetchEmailListData();
-        hideLoading();
-
-        if (!userDataList || userDataList.length === 0) {
-          // ... (penanganan jika tidak ada email terdaftar)
-          return;
-        }
-
-        Swal.fire({
-          // ... (konfigurasi Swal.fire untuk memilih email)
-          preConfirm: async (selectedEmail) => {
-            // ... (validasi email yang dipilih)
-
-            try {
-              showLoading("Memproses Permintaan...");
-
-              const resetResponse = await fetch(
-                "https://backend-berkah.onrender.com/forgotpassword", // Endpoint yang benar
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ email: selectedEmail }), // Kirim email dalam body
-                }
-              );
-
-              if (!resetResponse.ok) {
-                const errorData = await resetResponse.json();
-                throw new Error(
-                  errorData.error ||
-                    "Gagal memproses permintaan reset password."
-                );
-              }
-
-              hideLoading();
-              return resetResponse.json(); // Mengembalikan data respons jika sukses
-            } catch (error) {
-              Swal.showValidationMessage(`${error}`);
-              hideLoading();
-              return false;
-            }
-          },
-          allowOutsideClick: () => !Swal.isLoading(),
-        }).then((result) => {
-          if (result.isConfirmed) {
-            Swal.fire({
-              icon: "success",
-              title: "Permintaan reset password berhasil dikirim.",
-              text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
-              confirmButtonText: "OK",
-            });
+      Swal.fire({
+        title: "Reset Password",
+        input: "email", // Input email langsung
+        inputPlaceholder: "Masukkan email Anda yang terdaftar",
+        showCancelButton: true,
+        confirmButtonText: "Kirim",
+        cancelButtonText: "Batal",
+        showLoaderOnConfirm: true,
+        preConfirm: async (selectedEmail) => {
+          if (!selectedEmail) {
+            Swal.showValidationMessage(`Email harus diisi`);
+            return false;
           }
-        });
-      } catch (error) {
-        // ... (error handling)
-      }
+
+          try {
+            showLoading("Memproses Permintaan...");
+
+            const resetResponse = await fetch(
+              "https://backend-berkah.onrender.com/forgotpassword",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: selectedEmail }),
+              }
+            );
+
+            if (!resetResponse.ok) {
+              const errorData = await resetResponse.json();
+              throw new Error(
+                errorData.error || "Gagal memproses permintaan reset password."
+              );
+            }
+
+            hideLoading();
+            return resetResponse.json();
+          } catch (error) {
+            Swal.showValidationMessage(`${error}`);
+            hideLoading();
+            return false;
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: "success",
+            title: "Permintaan reset password berhasil dikirim.",
+            text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
+            confirmButtonText: "OK",
+          });
+        }
+      });
     });
   } else {
     console.error("Elemen forgot-password-link tidak ditemukan!");
