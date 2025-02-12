@@ -7,15 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = urlParams.get("token");
 
   if (token) {
-    Swal.fire({
-      // Tambahkan SweetAlert loading sebelum pemrosesan token Google OAuth
-      title: "Memproses login...",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
     try {
       // Decode token untuk mendapatkan informasi user
       const tokenParts = token.split(".");
@@ -47,8 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "error",
         confirmButtonText: "OK",
       });
-    } finally {
-      Swal.close(); // Pastikan loading selalu ditutup setelah pemrosesan token Google OAuth
     }
   }
   function getRandomColor() {
@@ -76,70 +65,75 @@ document.addEventListener("DOMContentLoaded", () => {
     let embed_link = "";
     if (masjid.embed_link) {
       embed_link = `
-              <iframe
-                  src="${masjid.embed_link.replace(
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.823009946409!2d107.55732785541993!3d-6.8659299999999925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e6a068cc097b%3A0xa8987b4117b7e7e0!2sMasjid%20Jami%20At%20-%20Taufiq!5e0!3m2!1sid!2sid!4v1739146677156!5m2!1sid!2sid",
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15842.958781268419!2d107.58811545541991!3d-6.921689699999987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e625bd2312d5%3A0xfc2c9204afbcbb9f!2sMasjid%20Raya%20Bandung!5e0!3m2!1sid!2sid!4v1739146764012!5m2!1sid!2sid" // Perbaikan: Ganti 6 jadi 7
-  )}"
-                  width="100%"
-                  height="300"
-                  frameborder="0"
-                  style="border:0"
-                  allowfullscreen
-              ></iframe>
-          `;
+            <iframe 
+                src="${masjid.embed_link.replace(
+                  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.823009946409!2d107.55732785541993!3d-6.8659299999999925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e6a068cc097b%3A0xa8987b4117b7e7e0!2sMasjid%20Jami%20At%20-%20Taufiq!5e0!3m2!1sid!2sid!4v1739146677156!5m2!1sid!2sid",
+                  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15842.958781268419!2d107.58811545541991!3d-6.921689699999987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e625bd2312d5%3A0xfc2c9204afbcbb9f!2sMasjid%20Raya%20Bandung!5e0!3m2!1sid!2sid!4v1739146764012!5m2!1sid!2sid" // Perbaikan: Ganti 6 jadi 7
+                )}" 
+                width="100%" 
+                height="300" 
+                frameborder="0" 
+                style="border:0"
+                allowfullscreen
+            ></iframe>
+        `;
     } else {
       console.warn(`embed_link untuk masjid ${masjid.name} tidak tersedia.`);
       embed_link = `<p>Peta tidak tersedia.</p>`;
     }
 
     detailsContainer.querySelector(".details-body").innerHTML = `
-          <div class="details-header">
-              <h2 class="details-title">${masjid.name}</h2>
-          </div>
-          <div class="details-info">
-              <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${
-    masjid.address
-  }</p>
-              <p class="details-description">${
-    masjid.description || "Tidak ada deskripsi"
-  }</p>
-          </div>
-          <div class="details-map-container">
-              ${embed_link}
-          </div>
-        `;
+        <div class="details-header">
+            <h2 class="details-title">${masjid.name}</h2>
+        </div>
+        <div class="details-info">
+            <p class="details-address"><i class="fas fa-map-marker-alt"></i> ${
+              masjid.address
+            }</p>
+            <p class="details-description">${
+              masjid.description || "Tidak ada deskripsi"
+            }</p>
+        </div>
+        <div class="details-map-container">
+            ${embed_link}
+        </div>
+    `;
   }
   async function fetchMasjidData(searchTerm = "") {
     try {
       const apiUrl =
         "https://backend-berkah.onrender.com/retreive/data/location";
-      const response = await fetch(apiUrl); // Simplified fetch, no headers
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        console.error(
-          "HTTP Error during fetch:",
-          response.status,
-          response.statusText
-        ); // More basic error log
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const message = `HTTP error! status: ${
+          response.status
+        }, text: ${await response.text()}`;
+        throw new Error(`Gagal mengambil data masjid: ${message}`);
       }
 
       const masjidData = await response.json();
-      console.log("Masjid Data Fetched Successfully:", masjidData); // Log success
 
       if (!window.location.pathname.includes("/profile/")) {
         displayMasjidList(masjidData, searchTerm);
       }
+
       return masjidData;
     } catch (error) {
-      console.error("Error fetching masjid data (simplified):", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Gagal memuat data masjid!",
-        confirmButtonColor: "#4CAF50",
-      });
+      console.error("Error fetching masjid data:", error);
+      if (!window.location.pathname.includes("/profile/")) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Gagal memuat data masjid!",
+          confirmButtonColor: "#4CAF50",
+        });
+      }
       throw error;
     }
   }
@@ -167,11 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (filteredAndSortedData.length === 0) {
       masjidList.innerHTML = `
-              <div class="no-results">
-                  <i class="fas fa-search"></i>
-                  <p>Masjid yang dicari tidak ditemukan</p>
-              </div>
-          `;
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>Masjid yang dicari tidak ditemukan</p>
+            </div>
+        `;
       return;
     }
 
@@ -189,27 +183,27 @@ document.addEventListener("DOMContentLoaded", () => {
       let embed_link_display = "";
       if (masjid.embed_link) {
         embed_link_display = `<a href="${masjid.embed_link}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-                      <i class="fas fa-map-marker-alt"></i> ${masjid.address}
-                  </a>`;
+                    <i class="fas fa-map-marker-alt"></i> ${masjid.address}
+                </a>`;
       } else {
         console.warn(`embed_link untuk masjid ${masjid.name} tidak tersedia.`);
         embed_link_display = `<p><i class="fas fa-map-marker-alt"></i> ${masjid.address} (Peta tidak tersedia)</p>`;
       }
 
       masjidItem.innerHTML = `
-              <div class="masjid-content">
-                  <h3>${highlightedName}</h3>
-                  <p>${embed_link_display}</p>
-                  <p><i class="fas fa-info-circle"></i> ${
-    masjid.description || "Tidak ada deskripsi"
-  }</p>
-                  <button class="view-details-button" data-masjid-id="${
-    masjid.id
-  }">
-                      <i class="fas fa-eye"></i> Lihat Detail
-                  </button>
-              </div>
-          `;
+            <div class="masjid-content">
+                <h3>${highlightedName}</h3>
+                <p>${embed_link_display}</p>
+                <p><i class="fas fa-info-circle"></i> ${
+                  masjid.description || "Tidak ada deskripsi"
+                }</p>
+                <button class="view-details-button" data-masjid-id="${
+                  masjid.id
+                }">
+                    <i class="fas fa-eye"></i> Lihat Detail
+                </button>
+            </div>
+        `;
 
       masjidItem.addEventListener("mouseover", () => {
         masjidItem.style.transform = "translateY(-5px)";
@@ -303,7 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
     closeDetailsButton.addEventListener("click", () => {
       detailsContainer.style.display = "none";
     });
-  } // Fungsi untuk mengambil dan menampilkan data profil
+  }
+  // Fungsi untuk mengambil dan menampilkan data profil
   async function fetchAndDisplayProfileData() {
     const token = localStorage.getItem("jwtToken");
     const userId = localStorage.getItem("userId");
@@ -443,15 +438,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } // Fungsi initialize dengan animasi fade-in
 
   async function initialize() {
-    Swal.fire({
-      // Tambahkan SweetAlert loading di awal initialize (opsional tapi disarankan)
-      title: "Memuat Data...",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
     const token = localStorage.getItem("jwtToken");
     const isProfilePage = window.location.pathname.includes("/profile/");
 
@@ -480,38 +466,19 @@ document.addEventListener("DOMContentLoaded", () => {
         await fetchMasjidData();
       } catch (error) {
         console.error("Error fetching masjid data pada initialize:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Gagal memuat data masjid!",
-          confirmButtonColor: "#4CAF50",
-          timer: 2000,
-          timerProgressBar: true, // Tambahkan timerProgressbar di sini jika diinginkan
-        });
-      } finally {
-        Swal.close(); // Pastikan loading selalu ditutup setelah initialize
       }
-    } else {
-      Swal.close(); // Jika halaman profile, tetap tutup loading
     }
   } // Event listener untuk search bar dengan debounce
 
   if (searchBar && !window.location.pathname.includes("/profile/")) {
     let debounceTimer;
     searchBar.addEventListener("input", (e) => {
+      const loadingSpinner = document.getElementById("loading-spinner");
+      if (loadingSpinner) loadingSpinner.style.display = "block";
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
         const searchTerm = e.target.value;
         try {
-          Swal.fire({
-            // Tampilkan SweetAlert loading saat debounce search dimulai
-            title: "Mencari Masjid...",
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
           await fetchMasjidData(searchTerm);
         } catch (error) {
           // Penanganan error fetchMasjidData dalam debounce
@@ -523,7 +490,8 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonColor: "#4CAF50",
           });
         } finally {
-          Swal.close(); // Pastikan loading selalu ditutup setelah debounce search
+          // Pastikan loading spinner selalu disembunyikan
+          if (loadingSpinner) loadingSpinner.style.display = "none";
         }
       }, 300);
     });
@@ -533,15 +501,6 @@ document.addEventListener("DOMContentLoaded", () => {
       searchButton.addEventListener("click", async () => {
         const searchTerm = searchBar.value;
         try {
-          Swal.fire({
-            // Tampilkan SweetAlert loading saat tombol search diklik
-            title: "Mencari Masjid...",
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
           await fetchMasjidData(searchTerm);
         } catch (error) {
           // Penanganan error fetchMasjidData saat klik tombol search
@@ -556,7 +515,8 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmButtonColor: "#4CAF50",
           });
         } finally {
-          Swal.close(); // Pastikan loading selalu ditutup setelah tombol search diklik
+          // Pastikan loading spinner selalu disembunyikan
+          if (loadingSpinner) loadingSpinner.style.display = "none";
         }
       });
     }
@@ -590,7 +550,6 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#4CAF50",
       });
     });
-    initialize().catch(console.error); // Panggil initialize juga di halaman profile (mungkin ada logika lain di initialize yang dibutuhkan)
   } else {
     initialize().catch(console.error);
   }
