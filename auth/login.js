@@ -2,8 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
   const googleLoginBtn = document.getElementById("google-login-btn");
+  const forgotPasswordLink = document.getElementById("forgot-password-link");
 
-  // Fungsi untuk menampilkan loading overlay
+  // Fungsi loading
   function showLoading(message = "Memproses...") {
     Swal.fire({
       title: message,
@@ -15,14 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fungsi untuk menutup loading overlay
   function hideLoading() {
     Swal.close();
   }
 
-  // Pastikan elemen sudah ada sebelum menambahkan event listener
+  // Login
   if (loginForm) {
-    // Tambahkan pengecekan apakah elemen ditemukan
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -96,14 +95,15 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Elemen loginForm tidak ditemukan!");
   }
-  const forgotPasswordLink = document.getElementById("forgot-password-link");
+
+  // Lupa Password
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener("click", async (event) => {
       event.preventDefault();
 
       Swal.fire({
         title: "Reset Password",
-        input: "email", // Input email langsung
+        input: "email",
         inputPlaceholder: "Masukkan email Anda yang terdaftar",
         showCancelButton: true,
         confirmButtonText: "Kirim",
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Elemen forgot-password-link tidak ditemukan!");
   }
 
-  // Handle Google OAuth Callback
+  // Google OAuth Callback
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
   const error = urlParams.get("error");
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmButtonText: "OK",
     });
   } else if (token) {
-    showLoading("Memproses login..."); // Tampilkan loading saat callback Google
+    showLoading("Memproses login...");
 
     try {
       const tokenParts = token.split(".");
@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("userId", payload.user_id);
       localStorage.setItem("userRole", payload.role);
 
-      hideLoading(); // Tutup loading setelah token diproses
+      hideLoading();
 
       Swal.fire({
         title: "Login Berhasil!",
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } catch (error) {
       console.error("Error processing token:", error);
-      hideLoading(); // Pastikan loading ditutup jika error
+      hideLoading();
       Swal.fire({
         title: "Login Gagal",
         text: "Error memproses informasi login",
