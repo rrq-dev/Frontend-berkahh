@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
-  // Fungsi untuk mengambil daftar email pengguna dari backend
+  // Fungsi untuk mengambil daftar pengguna (termasuk ID) dari backend
   async function fetchEmailListData() {
     try {
-      const apiUrl = "https://backend-berkah.onrender.com/getemail"; // Endpoint untuk mengambil daftar email
+      const apiUrl = "https://backend-berkah.onrender.com/getemail"; // Endpoint untuk mengambil data pengguna (termasuk ID dan email)
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
@@ -35,20 +35,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = `HTTP error! status: ${
           response.status
         }, text: ${await response.text()}`;
-        throw new Error(`Gagal mengambil daftar email pengguna: ${message}`);
+        throw new Error(`Gagal mengambil daftar pengguna: ${message}`); // Pesan error diubah
       }
 
-      const emailListData = await response.json();
-      return emailListData; // Mengembalikan data email yang diambil
+      const userDataList = await response.json(); // Respon sekarang adalah array objek pengguna
+      return userDataList; // Mengembalikan data pengguna (termasuk ID dan email)
     } catch (error) {
-      console.error("Error fetching email list:", error);
+      console.error("Error fetching user list data:", error); // Pesan error diubah
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Gagal memuat daftar email pengguna!",
+        text: "Gagal memuat daftar pengguna!", // Pesan error diubah
         confirmButtonColor: "#4CAF50",
       });
-      throw error; // Melempar kembali error agar bisa ditangani di fungsi pemanggil jika perlu
+      throw error;
     }
   }
 
@@ -129,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Elemen loginForm tidak ditemukan!");
   }
   const forgotPasswordLink = document.getElementById("forgot-password-link");
-
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -137,11 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         showLoading("Mengambil Daftar Email...");
 
-        const emails = await fetchEmailListData(); // Menggunakan fungsi fetchEmailListData untuk mengambil email
+        const userDataList = await fetchEmailListData(); // Memanggil fungsi fetchEmailListData untuk mengambil data pengguna
 
         hideLoading();
 
-        if (!emails || emails.length === 0) {
+        if (!userDataList || userDataList.length === 0) {
           Swal.fire({
             title: "Tidak Ada Email Terdaftar",
             text: "Tidak ada email pengguna yang terdaftar dalam sistem.",
@@ -151,12 +150,13 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        // Sekarang kita menggunakan userDataList yang berisi objek pengguna
         Swal.fire({
           title: "Reset Password",
           input: "select",
-          inputOptions: emails.reduce((options, email) => {
-            // emails sudah berupa array string
-            options[email] = email;
+          inputOptions: userDataList.reduce((options, user) => {
+            // Iterasi melalui userDataList
+            options[user.Email] = user.Email; // Menampilkan email di pilihan
             return options;
           }, {}),
           inputPlaceholder: "Pilih email Anda",
@@ -170,6 +170,12 @@ document.addEventListener("DOMContentLoaded", () => {
               return false;
             }
 
+            // Cari user yang sesuai dengan email yang dipilih (opsional, jika Anda butuh ID di sini)
+            const selectedUser = userDataList.find(
+              (user) => user.Email === selectedEmail
+            );
+            const userId = selectedUser ? selectedUser.ID : null; // Ambil ID jika diperlukan
+
             try {
               showLoading("Memproses Permintaan...");
 
@@ -180,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ email: selectedEmail }),
+                  body: JSON.stringify({ email: selectedEmail }), // Tetap kirim email untuk reset password
                 }
               );
 
@@ -212,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } catch (error) {
-        console.error("Error fetching email list:", error);
+        console.error("Error fetching user list data:", error); // Pesan error diubah
         hideLoading();
         Swal.fire({
           title: "Gagal!",
-          text: error.message || "Gagal mengambil daftar email pengguna.",
+          text: error.message || "Gagal mengambil daftar pengguna.", // Pesan error diubah
           icon: "error",
           confirmButtonText: "OK",
         });
