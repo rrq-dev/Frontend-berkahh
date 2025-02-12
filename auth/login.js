@@ -128,15 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Ganti dengan endpoint Anda
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/x-www-form-urlencoded", // Ubah Content-Type
+                  "Content-Type": "application/json", // Ubah Content-Type
                 },
                 body: "email=" + email, // Format body request yang benar (x-www-form-urlencoded)
               }
             );
 
             if (!response.ok) {
-              const errorData = await response.json();
-              // Improved error handling for reset password request:
+              const errorData = await response.json(); // Improved error handling for reset password request:
               let errorMessage = "Gagal mengirim permintaan reset password.";
               if (errorData && errorData.message) {
                 errorMessage = errorData.message; // Use backend message if available
