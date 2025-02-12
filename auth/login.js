@@ -20,15 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
-  // // Menangani login dengan Google
-  // googleLoginBtn.addEventListener("click", () => {
-  //   showLoading("Menghubungkan ke Google...");
-  //   setTimeout(() => {
-  //     window.location.href =
-  //       "https://backend-berkah.onrender.com/auth/google/login";
-  //   }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
-  // });
-
   // Pastikan elemen sudah ada sebelum menambahkan event listener
   if (loginForm) {
     // Tambahkan pengecekan apakah elemen ditemukan
@@ -116,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoading("Mengambil Daftar Email...");
 
         const emailListResponse = await fetch(
-          "https://backend-berkah.onrender.com/get/emailid", // Ganti dengan endpoint yang benar
+          "https://backend-berkah.onrender.com/getemail", // Endpoint untuk get all email
           {
             method: "GET",
             headers: {
@@ -132,8 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        const emailListData = await emailListResponse.json();
-        const emails = emailListData.emails;
+        const emails = await emailListResponse.json(); // Langsung ambil array email dari response
 
         hideLoading();
 
@@ -151,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
           title: "Reset Password",
           input: "select",
           inputOptions: emails.reduce((options, email) => {
+            // emails sudah berupa array string
             options[email] = email;
             return options;
           }, {}),
