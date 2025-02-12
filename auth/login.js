@@ -107,62 +107,68 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // handle reset form
   const forgotPasswordLink = document.getElementById("forgot-password-link");
-  if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener("click", (event) => {
-      event.preventDefault(); // Mencegah navigasi default link
+  if (resetPasswordButton) {
+    resetPasswordButton.addEventListener("click", async (event) => {
+      event.preventDefault(); // Mencegah form submit default jika ada dalam form
 
-      Swal.fire({
-        title: "Reset Password",
-        input: "email",
-        inputLabel: "Masukkan email Anda",
-        inputPlaceholder: "contoh@email.com",
-        showCancelButton: true,
-        confirmButtonText: "Kirim",
-        cancelButtonText: "Batal",
-        showLoaderOnConfirm: true, // Tampilkan loading saat konfirmasi
-        preConfirm: async (email) => {
-          if (!email) {
-            Swal.showValidationMessage(`Email harus diisi`);
-            return false;
+      const email = resetEmailInput.value;
+
+      if (!email) {
+        Swal.fire({
+          title: "Email Kosong",
+          text: "Silakan masukkan email Anda.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      try {
+        showLoading("Memproses Permintaan..."); // Fungsi loading dari kode login.js
+
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/reset-password", // Endpoint backend Anda
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Mengirim data dalam format JSON
+            },
+            body: JSON.stringify({ email: email }), // Kirim email dalam body JSON
           }
-          try {
-            const response = await fetch(
-              "https://backend-berkah.onrender.com/reset-password",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json", // Set Content-Type ke JSON
-                },
-                body: JSON.stringify({ email: email }), // Kirim email dalam format JSON
-              }
-            );
+        );
 
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                errorData.error || "Gagal mengirim permintaan reset password."
-              );
-            }
-
-            return response.json(); // Mengembalikan data respon jika sukses
-          } catch (error) {
-            Swal.showValidationMessage(`${error}`);
-            return false;
-          }
-        },
-        allowOutsideClick: () => !Swal.isLoading(),
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            icon: "success",
-            title: "Permintaan reset password berhasil dikirim.",
-            text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
-          });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || "Gagal memproses permintaan reset password."
+          );
         }
-      });
+
+        hideLoading(); // Fungsi hide loading dari kode login.js
+
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Permintaan reset password berhasil dikirim. Silakan periksa email Anda.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+
+        // Kosongkan input field setelah berhasil (opsional)
+        resetEmailInput.value = "";
+      } catch (error) {
+        console.error("Error reset password:", error);
+        hideLoading(); // Pastikan loading dihide jika error terjadi
+
+        Swal.fire({
+          title: "Gagal!",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
     });
   } else {
-    console.error("Elemen forgot-password-link tidak ditemukan!");
+    console.error("Tombol resetPasswordButton tidak ditemukan!");
   }
 
   // Handle Google OAuth Callback
