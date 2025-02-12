@@ -7,6 +7,7 @@
   --primary: #0d40d9;
   --secondary: #530778;
   --accent: #a10aa9;
+  --card-background: #0a152a; /* Tambahkan definisi untuk --card-background jika belum ada */
 }
 
 * {
@@ -21,7 +22,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--background); /* Updated background color */
+  background: var(--background);
   padding: 30px;
 }
 
@@ -31,17 +32,18 @@ body {
   width: 100%;
   background: var(
     --card-background
-  ); /* Consider defining --card-background variable in :root if needed */
+  ); /* Menggunakan variabel --card-background */
   padding: 40px 30px;
-  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15); /* Consider updating shadow color for new theme */
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
   perspective: 2700px;
   border-radius: 12px;
+  display: flex; /* Tambahkan flex untuk mengatur .cover dan .forms bersebelahan */
 }
 
 .container .cover {
-  position: absolute;
+  position: relative; /* Ubah ke relative agar tidak absolute terhadap container */
   top: 0;
-  left: 50%;
+  left: 0; /* Set left ke 0 karena flexbox yang akan mengatur posisinya */
   height: 100%;
   width: 50%;
   z-index: 98;
@@ -62,7 +64,7 @@ body {
   left: 0;
   height: 100%;
   width: 100%;
-  border-radius: 0 12px 12px 0;
+  border-radius: 12px 0 0 12px; /* Sesuaikan border radius untuk cover */
   overflow: hidden;
 }
 
@@ -96,7 +98,7 @@ body {
   height: 100%;
   width: 100%;
   opacity: 0.6;
-  background: var(--primary); /* Updated cover text background color */
+  background: var(--primary);
 }
 
 .cover .text .text-1,
@@ -104,9 +106,9 @@ body {
   z-index: 20;
   font-size: 26px;
   font-weight: 600;
-  color: var(--text); /* Updated cover text color */
+  color: var(--text);
   text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Keep text-shadow as is or adjust for new text color visibility */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .cover .text .text-2 {
@@ -116,29 +118,28 @@ body {
 }
 
 .container .forms {
-  height: 100%;
-  width: 100%;
-  background: var(
-    --card-background
-  ); /* Consider defining --card-background variable in :root if needed */
+  width: 50%; /* Forms mengambil 50% lebar container */
+  background: var(--card-background);
+  border-radius: 0 12px 12px 0; /* Sesuaikan border radius untuk forms */
 }
 
 .container .form-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 40px 30px; /* Tambahkan padding agar konten form tidak terlalu rapat ke tepi */
 }
 
 .form-content .login-form,
 .form-content .signup-form {
-  width: calc(100% / 2 - 25px);
+  width: 100%; /* Setiap form mengambil 100% lebar parent container, flexbox akan mengatur tata letaknya */
 }
 
 .forms .form-content .title {
   position: relative;
   font-size: 24px;
   font-weight: 600;
-  color: var(--text); /* Updated title color */
+  color: var(--text);
   margin-bottom: 30px;
 }
 
@@ -149,7 +150,7 @@ body {
   bottom: -10px;
   height: 3px;
   width: 25px;
-  background: var(--primary); /* Updated title underline color */
+  background: var(--primary);
 }
 
 .forms .form-content .input-boxes {
@@ -173,22 +174,20 @@ body {
   padding: 0 30px;
   font-size: 16px;
   font-weight: 500;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.2); /* Keep default border color or adjust for theme */
+  border-bottom: 2px solid rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  color: var(--text); /* Updated input text color */
-  background: var(
-    --background
-  ); /* Updated input background color for contrast - may need adjustment based on visual preference */
+  color: var(--text);
+  background: var(--background);
 }
 
 .form-content .input-box input:focus,
 .form-content .input-box input:valid {
-  border-color: var(--primary); /* Updated input focus border color */
+  border-color: var(--primary);
 }
 
 .form-content .input-box i {
   position: absolute;
-  color: var(--primary); /* Updated input icon color */
+  color: var(--primary);
   font-size: 17px;
 }
 
@@ -204,12 +203,12 @@ body {
 .divider::after {
   content: "";
   flex: 1;
-  border-bottom: 1px solid #ddd; /* Keep divider line color or adjust for theme */
+  border-bottom: 1px solid #ddd;
 }
 
 .divider span {
   padding: 0 10px;
-  color: #666; /* Keep divider text color or adjust for theme */
+  color: #666;
   font-size: 14px;
 }
 
@@ -219,8 +218,8 @@ body {
 }
 
 .forms .form-content .button input {
-  color: var(--text); /* Updated button text color */
-  background: var(--primary); /* Updated button background color */
+  color: var(--text);
+  background: var(--primary);
   border-radius: 8px;
   padding: 0;
   cursor: pointer;
@@ -246,25 +245,23 @@ body {
 }
 
 .forms .form-content .button input:hover {
-  background: var(--secondary); /* Updated button hover background color */
+  background: var(--secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2); /* Keep or adjust shadow for new theme */
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
 }
 
 /* Google Login Button */
 .forms .form-content .button.input-box.google-login button {
-  background: var(
-    --card-background
-  ); /* Consider defining --card-background variable in :root if needed */
-  border: 2px solid #ddd; /* Keep Google login border color or adjust for theme */
+  background: var(--card-background);
+  border: 2px solid #ddd;
   border-radius: 8px;
-  color: var(--text); /* Updated Google login button text color */
+  color: var(--text);
   font-size: 16px;
   font-weight: 500;
   padding: 12px 20px;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Keep or adjust shadow for new theme */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -273,14 +270,14 @@ body {
 }
 
 .forms .form-content .button.input-box.google-login button:hover {
-  background: #f8f9fa; /* Keep Google login hover background or adjust for theme */
-  border-color: var(--primary); /* Updated Google login hover border color */
+  background: #f8f9fa;
+  border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15); /* Keep or adjust shadow for new theme */
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
 }
 
 .forms .form-content .button.input-box.google-login button i {
-  color: #db4437; /* Keep Google icon color */
+  color: #db4437;
   font-size: 20px;
   position: static;
 }
@@ -289,27 +286,42 @@ body {
 .forms .form-content .text {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text); /* Updated normal text color */
+  color: var(--text);
 }
 
 .forms .form-content .text a {
   text-decoration: none;
-  color: var(--primary); /* Updated link color */
+  color: var(--primary);
 }
 
 .forms .form-content .text a:hover {
-  text-decoration: underline; /* Keep underline on hover */
+  text-decoration: underline;
 }
 
 /* Responsive Design */
 @media (max-width: 730px) {
+  .container {
+    flex-direction: column; /* Ubah arah flex menjadi kolom pada mobile */
+  }
+
   .container .cover {
-    display: none;
+    display: none; /* Sembunyikan cover pada mobile */
+  }
+
+  .container .forms {
+    width: 100%; /* Forms mengambil lebar penuh pada mobile */
+    border-radius: 12px; /* Tampilkan semua border radius pada mobile */
+  }
+
+  .form-content {
+    padding: 25px 20px; /* Padding lebih kecil pada mobile */
+    flex-direction: column; /* Form content juga menjadi kolom */
   }
 
   .form-content .login-form,
   .form-content .signup-form {
-    width: 100%;
+    width: 100%; /* Form login dan signup ambil lebar penuh */
+    margin-bottom: 20px; /* Tambahkan margin bottom untuk memisahkan form */
   }
 
   .form-content .signup-form {
@@ -322,9 +334,5 @@ body {
 
   .container #flip:checked ~ .forms .login-form {
     display: none;
-  }
-
-  .container {
-    padding: 25px 20px;
   }
 }
