@@ -103,37 +103,32 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const apiUrl =
         "https://backend-berkah.onrender.com/retreive/data/location";
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(apiUrl); // Simplified fetch, no headers
 
       if (!response.ok) {
-        const message = `HTTP error! status: ${
-          response.status
-        }, text: ${await response.text()}`;
-        throw new Error(`Gagal mengambil data masjid: ${message}`);
+        console.error(
+          "HTTP Error during fetch:",
+          response.status,
+          response.statusText
+        ); // More basic error log
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const masjidData = await response.json();
+      console.log("Masjid Data Fetched Successfully:", masjidData); // Log success
 
       if (!window.location.pathname.includes("/profile/")) {
         displayMasjidList(masjidData, searchTerm);
       }
-
       return masjidData;
     } catch (error) {
-      console.error("Error fetching masjid data:", error);
-      if (!window.location.pathname.includes("/profile/")) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Gagal memuat data masjid!",
-          confirmButtonColor: "#4CAF50",
-        });
-      }
+      console.error("Error fetching masjid data (simplified):", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Gagal memuat data masjid!",
+        confirmButtonColor: "#4CAF50",
+      });
       throw error;
     }
   }
