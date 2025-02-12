@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoading("Mengambil Daftar Email...");
 
         const emailListResponse = await fetch(
-          "https://backend-berkah.onrender.com/getemail", // Endpoint untuk get all email
+          "https://backend-berkah.onrender.com/getemail",
           {
             method: "GET",
             headers: {
