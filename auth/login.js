@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
-  const googleLoginBtn = document.getElementById("google-login-btn");
   const forgotPasswordLink = document.getElementById("forgot-password-link");
 
   // Fungsi loading
@@ -160,128 +159,78 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Elemen forgot-password-link tidak ditemukan!");
   }
 
-  // Google OAuth Callback
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const error = urlParams.get("error");
+  // Registrasi
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-  if (error) {
-    Swal.fire({
-      title: "Login Gagal",
-      text: decodeURIComponent(error),
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  } else if (token) {
-    showLoading("Memproses login...");
+      const username = document.getElementById("name-input").value;
+      const email = document.getElementById("signup-email-input").value;
+      const password = document.getElementById("signup-password-input").value;
 
-    try {
-      const tokenParts = token.split(".");
-      const payload = JSON.parse(atob(tokenParts[1]));
-
-      localStorage.setItem("jwtToken", token);
-      localStorage.setItem("userId", payload.user_id);
-      localStorage.setItem("userRole", payload.role);
-
-      hideLoading();
-
-      Swal.fire({
-        title: "Login Berhasil!",
-        text: "Selamat datang kembali!",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      }).then(() => {
-        const redirectUrl =
-          payload.role === "admin"
-            ? "https://jumatberkah.vercel.app/admin/admin.html"
-            : "https://jumatberkah.vercel.app/";
-
-        window.location.href = redirectUrl;
-      });
-    } catch (error) {
-      console.error("Error processing token:", error);
-      hideLoading();
-      Swal.fire({
-        title: "Login Gagal",
-        text: "Error memproses informasi login",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  }
-
-  // Registration functionality
-  signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const username = document.getElementById("name-input").value;
-    const email = document.getElementById("signup-email-input").value;
-    const password = document.getElementById("signup-password-input").value;
-
-    if (!username || !email || !password) {
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: "Semua field harus diisi.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    // Validasi password minimal 6 karakter
-    if (password.length < 6) {
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: "Password minimal 6 karakter",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    try {
-      showLoading("Memproses registrasi...");
-
-      const response = await fetch(
-        "https://backend-berkah.onrender.com/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, email, password }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Registrasi gagal");
+      if (!username || !email || !password) {
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: "Semua field harus diisi.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
       }
 
-      hideLoading(); // Tutup loading sebelum notifikasi sukses
+      if (password.length < 6) {
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: "Password minimal 6 karakter",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
 
-      await Swal.fire({
-        title: "Registrasi Berhasil!",
-        text: "Silakan login dengan akun baru Anda",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      });
+      try {
+        showLoading("Memproses registrasi...");
 
-      // Redirect ke halaman login setelah notifikasi
-      window.location.href = "login.html";
-    } catch (error) {
-      console.error("Error during registration:", error);
-      hideLoading(); // Pastikan loading ditutup jika error
-      Swal.fire({
-        title: "Registrasi Gagal",
-        text: error.message || "Terjadi kesalahan saat registrasi",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  });
+        const response = await fetch(
+          "https://backend-berkah.onrender.com/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, email, password }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Registrasi gagal");
+        }
+
+        hideLoading();
+
+        await Swal.fire({
+          title: "Registrasi Berhasil!",
+          text: "Silakan login dengan akun baru Anda",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Error during registration:", error);
+        hideLoading();
+        Swal.fire({
+          title: "Registrasi Gagal",
+          text: error.message || "Terjadi kesalahan saat registrasi",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  } else {
+    console.error("Elemen signupForm tidak ditemukan!");
+  }
 });
