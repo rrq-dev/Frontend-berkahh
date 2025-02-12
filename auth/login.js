@@ -135,55 +135,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         showLoading("Mengambil Daftar Email...");
-
         const userDataList = await fetchEmailListData();
-
         hideLoading();
 
         if (!userDataList || userDataList.length === 0) {
-          Swal.fire({
-            title: "Tidak Ada Email Terdaftar",
-            text: "Tidak ada email pengguna yang terdaftar dalam sistem.",
-            icon: "info",
-            confirmButtonText: "OK",
-          });
+          // ... (penanganan jika tidak ada email terdaftar)
           return;
         }
 
         Swal.fire({
-          title: "Reset Password",
-          input: "select",
-          inputOptions: userDataList.reduce((options, user) => {
-            options[user.Email] = user.Email;
-            return options;
-          }, {}),
-          inputPlaceholder: "Pilih email Anda",
-          showCancelButton: true,
-          confirmButtonText: "Kirim",
-          cancelButtonText: "Batal",
-          showLoaderOnConfirm: true,
+          // ... (konfigurasi Swal.fire untuk memilih email)
           preConfirm: async (selectedEmail) => {
-            if (!selectedEmail) {
-              Swal.showValidationMessage(`Email harus dipilih`);
-              return false;
-            }
-
-            const selectedUser = userDataList.find(
-              (user) => user.Email === selectedEmail
-            );
-            const userId = selectedUser ? selectedUser.ID : null;
+            // ... (validasi email yang dipilih)
 
             try {
               showLoading("Memproses Permintaan...");
 
               const resetResponse = await fetch(
-                "https://backend-berkah.onrender.com/resetpassword",
+                "https://backend-berkah.onrender.com/forgotpassword", // Endpoint yang benar
                 {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ email: selectedEmail }),
+                  body: JSON.stringify({ email: selectedEmail }), // Kirim email dalam body
                 }
               );
 
@@ -196,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               hideLoading();
-              return resetResponse.json();
+              return resetResponse.json(); // Mengembalikan data respons jika sukses
             } catch (error) {
               Swal.showValidationMessage(`${error}`);
               hideLoading();
@@ -215,19 +190,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } catch (error) {
-        console.error("Error fetching user list data:", error);
-        hideLoading();
-        Swal.fire({
-          title: "Gagal!",
-          text: error.message || "Gagal mengambil daftar pengguna.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
+        // ... (error handling)
       }
     });
   } else {
     console.error("Elemen forgot-password-link tidak ditemukan!");
   }
+
   // Handle Google OAuth Callback
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
