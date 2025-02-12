@@ -20,6 +20,38 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
+  // Fungsi untuk mengambil daftar email pengguna dari backend
+  async function fetchEmailListData() {
+    try {
+      const apiUrl = "https://backend-berkah.onrender.com/getemail"; // Endpoint untuk mengambil daftar email
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const message = `HTTP error! status: ${
+          response.status
+        }, text: ${await response.text()}`;
+        throw new Error(`Gagal mengambil daftar email pengguna: ${message}`);
+      }
+
+      const emailListData = await response.json();
+      return emailListData; // Mengembalikan data email yang diambil
+    } catch (error) {
+      console.error("Error fetching email list:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Gagal memuat daftar email pengguna!",
+        confirmButtonColor: "#4CAF50",
+      });
+      throw error; // Melempar kembali error agar bisa ditangani di fungsi pemanggil jika perlu
+    }
+  }
+
   // Pastikan elemen sudah ada sebelum menambahkan event listener
   if (loginForm) {
     // Tambahkan pengecekan apakah elemen ditemukan
@@ -96,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Elemen loginForm tidak ditemukan!");
   }
-  // handle reset form
   const forgotPasswordLink = document.getElementById("forgot-password-link");
 
   if (forgotPasswordLink) {
@@ -106,24 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         showLoading("Mengambil Daftar Email...");
 
-        const emailListResponse = await fetch(
-          "https://backend-berkah.onrender.com/getemail",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!emailListResponse.ok) {
-          const errorData = await emailListResponse.json();
-          throw new Error(
-            errorData.error || "Gagal mengambil daftar email pengguna."
-          );
-        }
-
-        const emails = await emailListResponse.json(); // Langsung ambil array email dari response
+        const emails = await fetchEmailListData(); // Menggunakan fungsi fetchEmailListData untuk mengambil email
 
         hideLoading();
 
