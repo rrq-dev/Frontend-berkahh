@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
-  const forgotPasswordLink = document.getElementById("forgot-password-link");
-
+  const forgotForm = document.getElementById("forgotForm");
   // Fungsi loading
   function showLoading(message = "Memproses...") {
     Swal.fire({
@@ -106,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Forgot Password Form Submit (disatukan di sini)
-  const forgotForm = document.getElementById("forgotForm");
   if (forgotForm) {
     forgotForm.addEventListener("submit", async (event) => {
       event.preventDefault();
