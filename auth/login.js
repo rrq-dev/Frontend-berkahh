@@ -129,12 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(
               "https://backend-berkah.onrender.com/reset-password",
               {
-                // Ganti dengan endpoint Anda
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json", // Important
+                  "Content-Type": "application/json", // Set Content-Type ke JSON
                 },
-                body: "email=" + email, // Format body request yang benar
+                body: JSON.stringify({ email: email }), // Kirim email dalam format JSON
               }
             );
 
