@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener("click", (event) => {
       event.preventDefault();
-      window.location.href = "forgot_password.html";
+      window.location.href = "reset_form.html";
     });
   } else {
     console.error("Elemen forgot-password-link tidak ditemukan!");
