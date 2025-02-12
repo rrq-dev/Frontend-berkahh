@@ -23,28 +23,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Bagian Login ---
   if (loginForm) {
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const email = document.getElementById("email-input").value;
-      const password = document.getElementById("password-input").value;
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
       if (!email || !password) {
         Swal.fire({
-          title: "Login Gagal",
+          icon: "warning",
+          title: "Peringatan",
           text: "Email dan password harus diisi.",
-          icon: "error",
-          confirmButtonText: "OK",
         });
         return;
       }
 
-      try {
-        showLoading("Memproses Login...");
+      Swal.fire({
+        // Tampilkan SweetAlert loading saat proses login dimulai
+        title: "Sedang Login...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
+      try {
         const response = await fetch(
           "https://backend-berkah.onrender.com/login",
           {
+            // Ganti URL_ENDPOINT_LOGIN_ANDA dengan endpoint login API Anda
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -55,50 +62,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          // Improved error handling for login:
-          let errorMessage = "Login gagal. Periksa email dan password Anda.";
+          let errorMessage = "Login gagal. Terjadi kesalahan server.";
           if (errorData && errorData.message) {
-            // Check if backend returns a more specific message
             errorMessage = errorData.message;
           }
           throw new Error(errorMessage);
         }
 
-        const data = await response.json();
-
-        localStorage.setItem("jwtToken", data.token);
-        localStorage.setItem("userId", data.user.id);
-        localStorage.setItem("userRole", data.user.role);
-
-        hideLoading();
+        const loginData = await response.json();
+        // --- Proses login berhasil ---
+        localStorage.setItem("jwtToken", loginData.token); // Asumsi server mengembalikan token JWT
+        localStorage.setItem("userId", loginData.userId); // Asumsi server mengembalikan userId
+        localStorage.setItem("userRole", loginData.role); // Asumsi server mengembalikan role
 
         Swal.fire({
-          title: "Login Berhasil!",
-          text: "Selamat datang kembali!",
           icon: "success",
-          timer: 1500,
+          title: "Login Berhasil!",
+          text: "Anda berhasil login.",
+          timer: 2000,
           showConfirmButton: false,
           timerProgressBar: true,
         }).then(() => {
-          const redirectUrl =
-            data.user.role === "admin"
-              ? "https://jumatberkah.vercel.app/admin/admin.html"
-              : "https://jumatberkah.vercel.app/";
-          window.location.href = redirectUrl;
+          window.location.href = "index.html"; // Redirect ke halaman index setelah login berhasil
         });
       } catch (error) {
-        console.error("Error during login:", error);
-        hideLoading();
+        console.error("Error saat login:", error);
         Swal.fire({
-          title: "Login Gagal",
-          text: error.message,
           icon: "error",
-          confirmButtonText: "OK",
+          title: "Login Gagal",
+          text:
+            error.message || "Terjadi kesalahan saat login. Coba lagi nanti.",
         });
+      } finally {
+        Swal.close(); // Pastikan loading selalu ditutup setelah proses login (berhasil atau gagal)
       }
     });
-  } else {
-    console.error("Elemen loginForm tidak ditemukan!");
   }
 
   // --- Bagian Lupa Password (Reset Password Request) ---
