@@ -14,10 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function hideLoading() {
-    Swal.close();
-  }
-
   // Fungsi decode JWT
   function decodeJwt(token) {
     try {
@@ -39,7 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Google Login
+  function getCookie(name) {
+    const cookieName = name + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(";");
+
+    for (let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i];
+      while (cookie.charAt(0) === " ") {
+        cookie = cookie.substring(1);
+      }
+      if (cookie.indexOf(cookieName) === 0) {
+        return cookie.substring(cookieName.length, cookie.length);
+      }
+    }
+    return "";
+  }
+
+  // Google Login (unchanged)
   const googleLoginButton = document.getElementById("googleLoginButton");
   if (googleLoginButton) {
     googleLoginButton.addEventListener("click", () => {
@@ -52,18 +65,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Tangani token dari URL setelah redirect dari Google atau login biasa
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const tokenFromURL = urlParams.get("token"); // Get token from URL
 
-  if (token) {
-    localStorage.setItem("jwtToken", token);
-
-    const decodedToken = decodeJwt(token);
+  if (tokenFromURL) {
+    // Check if token exists in URL after redirect
+    document.cookie = `jwtToken=${tokenFromURL}; path=/; SameSite=Strict; Secure`;
+    const decodedToken = decodeJwt(tokenFromURL);
     let userRole = null;
+
     if (decodedToken) {
       userRole = decodedToken.role;
+      document.cookie = `userRole=${userRole}; path=/; SameSite=Strict; Secure`;
     } else {
       console.error("Token tidak valid atau tidak memiliki informasi role.");
-      window.location.href = "/login.html"; // Redirect ke halaman login jika token tidak valid
+      window.location.href = "/login.html";
       return;
     }
 
@@ -73,9 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : "https://jumatberkah.vercel.app/";
 
     window.location.href = redirectUrl;
-
     window.history.replaceState({}, document.title, window.location.pathname);
-
     // Permintaan ke backend setelah login (contoh)
     fetch("https://backend-berkah.onrender.com/api/protected", {
       // Ganti dengan endpoint Anda
@@ -96,6 +109,30 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => {
         console.error("Error:", error);
       });
+  } else {
+    // Check if token exists in cookies (for subsequent page loads)
+    const tokenFromCookie = getCookie("jwtToken");
+    const roleFromCookie = getCookie("userRole");
+
+    if (tokenFromCookie && roleFromCookie) {
+      console.log("JWT Token (from cookie):", tokenFromCookie);
+      console.log("User Role (from cookie):", roleFromCookie);
+
+      // You can use the token and role here for other actions, like fetching user data, etc.
+      // Example:
+      fetch("https://backend-berkah.onrender.com/api/protected", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenFromCookie}`,
+        },
+      })
+        .then((_respone) => {
+          /* ... */
+        })
+        .catch((_error) => {
+          /* ... */
+        });
+    }
   }
 
   // Login Form
