@@ -20,6 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
+  // // Menangani login dengan Google
+  // googleLoginBtn.addEventListener("click", () => {
+  //   showLoading("Menghubungkan ke Google...");
+  //   setTimeout(() => {
+  //     window.location.href =
+  //       "https://backend-berkah.onrender.com/auth/google/login";
+  //   }, 800); // Anda bisa hilangkan setTimeout ini jika tidak diperlukan
+  // });
+
   // Pastikan elemen sudah ada sebelum menambahkan event listener
   if (loginForm) {
     // Tambahkan pengecekan apakah elemen ditemukan
@@ -96,51 +105,49 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Elemen loginForm tidak ditemukan!");
   }
+  // handle reset form
   const forgotPasswordLink = document.getElementById("forgot-password-link");
   if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener("click", async (event) => {
-      event.preventDefault();
+    forgotPasswordLink.addEventListener("click", (event) => {
+      event.preventDefault(); // Mencegah navigasi default link
 
       Swal.fire({
         title: "Reset Password",
-        input: "email", // Input email langsung
-        inputPlaceholder: "Masukkan email Anda yang terdaftar",
+        input: "email",
+        inputLabel: "Masukkan email Anda",
+        inputPlaceholder: "contoh@email.com",
         showCancelButton: true,
         confirmButtonText: "Kirim",
         cancelButtonText: "Batal",
-        showLoaderOnConfirm: true,
-        preConfirm: async (selectedEmail) => {
-          if (!selectedEmail) {
+        showLoaderOnConfirm: true, // Tampilkan loading saat konfirmasi
+        preConfirm: async (email) => {
+          if (!email) {
             Swal.showValidationMessage(`Email harus diisi`);
             return false;
           }
-
           try {
-            showLoading("Memproses Permintaan...");
-
-            const resetResponse = await fetch(
-              "https://backend-berkah.onrender.com/forgotpassword",
+            const response = await fetch(
+              "https://backend-berkah.onrender.com/reset-password",
               {
+                // Ganti dengan endpoint Anda
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
+                  "Content-Type": "application/json", // Important
                 },
-                body: JSON.stringify({ email: selectedEmail }),
+                body: "email=" + email, // Format body request yang benar
               }
             );
 
-            if (!resetResponse.ok) {
-              const errorData = await resetResponse.json();
+            if (!response.ok) {
+              const errorData = await response.json();
               throw new Error(
-                errorData.error || "Gagal memproses permintaan reset password."
+                errorData.error || "Gagal mengirim permintaan reset password."
               );
             }
 
-            hideLoading();
-            return resetResponse.json();
+            return response.json(); // Mengembalikan data respon jika sukses
           } catch (error) {
             Swal.showValidationMessage(`${error}`);
-            hideLoading();
             return false;
           }
         },
@@ -151,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "success",
             title: "Permintaan reset password berhasil dikirim.",
             text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
-            confirmButtonText: "OK",
           });
         }
       });
