@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const email = document.getElementById("email-input").value; // Correct ID
+      const password = document.getElementById("password-input").value; // Correct ID
 
       try {
         showLoading("Memproses Login...");
