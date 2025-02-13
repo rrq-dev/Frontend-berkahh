@@ -237,29 +237,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.querySelector(".login-btn");
     const profileBtn = document.querySelector(".profile-btn");
     const token = localStorage.getItem("jwtToken");
+
     if (token) {
-      if (logoutBtn) {
-        logoutBtn.style.display = "block";
-        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-        logoutBtn.onclick = logout;
-      }
-      if (loginBtn) {
-        loginBtn.style.display = "none";
-      }
-      if (profileBtn) {
-        profileBtn.style.display = "block";
-      }
+      logoutBtn.style.display = "block";
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+      logoutBtn.onclick = logout;
+      loginBtn.style.display = "none";
+      profileBtn.style.display = "none"; // Hide profile button when logged in
     } else {
-      if (logoutBtn) {
-        logoutBtn.style.display = "none";
-      }
-      if (loginBtn) {
-        loginBtn.style.display = "block";
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
-      }
-      if (profileBtn) {
-        profileBtn.style.display = "none";
-      }
+      logoutBtn.style.display = "none";
+      loginBtn.style.display = "block";
+      loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
+      profileBtn.style.display = "none";
     }
   }
 
@@ -276,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }).then((result) => {
       if (result.isConfirmed) {
         localStorage.clear();
-        updateAuthLinks();
+        updateAuthLinks(); // Call updateAuthLinks immediately after clearing localStorage
         Swal.fire({
           title: "Berhasil Logout",
           text: "Anda telah berhasil keluar",
@@ -285,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
           timer: 1500,
           timerProgressBar: true,
           didClose: () => {
-            window.location.href = "https://jumatberkah.vercel.app/";
+            window.location.href = "https://jumatberkah.vercel.app/"; // Redirect after the Swal closes
           },
         });
       }
