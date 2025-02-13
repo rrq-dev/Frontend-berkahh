@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Google Login
   const googleLoginButton = document.getElementById("googleLoginButton");
 
   if (googleLoginButton) {
@@ -26,23 +25,55 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Tombol Google Login tidak ditemukan!");
   }
 
-  // Tangani Redirect dan Token dari URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
 
   if (token) {
-    localStorage.setItem("jwtToken", token); // Simpan token di localStorage
+    localStorage.setItem("jwtToken", token);
 
-    // Redirect atau lakukan tindakan lain setelah login Google berhasil
-    const userRole = localStorage.getItem("userRole"); // Ambil role dari localStorage (setelah login biasa)
+    // Ambil userRole dari localStorage.  Pastikan Anda menyimpannya saat login biasa.
+    // const userRole = localStorage.getItem('userRole');
+
+    // Atau, jika Anda ingin mengambil role dari token (setelah decode):
+    const decodedToken = decodeJwt(token); // Gunakan fungsi decodeJwt
+    let userRole = null;
+    if (decodedToken) {
+      userRole = decodedToken.role; // Ambil role dari token
+    } else {
+      console.error("Token tidak valid atau tidak memiliki informasi role.");
+      // Handle error di sini, misalnya redirect ke halaman login
+      window.location.href = "/login.html"; // Redirect ke halaman login
+      return; // Hentikan eksekusi kode selanjutnya
+    }
+
     const redirectUrl =
       userRole === "admin"
-        ? "https://jumatberkah.vercel.app/admin/admin.html" // Redirect admin
-        : "https://jumatberkah.vercel.app/"; // Redirect user biasa
+        ? "https://jumatberkah.vercel.app/admin/admin.html"
+        : "https://jumatberkah.vercel.app/";
+
     window.location.href = redirectUrl;
 
-    // Bersihkan parameter token dari URL setelah disimpan
-    window.history.replaceState({}, document.title, window.location.pathname);
+    window.history.replaceState({}, document.title, window.location.pathname); // Hapus token dari URL
+  }
+
+  function decodeJwt(token) {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Error decoding JWT:", error);
+      return null;
+    }
   }
 
   function hideLoading() {
