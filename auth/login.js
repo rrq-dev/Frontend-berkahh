@@ -14,6 +14,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Google Login
+  const googleLoginButton = document.getElementById("googleLoginButton");
+
+  if (googleLoginButton) {
+    googleLoginButton.addEventListener("click", () => {
+      window.location.href =
+        "https://backend-berkah.onrender.com/auth/google/login";
+    });
+  } else {
+    console.error("Tombol Google Login tidak ditemukan!");
+  }
+
+  // Handle Redirect and Token from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+
+  if (token) {
+    localStorage.setItem("jwtToken", token); // Simpan token di localStorage
+    // Redirect atau lakukan tindakan lain setelah login Google berhasil
+    const userRole = localStorage.getItem("userRole"); // Ambil role dari localStorage (setelah login biasa)
+    const redirectUrl =
+      userRole === "admin"
+        ? "https://jumatberkah.vercel.app/admin/admin.html" // Redirect admin
+        : "https://jumatberkah.vercel.app/"; // Redirect user biasa
+    window.location.href = redirectUrl;
+
+    // Bersihkan parameter token dari URL setelah disimpan
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
   function hideLoading() {
     Swal.close();
   }
