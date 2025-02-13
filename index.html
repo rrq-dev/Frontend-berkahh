@@ -14,6 +14,7 @@
       rel="stylesheet"
     />
   </head>
+
   <body>
     <nav class="navbar">
       <div class="container">
@@ -22,8 +23,22 @@
         </a>
         <ul class="nav-links">
           <li>
+            <a
+              href="profile/profile.html"
+              class="navbar-button profile-btn"
+              style="display: none"
+            >
+              <i class="fas fa-user"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a href="#" class="navbar-button logout-btn" style="display: none">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+          <li>
             <a href="auth/login.html" class="navbar-button login-btn">
-              <i class="fas fa-sign-in-alt"></i> Login Admin
+              <i class="fas fa-sign-in-alt"></i> Sign in
             </a>
           </li>
         </ul>
@@ -72,7 +87,7 @@
 
       <div id="masjid-details" class="masjid-details">
         <div class="details-content">
-          <button class="close-details">×</button>
+          <button class="close-details">&times;</button>
           <div class="details-body"></div>
         </div>
       </div>
@@ -80,7 +95,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p>© 2024 Jumat Berkah. All rights reserved.</p>
+        <p>&copy; 2024 Jumat Berkah. All rights reserved.</p>
         <div class="social-links">
           <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
           <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
@@ -90,6 +105,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="script.js"></script>
+    <script src="main.js/index.js"></script>
   </body>
 </html>
