@@ -14,48 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const googleLoginButton = document.getElementById("googleLoginButton");
-
-  if (googleLoginButton) {
-    googleLoginButton.addEventListener("click", () => {
-      window.location.href =
-        "https://backend-berkah.onrender.com/auth/google/login";
-    });
-  } else {
-    console.error("Tombol Google Login tidak ditemukan!");
+  function hideLoading() {
+    Swal.close();
   }
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-
-  if (token) {
-    localStorage.setItem("jwtToken", token);
-
-    // Ambil userRole dari localStorage.  Pastikan Anda menyimpannya saat login biasa.
-    // const userRole = localStorage.getItem('userRole');
-
-    // Atau, jika Anda ingin mengambil role dari token (setelah decode):
-    const decodedToken = decodeJwt(token); // Gunakan fungsi decodeJwt
-    let userRole = null;
-    if (decodedToken) {
-      userRole = decodedToken.role; // Ambil role dari token
-    } else {
-      console.error("Token tidak valid atau tidak memiliki informasi role.");
-      // Handle error di sini, misalnya redirect ke halaman login
-      window.location.href = "/login.html"; // Redirect ke halaman login
-      return; // Hentikan eksekusi kode selanjutnya
-    }
-
-    const redirectUrl =
-      userRole === "admin"
-        ? "https://jumatberkah.vercel.app/admin/admin.html"
-        : "https://jumatberkah.vercel.app/";
-
-    window.location.href = redirectUrl;
-
-    window.history.replaceState({}, document.title, window.location.pathname); // Hapus token dari URL
-  }
-
+  // Fungsi decode JWT
   function decodeJwt(token) {
     try {
       const base64Url = token.split(".")[1];
@@ -76,15 +39,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function hideLoading() {
-    Swal.close();
+  // Google Login
+  const googleLoginButton = document.getElementById("googleLoginButton");
+  if (googleLoginButton) {
+    googleLoginButton.addEventListener("click", () => {
+      window.location.href =
+        "https://backend-berkah.onrender.com/auth/google/login";
+    });
+  } else {
+    console.error("Tombol Google Login tidak ditemukan!");
   }
 
+  // Tangani token dari URL setelah redirect dari Google atau login biasa
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+
+  if (token) {
+    localStorage.setItem("jwtToken", token);
+
+    const decodedToken = decodeJwt(token);
+    let userRole = null;
+    if (decodedToken) {
+      userRole = decodedToken.role;
+    } else {
+      console.error("Token tidak valid atau tidak memiliki informasi role.");
+      window.location.href = "/login.html"; // Redirect ke halaman login jika token tidak valid
+      return;
+    }
+
+    const redirectUrl =
+      userRole === "admin"
+        ? "https://jumatberkah.vercel.app/admin/admin.html"
+        : "https://jumatberkah.vercel.app/";
+
+    window.location.href = redirectUrl;
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Permintaan ke backend setelah login (contoh)
+    fetch("https://backend-berkah.onrender.com/api/protected", {
+      // Ganti dengan endpoint Anda
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data protected.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Data protected:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+  // Login Form
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      // ... (kode untuk mengambil email dan password dari form)
+      const email = document.getElementById("email").value; // Pastikan ID ini benar
+      const password = document.getElementById("password").value; // Pastikan ID ini benar
 
       try {
         showLoading("Memproses Login...");
@@ -109,9 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const data = await response.json();
 
-        // Simpan token di localStorage
         localStorage.setItem("jwtToken", data.token);
-        localStorage.setItem("userRole", data.user.role); // Simpan role juga
+        localStorage.setItem("userRole", data.user.role);
 
         hideLoading();
 
@@ -130,7 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = redirectUrl;
         });
       } catch (error) {
-        // ... (kode error handling)
+        console.error("Error during login:", error); // Tambahkan pesan error yang lebih spesifik
+        hideLoading();
+        Swal.fire({
+          icon: "error",
+          title: "Login Gagal",
+          text: error.message,
+        });
       }
     });
   } else {
@@ -144,16 +169,16 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "reset_form.html";
     });
   } else {
-    console.error("Elemen forgot-password-link tidak ditemukan!");
+    console.error("Elemen forgotPasswordLink tidak ditemukan!");
   }
 
-  // Forgot Password Form Submit (disatukan di sini)
   if (forgotForm) {
     forgotForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const email = document.getElementById("email-input").value;
 
       try {
+        showLoading("Memproses...");
         const response = await fetch(
           "https://backend-berkah.onrender.com/forgotpassword",
           {
@@ -172,15 +197,18 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
+        hideLoading();
         Swal.fire({
           icon: "success",
           title: "Permintaan reset password berhasil dikirim.",
           text: "Silakan periksa email Anda untuk instruksi lebih lanjut.",
           confirmButtonText: "OK",
         }).then(() => {
-          window.location.href = "login.html"; // Redirect ke halaman login setelah sukses
+          window.location.href = "login.html";
         });
       } catch (error) {
+        console.error("Error during forgot password request:", error);
+        hideLoading();
         Swal.fire({
           icon: "error",
           title: "Gagal",
@@ -191,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("Elemen forgotForm tidak ditemukan!");
   }
-
   // Registrasi
   if (signupForm) {
     signupForm.addEventListener("submit", async (event) => {
