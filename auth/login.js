@@ -26,12 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Tombol Google Login tidak ditemukan!");
   }
 
-  // Handle Redirect and Token from URL
+  // Tangani Redirect dan Token dari URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
 
   if (token) {
     localStorage.setItem("jwtToken", token); // Simpan token di localStorage
+
     // Redirect atau lakukan tindakan lain setelah login Google berhasil
     const userRole = localStorage.getItem("userRole"); // Ambil role dari localStorage (setelah login biasa)
     const redirectUrl =
