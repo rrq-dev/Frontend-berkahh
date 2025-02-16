@@ -1,12 +1,12 @@
 :root {
-  --primary-color: #2658f2;
-  --secondary-color: #d287f8;
-  --accent-color: var(--secondary-color);
-  --text-color: #02091a;
-  --background-color: #ecf1fe;
+  --primary-color: var(--primary, #2f7f33);
+  --secondary-color: var(--secondary, #8ee393);
+  --accent-color: var(--accent, #68e46e);
+  --text-color: var(--text, #0c190d);
+  --background-color: var(--background, #fbfdfb);
   --card-background: #ffffff;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --hover-shadow: rgba(0, 0, 0, 0.15);
+  --shadow-color: rgba(12, 25, 13, 0.1);
+  --hover-shadow: rgba(12, 25, 13, 0.15);
   --transition-speed: 0.2s;
 }
 
@@ -89,6 +89,7 @@ body {
 
 .navbar-button:hover {
   background-color: var(--secondary-color);
+  color: var(--text-color);
   transform: translateY(-2px);
 }
 
@@ -113,8 +114,35 @@ body {
 }
 
 .welcome-section p {
-  color: #666;
+  color: var(--text-color);
   font-size: 1.1rem;
+}
+
+CSS
+
+/* Style untuk menampilkan waktu sholat */
+#waktu-sholat-container {
+  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text); /* Menggunakan variabel --text untuk warna teks */
+}
+
+#waktu-sholat-container span {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+/* Style untuk pengingat (misalnya, notifikasi pop-up) */
+.pengingat-sholat {
+  /* Style sesuai keinginan Anda */
+  background-color: var(--accent); /* Warna aksen sebagai latar belakang */
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
 }
 
 /* Search Styles */
@@ -136,7 +164,8 @@ body {
 .search-icon {
   position: absolute;
   left: 1.2rem;
-  color: #666;
+  color: var(--text-color);
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -149,10 +178,11 @@ body {
   outline: none;
   transition: all var(--transition-speed) ease;
   background-color: white;
+  color: var(--text-color);
 }
 
 #search-bar:focus {
-  box-shadow: 0 0 0 3px rgba(38, 88, 242, 0.2);
+  box-shadow: 0 0 0 3px rgba(47, 127, 51, 0.2);
   border-color: var(--secondary-color);
 }
 
@@ -169,6 +199,7 @@ body {
 
 #search-button:hover {
   background-color: var(--secondary-color);
+  color: var(--text-color);
   transform: translateY(-2px);
 }
 
@@ -193,7 +224,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%; /* Ensure all cards have the same height */
+  height: 100%;
 }
 
 .masjid-item::before {
@@ -232,7 +263,7 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 0.8rem;
-  color: #555;
+  color: var(--text-color);
   font-size: 1rem;
 }
 
@@ -243,7 +274,7 @@ body {
 
 /* Highlight style for search results */
 .highlight {
-  background-color: var(--accent-color); /* Using accent color variable */
+  background-color: var(--accent-color);
   padding: 0 4px;
   border-radius: 4px;
   color: var(--text-color);
@@ -258,8 +289,8 @@ body {
   width: 90%;
   max-width: 600px;
   height: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: none; /* Modal awalnya disembunyikan */
+  background-color: rgba(12, 25, 13, 0.5);
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 1001;
@@ -283,7 +314,7 @@ body {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: var(--text-color);
 }
 
 /* Footer */
@@ -319,56 +350,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0.6rem 0;
-  }
-
-  .navbar .container {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .nav-links {
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-    padding: 0.5rem 0;
-  }
-
-  .welcome-section h1 {
-    font-size: 2rem;
-  }
-
-  .masjid-grid {
-    grid-template-columns: 1fr;
-    padding: 1rem 0.5rem;
-  }
-
-  .search-container {
-    padding: 0 1rem;
-  }
-
-  .footer .container {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .social-links {
-    justify-content: center;
-  }
-}
-
-/* Performance Optimizations - Apply hardware acceleration hints */
-.navbar,
-.masjid-item, /* Renamed from .masjid-card to .masjid-item to match your HTML/JS */
-.navbar-button /* Renamed from .detail-btn to .navbar-button to match your HTML/JS, and because .detail-btn was not used */ {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
 /* View Details Button Styles */
 .view-details-button {
   background-color: var(--primary-color);
@@ -388,49 +369,28 @@ body {
 
 .view-details-button:hover {
   background-color: var(--secondary-color);
+  color: var(--text-color);
 }
 
 .view-details-button i {
   margin-right: 0.3rem;
 }
 
-/* Style untuk kontainer peta */
-.details-map-container {
-  width: 100%; /* Lebar peta */
-  height: 300px; /* Tinggi peta */
-  margin-bottom: 1rem; /* Margin bawah peta */
-}
-
-.details-map-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Accessibility Improvements - Focus styles for interactive elements */
-.navbar-button:focus,
-#search-bar:focus {
-  /* Removed .detail-btn as it's not used/needed, added focus to navbar-button which is interactive */
-  outline: 3px solid rgba(38, 88, 242, 0.4);
-  outline-offset: 2px;
-}
-
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background-color: #1a1a1a;
-    --card-background: #2d2d2d;
+    --background-color: #0c190d;
+    --card-background: #1a2b1b;
     --text-color: #ffffff;
     --shadow-color: rgba(0, 0, 0, 0.3);
   }
 
   #search-bar {
-    background-color: #2d2d2d;
+    background-color: #1a2b1b;
     color: white;
   }
 
-  .masjid-info p {
-    /* .masjid-info is not used, consider renaming/removing if not intended */
+  .masjid-content p {
     color: #ddd;
   }
 }
