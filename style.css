@@ -149,6 +149,16 @@ CSS
   font-family: "Poppins", sans-serif;
   font-weight: bold; /* Membuat teks menjadi tebal */
 }
+.pengingat-sholat-id {
+  background-color: var(--accent);
+  color: white;
+  padding: 10px; /* Padding dikurangi sedikit agar tidak terlalu besar di atas */
+  border-radius: 10px;
+  margin-bottom: 15px; /* Margin bawah untuk memisahkan dari waktu sholat */
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: bold; /* Membuat teks menjadi tebal */
+}
 
 /* Search Styles */
 .search-container {
