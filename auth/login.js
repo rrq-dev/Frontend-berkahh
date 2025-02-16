@@ -20,6 +20,96 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.close();
   }
 
+  // --- FITUR PENGINGAT WAKTU SHOLAT ---
+  function getWaktuSholat(kodeKota, tanggal) {
+    const apiUrl = `https://api.myquran.com/v2/sholat/jadwal/${kodeKota}/${tanggal}`; // Contoh endpoint, sesuaikan dengan API
+
+    fetch(apiUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.status === "OK") {
+          tampilkanWaktuSholat(data.data.jadwal); // Asumsi struktur data, sesuaikan
+        } else {
+          console.error("Gagal mengambil data waktu sholat:", data);
+          // Optionally handle error display on UI if needed, but not with Swal.fire here as it might interrupt initial page load
+        }
+      })
+      .catch((error) => {
+        console.error("Error saat mengambil data waktu sholat:", error);
+        // Optionally handle error display on UI, but not with Swal.fire here
+      });
+  }
+
+  function tampilkanWaktuSholat(jadwalSholat) {
+    document.getElementById(
+      "waktu-subuh"
+    ).textContent = `Subuh: ${jadwalSholat.Subuh}`; // Sesuaikan nama field Subuh
+    document.getElementById(
+      "waktu-dzuhur"
+    ).textContent = `Dzuhur: ${jadwalSholat.Dzuhur}`; // Sesuaikan nama field Dzuhur
+    document.getElementById(
+      "waktu-ashar"
+    ).textContent = `Ashar: ${jadwalSholat.Ashar}`; // Sesuaikan nama field Ashar
+    document.getElementById(
+      "waktu-maghrib"
+    ).textContent = `Maghrib: ${jadwalSholat.Maghrib}`; // Sesuaikan nama field Maghrib
+    document.getElementById(
+      "waktu-isya"
+    ).textContent = `Isya: ${jadwalSholat.Isya}`; // Sesuaikan nama field Isya
+
+    alertPengingatSholat(jadwalSholat);
+  }
+
+  function alertPengingatSholat(jadwalSholat) {
+    const sekarang = new Date(); // Waktu sekarang
+    const namaWaktuSholat = ["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"];
+    const waktuSholatArray = [
+      jadwalSholat.Subuh,
+      jadwalSholat.Dzuhur,
+      jadwalSholat.Ashar,
+      jadwalSholat.Maghrib,
+      jadwalSholat.Isya,
+    ]; // Sesuaikan nama field
+
+    for (let i = 0; i < namaWaktuSholat.length; i++) {
+      const waktuSholatString = waktuSholatArray[i];
+      if (!waktuSholatString || waktuSholatString === "-") continue; // Skip if time is not available or '-'
+
+      const [jam, menit] = waktuSholatString.split(":");
+      const waktuSholat = new Date();
+      waktuSholat.setHours(parseInt(jam));
+      waktuSholat.setMinutes(parseInt(menit));
+      waktuSholat.setSeconds(0);
+      waktuSholat.setMilliseconds(0); // Ensure milliseconds are also 0 for accurate comparison
+
+      // Jika waktu sholat hari ini sudah lewat, atur untuk besok (opsional)
+      if (waktuSholat < sekarang) {
+        waktuSholat.setDate(sekarang.getDate() + 1); // Atur ke besok
+      }
+
+      const selisihWaktu = waktuSholat - sekarang;
+
+      if (selisihWaktu > 0) {
+        // Only set timeout for future prayer times
+        setTimeout(() => {
+          Swal.fire({
+            title: `Waktunya Sholat ${namaWaktuSholat[i]}!`,
+            text: `Mari tunaikan ibadah sholat ${namaWaktuSholat[i]}.`,
+            icon: "info", // You can change icon: 'success', 'warning', 'error', 'info'
+            timer: 15000, // Alert will close after 15 seconds (optional)
+            timerProgressBar: true, // Show progress bar during timer (optional)
+            showConfirmButton: false, // Hide confirm button (optional, for auto-closing alerts)
+          });
+        }, selisihWaktu);
+      }
+    }
+  }
+
   // // Menangani login dengan Google
   // googleLoginBtn.addEventListener("click", () => {
   //   showLoading("Menghubungkan ke Google...");
