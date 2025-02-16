@@ -123,16 +123,19 @@ CSS
 /* Style untuk menampilkan waktu sholat */
 #waktu-sholat-container {
   background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-  padding: 10px;
-  border-radius: 5px;
+  padding: 20px; /* Padding lebih besar untuk tampilan yang lebih baik */
+  border-radius: 10px; /* Border radius lebih besar */
   text-align: center;
-  margin-bottom: 20px;
+  margin: 20px auto; /* Margin atas bawah dan auto untuk center horizontal */
+  max-width: 500px; /* Lebar maksimum container agar tidak terlalu lebar di layar besar */
   color: var(--text); /* Menggunakan variabel --text untuk warna teks */
+  font-family: "Poppins", sans-serif; /* Menggunakan font Poppins */
 }
 
 #waktu-sholat-container span {
-  display: inline-block;
-  margin: 0 10px;
+  display: block; /* Mengubah menjadi block agar setiap waktu sholat berada di baris baru */
+  margin: 10px 0; /* Margin atas bawah untuk spasi antar waktu sholat */
+  font-size: 1.2em; /* Ukuran font sedikit lebih besar */
 }
 
 /* Style untuk pengingat (misalnya, notifikasi pop-up) */
@@ -140,9 +143,11 @@ CSS
   /* Style sesuai keinginan Anda */
   background-color: var(--accent); /* Warna aksen sebagai latar belakang */
   color: white;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
+  padding: 15px; /* Padding lebih besar */
+  border-radius: 10px; /* Border radius lebih besar */
+  margin-top: 20px;
+  text-align: center; /* Teks di dalam pengingat juga di tengah */
+  font-family: "Poppins", sans-serif; /* Menggunakan font Poppins */
 }
 
 /* Search Styles */
