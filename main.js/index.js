@@ -255,14 +255,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (loginBtn) {
         loginBtn.style.display = "block";
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
       }
       if (profileBtn) {
         profileBtn.style.display = "none";
       }
     }
   }
-
   function logout() {
     Swal.fire({
       title: "Apakah Anda yakin?",
