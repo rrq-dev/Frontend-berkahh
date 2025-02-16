@@ -114,50 +114,9 @@ body {
 }
 
 .welcome-section p {
-  color: var(--text-color);
+  color: var(--primary-color);
   font-size: 1.1rem;
-}
-
-CSS
-
-/* Style untuk menampilkan waktu sholat */
-#waktu-sholat-container {
-  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  margin: 20px auto;
-  max-width: 500px;
-  color: var(--text);
-  font-family: "Poppins", sans-serif;
-}
-
-#waktu-sholat-container span {
-  display: block;
-  margin: 10px 0;
-  font-size: 1.2em;
-}
-
-/* Style untuk pengingat (misalnya, notifikasi pop-up) */
-.pengingat-sholat {
-  background-color: var(--accent);
-  color: white;
-  padding: 10px; /* Padding dikurangi sedikit agar tidak terlalu besar di atas */
-  border-radius: 10px;
-  margin-bottom: 15px; /* Margin bawah untuk memisahkan dari waktu sholat */
-  text-align: center;
-  font-family: "Poppins", sans-serif;
-  font-weight: bold; /* Membuat teks menjadi tebal */
-}
-.pengingat-sholat-id {
-  background-color: var(--accent);
-  color: white;
-  padding: 10px; /* Padding dikurangi sedikit agar tidak terlalu besar di atas */
-  border-radius: 10px;
-  margin-bottom: 15px; /* Margin bawah untuk memisahkan dari waktu sholat */
-  text-align: center;
-  font-family: "Poppins", sans-serif;
-  font-weight: bold; /* Membuat teks menjadi tebal */
+  font-weight: bold;
 }
 
 /* Search Styles */
