@@ -119,6 +119,25 @@ body {
   font-weight: bold;
 }
 
+.address-filter-container {
+  margin-bottom: 15px; /* Spasi di bawah filter alamat */
+  display: flex; /* Agar label dan dropdown sejajar horizontal */
+  align-items: center; /* Vertikal align items di tengah */
+}
+
+.address-filter-container label {
+  margin-right: 10px; /* Spasi antara label dan dropdown */
+  font-weight: bold; /* Label lebih tebal */
+}
+
+#address-filter {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1; /* Agar dropdown mengisi sisa ruang */
+  max-width: 200px; /* Lebar maksimum dropdown */
+}
+
 /* Search Styles */
 .search-container {
   max-width: 800px;
